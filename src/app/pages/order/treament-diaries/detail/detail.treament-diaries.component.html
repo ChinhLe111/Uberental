@@ -1,0 +1,109 @@
+<section class="pt-10 py-5 px-2.5">
+  <div class="max-w-[1140px] mx-auto relative">
+    <button class="absolute top-0 -left-9"
+            (click)="router.navigate([language + '/order',route.snapshot.params.id])">
+      <i class="las la-arrow-left text-3xl text-blue-600"></i>
+    </button>
+    <h2 class="text-2xl font-semibold">Chi tiết nhật ký điều trị</h2>
+  </div>
+</section>
+<section>
+  <div class="bg-gray-100 rounded-md pt-5 pb-10">
+    <div class="flex gap-x-8 justify-center translate-x-6 min-h-[calc(100vh-208px)]"
+         *ngIf="OrdersFacade?.dataTreamentDiaries$| async as dataTreamentDiaries">
+      <div class="w-full max-w-[700px]">
+        <section class="w-full p-5 rounded-md bg-white shadow">
+          <div class="pb-2 col-span-12 text-left border-b-2 border-gray-200 flex justify-between">
+            <p class="font-medium text-black text-lg">Thông tin đơn</p>
+          </div>
+          <div class="flex gap-x-5 space-y-0.5 py-4 border-b-2 border-gray-200">
+            <div class="w-1/2">
+              <div>
+                <label class="text-gray-500">Ngày thực hiện</label><br/>
+                <strong>{{transform(dataTreamentDiaries?.treatmentDate)}}</strong>
+              </div>
+            </div>
+            <div class="w-1/2">
+              <div>
+                <label class="text-gray-500">Số răng điều trị</label><br/>
+                <strong class="w-full break-words">{{dataTreamentDiaries.numbersOfTeeth?.length}}</strong>
+              </div>
+            </div>
+          </div>
+          <div class="flex gap-x-5 space-y-0.5 py-4 border-b-2 border-gray-200">
+            <div class="w-1/2">
+              <div>
+                <label class="text-gray-500">Farmer thực hiện</label><br/>
+                <strong>{{dataTreamentDiaries?.farmerName}}</strong>
+              </div>
+            </div>
+            <div class="w-1/2">
+              <div>
+                <label class="text-gray-500">Răng điều trị</label><br/>
+                <strong class="w-full break-words">{{dataTreamentDiaries?.numbersOfTeeth}}</strong>
+              </div>
+            </div>
+          </div>
+          <div class="flex gap-x-5 space-y-0.5 py-4 border-b-2 border-gray-200">
+            <div class="w-full">
+              <div>
+                <label class="text-gray-500">Nội dung điều trị</label><br/>
+                <p class="font-semibold whitespace-pre-line">{{dataTreamentDiaries?.treatmentContent}}</p>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+      <div class="w-full max-w-[615px]">
+        <section class="w-full p-5 rounded-md bg-white shadow">
+          <div class="pb-2 col-span-12 text-left border-b-2 border-gray-200 flex justify-between">
+            <p class="font-medium text-black text-lg">Ảnh</p>
+          </div>
+          <div class="mt-2">
+            <p class="font-bold">Ảnh trước khi tiến hành</p>
+            <div class="flex gap-4">
+              <a class="glightbox" *ngFor="let item of dataTreamentDiaries?.medrecImgBeforeListUrl"
+                [href]="item?.fileUrl" [attr.data-description]="item?.description">
+                <img class="w-40 h-36 object-cover rounded-xl" [src]="item?.fileUrl">
+              </a>
+            </div>
+          </div>
+          <div class="mt-2">
+            <p class="font-bold">Phim trước khi tiến hành</p>
+            <div class="flex gap-4">
+              <a class="glightbox" *ngFor="let item of dataTreamentDiaries?.medrecFilmBeforeListUrl"
+                [href]="item?.fileUrl" [attr.data-description]="item?.description">
+                <img class="w-40 h-36 object-cover rounded-xl mt-2" [src]="item?.fileUrl">
+              </a>
+            </div>
+          </div>
+          <div class="mt-2">
+            <p class="font-bold">Ảnh sau khi tiến hành</p>
+            <div class="flex gap-4">
+              <a class="glightbox" *ngFor="let item of dataTreamentDiaries?.medrecImgAfterListUrl"
+                [href]="item?.fileUrl" [attr.data-description]="item?.description">
+                <img class="w-40 h-36 object-cover rounded-xl mt-2" [src]="item?.fileUrl">
+              </a>
+            </div>
+          </div>
+          <div class="mt-2">
+            <p class="font-bold">Phim sau khi tiến hành</p>
+            <div class="flex gap-4">
+              <a class="glightbox" *ngFor="let item of dataTreamentDiaries?.medrecFilmAfterListUrl"
+                [href]="item?.fileUrl" [attr.data-description]="item?.description">
+                <img class="w-40 h-36 object-cover rounded-xl mt-2" [src]="item?.fileUrl">
+              </a>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+    <!-- <div class="flex gap-x-8 justify-end mt-8"
+         *ngIf="OrdersFacade?.dataTreamentDiaries$| async as dataTreamentDiaries">
+      <button class="py-2 px-4 bg-gray-300 rounded-md text-xl font-semibold mr-2"
+              (click)="router.navigate(['/order/detail/',route.snapshot.params.id])">Đóng lại
+      </button>
+    </div> -->
+  </div>
+</section>
+

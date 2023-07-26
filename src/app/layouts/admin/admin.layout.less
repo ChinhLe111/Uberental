@@ -1,0 +1,31 @@
+.hamburger {
+  @apply inline-block transition-all duration-300 ease-in-out z-10 cursor-pointer w-5;
+
+  .line {
+    @apply bg-gray-600 block transition-all duration-300 ease-in-out rounded-md ~" h-0.5" ~"my-1.5" ;
+
+    &:nth-child(1),
+    &:nth-child(2) { @apply w-full; }
+    &:nth-child(3) { @apply w-1/2; }
+  }
+
+  &.is-active {
+    @apply -right-12;
+    @media (max-width: 767px) { @apply -right-4; }
+
+    .line {
+      @apply bg-blue-600;
+
+      &:nth-child(1),
+      &:nth-child(3) { @apply w-1/2; }
+      &:nth-child(2) { @apply transform translate-x-0 w-full; }
+      &:nth-child(1) { @apply translate-y-1 ~"translate-x-2.5" rotate-45; }
+      &:nth-child(3) { @apply -translate-y-1 ~"translate-x-2.5" -rotate-45; }
+    }
+  }
+  &:not(.is-active):hover .line {
+    &:nth-child(1) { @apply animate-burger-hover-2; }
+    &:nth-child(2) { @apply animate-burger-hover-4; }
+    &:nth-child(3) { @apply animate-burger-hover-6; }
+  }
+}

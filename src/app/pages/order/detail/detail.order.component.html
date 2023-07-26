@@ -1,0 +1,651 @@
+<section class="h-[calc(100vh-110px)] w-full relative">
+  <div class="overflow-y-auto h-full">
+    <div class="pt-10 py-5 px-2.5 -intro-x">
+      <div *ngIf="OrdersFacade.data$ | async as dataOrder" class="container mx-auto relative">
+        <button (click)="handleBack()" class="absolute top-0 -left-9">
+          <i class="las la-arrow-left text-3xl text-blue-600"></i>
+        </button>
+        <h2 class="text-2xl font-semibold">{{ 'routes.admin.order.Application details' | translate }}</h2>
+        <div class="grid grid-cols-2 lg:grid-cols-3 justify-between mt-5">
+          <div class="flex justify-start mb-4">
+            <p class="font-semibold text-gray-400 w-20">{{ 'routes.admin.order.Status' | translate }}</p>
+            <div
+              [ngClass]="{
+                'bg-amber-500': dataOrder?.statusCode == 'WAIT_FOR_APPROVAL',
+                'bg-sky-500': dataOrder?.statusCode == 'APPROVED',
+                'bg-pink-500': dataOrder?.statusCode == 'ASSIGNED',
+                'bg-cyan-500': dataOrder?.statusCode == 'ACCEPTED',
+                'bg-yellow-400': dataOrder?.statusCode == 'WAIT_CONFIRM',
+                'bg-purple-500': dataOrder?.statusCode == 'WAIT_PAYMENT',
+                'bg-green-600': dataOrder?.statusCode == 'COMPLETED',
+                'bg-red-600': dataOrder?.statusCode == 'REJECTED'
+              }"
+              class="px-2 py-0.5"
+            >
+              <p *ngIf="dataOrder?.statusCode == 'WAIT_FOR_APPROVAL'" class="text-white">
+                {{ 'routes.admin.order.WAIT_FOR_APPROVAL' | translate }}
+              </p>
+              <p *ngIf="dataOrder?.statusCode == 'APPROVED'" class="text-white">
+                {{ 'routes.admin.order.APPROVED' | translate }}
+              </p>
+              <p *ngIf="dataOrder?.statusCode == 'ASSIGNED'" class="text-white">
+                {{ 'routes.admin.order.ASSIGNED' | translate }}
+              </p>
+              <p *ngIf="dataOrder?.statusCode == 'ACCEPTED'" class="text-white">
+                {{ 'routes.admin.order.ACCEPTED' | translate }}
+              </p>
+              <p *ngIf="dataOrder?.statusCode == 'WAIT_CONFIRM'" class="text-white">
+                {{ 'routes.admin.order.WAIT_CONFIRM' | translate }}
+              </p>
+              <p *ngIf="dataOrder?.statusCode == 'WAIT_PAYMENT'" class="text-white">
+                {{ 'routes.admin.order.WAIT_PAYMENT' | translate }}
+              </p>
+              <p *ngIf="dataOrder?.statusCode == 'COMPLETED'" class="text-white">
+                {{ 'routes.admin.order.COMPLETED' | translate }}
+              </p>
+              <p *ngIf="dataOrder?.statusCode == 'REJECTED'" class="text-white">
+                {{ 'routes.admin.order.REJECTED' | translate }}
+              </p>
+            </div>
+          </div>
+          <div class="flex justify-start gap-2 w-60 mb-4">
+            <p class="font-medium text-gray-400 w-28">{{ 'routes.admin.order.Single_code' | translate }}</p>
+            <p class="font-bold">{{ dataOrder?.orderNo }}</p>
+          </div>
+          <div class="flex justify-start w-64 gap-2 mb-4">
+            <p class="font-medium text-gray-400 w-28">{{ 'routes.admin.order.Creator' | translate }}</p>
+            <p class="font-bold">{{ dataOrder?.createdByUserName }}</p>
+          </div>
+          <div class="flex justify-start w-60 mb-4">
+            <p class="font-medium text-gray-400 w-24">{{ 'routes.admin.order.creation_date' | translate }}</p>
+            <p class="font-bold">{{ transform(dataOrder?.createdOnDate) }}</p>
+          </div>
+          <div class="flex justify-start gap-2 w-60 mb-4">
+            <p class="font-medium text-gray-400 w-28">{{ 'routes.admin.order.Last update' | translate }}</p>
+            <p class="font-bold">{{ transform(dataOrder?.lastModifiedOnDate) }}</p>
+          </div>
+          <div
+            *ngIf="dataOrder?.statusCode != 'APPROVED' && dataOrder?.statusCode != 'WAIT_FOR_APPROVAL'"
+            class="flex justify-start gap-2 w-60 mb-4"
+          >
+            <p class="font-medium text-gray-400 w-28">
+              {{ 'routes.admin.order.Date of receipt of application' | translate }}
+            </p>
+            <p class="font-bold">{{ transform(dataOrder?.receivedOnDate) }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <section class="intro-x">
+      <div class="bg-gray-100 rounded-md pt-5 pb-10 scroll">
+        <div
+          *ngIf="OrdersFacade.data$ | async as dataOrder"
+          class="flex flex-col xl:flex-row gap-x-8 justify-center h-full"
+        >
+          <div
+            [ngClass]="{
+              'mx-auto': dataOrder?.statusCode === 'WAIT_FOR_APPROVAL' || dataOrder?.statusCode === 'APPROVED'
+            }"
+            class="h-full container max-w-[700px] w-auto xl:w-[700px] px-4 xl:px-0"
+          >
+            <section class="w-full p-5 rounded-md bg-white shadow">
+              <div class="pb-2 col-span-12 text-left border-b-2 border-gray-200 flex justify-between">
+                <p class="font-medium text-black text-lg">{{ 'routes.admin.order.Single information' | translate }}</p>
+              </div>
+              <div class="flex gap-x-5 py-4 border-b-2 border-gray-200">
+                <div class="w-1/2">
+                  <label class="text-gray-500">{{ 'routes.admin.order.Implementation_date' | translate }}</label
+                  ><br />
+                  <strong>{{ transform(dataOrder?.implementationDate) }}</strong>
+                </div>
+                <div class="w-1/2">
+                  <label class="text-gray-500">{{ 'routes.admin.order.procedure_group' | translate }}</label
+                  ><br />
+                  <strong>{{ dataOrder?.medicalProcedureGroup?.title }}</strong>
+                </div>
+              </div>
+              <div class="flex gap-x-5 py-4 border-b-2 border-gray-200">
+                <div class="w-1/2">
+                  <label class="text-gray-500">{{ 'routes.admin.order.Implementation_address' | translate }}</label
+                  ><br />
+                  <p
+                    (click)="router.navigate([language + '/clinics/detail', clinicData?.id])"
+                    *ngIf="clinicsFacade.data$ | async as clinicData"
+                    class="font-semibold text-blue-600 pt-1 hover:cursor-pointer"
+                  >
+                    {{ clinicData?.name }}
+                  </p>
+                  <p class="text-black font-normal text-sm">{{ dataOrder?.address }}</p>
+                </div>
+                <div class="w-1/2">
+                  <label class="text-gray-500">{{ 'routes.admin.order.trick_type' | translate }}</label
+                  ><br />
+                  <strong>{{ dataOrder?.medicalProcedure?.name }}</strong>
+                </div>
+              </div>
+              <div class="flex gap-x-5 py-4 border-b-2 border-gray-200">
+                <div class="w-1/2">
+                  <label class="text-gray-500">{{ 'routes.admin.order.Service charge' | translate }}</label
+                  ><br />
+                  <strong>{{ dataOrder?.platformFee?.toLocaleString() }}đ</strong>
+                </div>
+                <div class="w-1/2">
+                  <label class="text-gray-500">{{ 'routes.admin.order.Difficulty classification' | translate }}</label
+                  ><br />
+                  <strong>{{ dataOrder?.medicalRecord?.difficulty?.title }}</strong>
+                </div>
+              </div>
+              <div class="flex gap-x-5 py-4 border-b-2 border-gray-200">
+                <div class="w-1/2">
+                  <label class="text-gray-500">{{ 'routes.admin.order.Commission proposal' | translate }}</label
+                  ><br />
+                  <strong>{{ dataOrder?.medicalProcedure?.baseCommissionAmount?.toLocaleString() }}đ</strong>
+                </div>
+                <div class="w-1/2">
+                  <label class="text-gray-500">{{ 'routes.admin.order.Rush hour surcharge' | translate }}</label
+                  ><br />
+                  <strong>{{ dataOrder?.peakHourFeeAmount?.toLocaleString() }}đ</strong>
+                </div>
+              </div>
+              <div class="flex gap-x-5 py-4">
+                <div class="w-1/2">
+                  <label class="text-gray-500">{{ 'routes.admin.order.Total payment' | translate }}</label
+                  ><br />
+                  <strong>{{ dataOrder?.totalOrderAmount?.toLocaleString() }}đ</strong>
+                </div>
+                <div class="w-1/2">
+                  <label class="text-gray-500">{{ 'routes.admin.order.Actually received' | translate }}</label
+                  ><br />
+                  <strong>{{ dataOrder?.totalFarmerActuallyReceivedAmount?.toLocaleString() }}đ</strong>
+                </div>
+              </div>
+              <div class="mt-6">
+                <div class="pb-2 col-span-12 text-left border-b-2 border-gray-200 flex justify-between">
+                  <p class="font-medium text-black text-lg">
+                    {{ 'routes.admin.order.Customer information' | translate }}
+                  </p>
+                </div>
+                <div class="flex gap-x-5 py-4 border-b-2 border-gray-200">
+                  <div class="w-1/2">
+                    <label class="text-gray-500">{{ 'routes.admin.order.CustomerName' | translate }}</label
+                    ><br />
+                    <div class="flex justify-between gap-1">
+                      <strong class="flex-1">{{ dataOrder?.medicalRecord?.customerName }}</strong>
+                      <div
+                        *ngIf="dataOrder?.medicalRecord?.isChildrenCustomer == false"
+                        class="text-white bg-blue-400 text-13 my-auto text-center px-2 mr-5 w-max h-5"
+                      >
+                        {{ 'routes.admin.order.Adult' | translate }}
+                      </div>
+                      <div
+                        *ngIf="dataOrder?.medicalRecord?.isChildrenCustomer == true"
+                        class="text-white bg-orange-400 text-13 my-auto text-center px-2 mr-5 w-max h-5"
+                      >
+                        {{ 'routes.admin.order.Child' | translate }}
+                      </div>
+                    </div>
+                  </div>
+                  <div class="w-1/2">
+                    <label class="text-gray-500">{{ 'routes.admin.order.Birthday' | translate }}</label
+                    ><br />
+                    <strong>{{ transformBirthDay(dataOrder?.medicalRecord?.birthday) }}</strong>
+                  </div>
+                </div>
+                <div class="flex gap-x-5 py-4 border-b-2 border-gray-200">
+                  <div class="w-1/2">
+                    <label class="text-gray-500">{{ 'routes.admin.order.Gender' | translate }}</label
+                    ><br />
+                    <strong *ngIf="dataOrder?.medicalRecord?.gender == 'MALE'">{{
+                      'routes.admin.order.Male' | translate
+                    }}</strong>
+                    <strong *ngIf="dataOrder?.medicalRecord?.gender == 'FEMALE'">{{
+                      'routes.admin.order.Female' | translate
+                    }}</strong>
+                  </div>
+                  <div class="w-1/2">
+                    <label class="text-gray-500">{{ 'routes.admin.order.Number of teeth' | translate }}</label
+                    ><br />
+                    <strong *ngFor="let item of dataOrder?.medicalRecord?.numbersOfTeeth; let i = index">
+                      {{ item }}<span *ngIf="dataOrder.medicalRecord.numbersOfTeeth.length - 1 > i">,</span>
+                    </strong>
+                  </div>
+                </div>
+                <div class="flex gap-x-5 py-4 border-b-2 border-gray-200">
+                  <div class="w-1/2">
+                    <label class="text-gray-500">{{ 'routes.admin.order.Detailed content' | translate }}</label
+                    ><br />
+                    <p
+                      #description
+                      [nzTooltipColor]="'rgba(0, 150, 255, 0.8)'"
+                      [nzTooltipTrigger]="description.offsetWidth < description.scrollWidth ? 'hover' : null"
+                      class="truncate font-bold max-w-[320px]"
+                      nz-tooltip="{{ dataOrder?.medicalRecord?.description }}"
+                    >
+                      {{ dataOrder?.medicalRecord?.description }}
+                    </p>
+                  </div>
+                  <div class="w-1/2">
+                    <label class="text-gray-500">{{ 'routes.admin.order.Medical condition' | translate }}</label
+                    ><br />
+                    <p
+                      [nzTooltipColor]="'rgba(0, 150, 255, 0.8)'"
+                      [nzTooltipTrigger]="description.offsetWidth < description.scrollWidth ? 'hover' : null"
+                      class="truncate font-bold pr-10"
+                      nz-tooltip="{{ dataOrder?.medicalRecord?.patientCondition }}"
+                    >
+                      {{ dataOrder?.medicalRecord?.patientCondition }}
+                    </p>
+                  </div>
+                </div>
+                <div class="flex gap-x-5 py-4">
+                  <div class="w-1/2">
+                    <label class="text-gray-500">{{ 'routes.admin.order.Medical history' | translate }}</label
+                    ><br />
+                    <p
+                      [nzTooltipColor]="'rgba(0, 150, 255, 0.8)'"
+                      [nzTooltipTrigger]="description.offsetWidth < description.scrollWidth ? 'hover' : null"
+                      class="truncate font-bold pr-10"
+                      nz-tooltip="{{ dataOrder?.medicalRecord?.medicalHistory }}"
+                    >
+                      {{ dataOrder?.medicalRecord?.medicalHistory }}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </section>
+            <section *ngIf="OrdersFacade.data$ | async as dataOrder" class="mt-5 w-full p-5 rounded-md bg-white shadow">
+              <p class="font-medium text-black text-lg pb-2 col-span-12 text-left border-b-2 border-gray-300">
+                {{ 'routes.admin.order.Image' | translate }}
+              </p>
+              <div class="mt-5 space-y-5">
+                <p class="font-medium text-black text-base pb-2">
+                  {{ 'routes.admin.order.Photo of dental arch' | translate }}
+                </p>
+                <div class="flex flex-wrap space-x-3">
+                  <ng-container>
+                    <a
+                      *ngIf="dataOrder?.medicalRecord?.isChildrenCustomer == false"
+                      class="glightbox w-1/4 shadow rounded-md"
+                      href="./assets/images/image-adult.png"
+                    >
+                      <img
+                        alt=""
+                        class="w-full aspect-square rounded-xl object-cover h-24"
+                        src="./assets/images/image-adult.png"
+                      />
+                    </a>
+                    <a
+                      *ngIf="dataOrder?.medicalRecord?.isChildrenCustomer == true"
+                      class="glightbox w-1/4 shadow rounded-md"
+                      href="./assets/images/image-adult.png"
+                    >
+                      <img
+                        alt=""
+                        class="w-full aspect-square rounded-xl object-cover h-24"
+                        src="./assets/images/image-children.jpg"
+                      />
+                    </a>
+                  </ng-container>
+                </div>
+              </div>
+              <div class="mt-5 space-y-5">
+                <p class="font-medium text-black text-base pb-2">
+                  {{ 'routes.admin.order.Photo before proceeding' | translate }}
+                </p>
+                <div class="flex flex-wrap gap-3">
+                  <ng-container>
+                    <a
+                      *ngFor="let item of dataOrder?.medicalRecord?.medrecImgBeforeListUrl"
+                      [attr.data-description]="item?.description"
+                      [href]="item?.fileUrl"
+                      class="glightbox w-1/4 shadow rounded-md"
+                    >
+                      <img
+                        [alt]="item?.docType"
+                        [src]="item?.fileUrl"
+                        class="w-full aspect-square rounded-xl object-cover h-24"
+                      />
+                    </a>
+                  </ng-container>
+                </div>
+              </div>
+              <div class="mt-5 space-y-5">
+                <p class="font-medium text-black text-base pb-2">
+                  {{ 'routes.admin.order.Film before proceeding' | translate }}
+                </p>
+                <div class="flex flex-wrap gap-3">
+                  <ng-container>
+                    <a
+                      *ngFor="let item of dataOrder?.medicalRecord?.medrecFilmBeforeListUrl"
+                      [href]="item?.fileUrl"
+                      class="glightbox w-1/4 shadow rounded-md"
+                    >
+                      <img
+                        [alt]="item?.docType"
+                        [src]="item?.fileUrl"
+                        class="w-full aspect-square rounded-xl object-cover h-24"
+                      />
+                    </a>
+                  </ng-container>
+                </div>
+              </div>
+            </section>
+            <section
+              class="mx-auto xl:max-w-[700px] px-4 xl:px-0 bg-white hidden xl:block sticky bottom-0 rounded-md z-30 shadow"
+            >
+              <div *ngIf="OrdersFacade?.data$ | async as dataOrder" class="flex gap-x-5 justify-end mt-2 p-5 w-full">
+                <g-modal-form
+                  (clickCancel)="handleCancelModal()"
+                  (clickOk)="handleOkModal($event)"
+                  [columns]="columnsCancel"
+                  [title]="'Nhập lí do'"
+                  [visible]="isVisibleCancel"
+                  [widthLabel]="0"
+                  [width]="600"
+                >
+                </g-modal-form>
+                <button
+                  (click)="handleShowRejectOrder(dataOrder.id)"
+                  *ngIf="dataOrder?.statusCode == 'WAIT_FOR_APPROVAL' || dataOrder?.statusCode == 'APPROVED'"
+                  class="py-1.5 px-4 bg-red-600 rounded-md text-sm font-semibold text-white"
+                >
+                  {{ 'routes.admin.order.REJECTED' | translate }}
+                </button>
+                <button
+                  (click)="OrdersFacade.postApproveOrder(dataOrder.id)"
+                  *ngIf="dataOrder?.statusCode == 'WAIT_FOR_APPROVAL' || dataOrder?.statusCode == 'REJECTED'"
+                  class="py-1.5 px-4 bg-blue-600 rounded-md text-sm font-semibold text-white"
+                >
+                  {{ 'routes.admin.order.Browse' | translate }}
+                </button>
+                <button
+                  (click)="OrdersFacade.postDistributionOrder(dataOrder.id)"
+                  *ngIf="dataOrder?.statusCode == 'APPROVED'"
+                  class="py-1.5 px-4 bg-blue-600 rounded-md text-sm font-semibold text-white"
+                >
+                  {{ 'routes.admin.order.Distribution' | translate }}
+                </button>
+                <button (click)="handleBack()" class="py-1.5 px-4 bg-gray-300 rounded-md text-sm font-semibold mr-2">
+                  {{ 'routes.admin.order.Close' | translate }}
+                </button>
+              </div>
+            </section>
+          </div>
+          <div
+            *ngIf="
+              dataOrder?.statusCode != 'WAIT_FOR_APPROVAL' &&
+              dataOrder?.statusCode != 'APPROVED' &&
+              dataOrder?.statusCode != 'REJECTED'
+            "
+            class="mt-8 container xl:mt-0 px-4 xl:px-0 max-w-[685px] w-auto xl:w-[685px] h-full"
+          >
+            <div>
+              <section class="w-full flex justify-end items-center">
+                <div class="w-[228px]">
+                  <button
+                    (click)="router.navigate([language + '/order', dataOrder?.id, 'claims'])"
+                    *ngIf="
+                      dataOrder?.statusCode == 'ACCEPTED' ||
+                      dataOrder?.statusCode == 'WAIT_CONFIRM' ||
+                      dataOrder?.statusCode == 'WAIT_PAYMENT' ||
+                      dataOrder?.statusCode == 'COMPLETED'
+                    "
+                    class="w-full text-white text-sm font-semibold hover:cursor-pointer flex justify-around items-center rounded-md shadow h-8 bg-blue-500 mb-4 hover:opacity-80"
+                  >
+                    {{ 'routes.admin.order.Service error content' | translate }}
+                    <i class="las la-angle-right text-xs"></i>
+                  </button>
+                  <button
+                    (click)="router.navigate([language + '/order', dataOrder?.id, 'paymentContent'])"
+                    *ngIf="
+                      dataOrder?.statusCode == 'WAIT_PAYMENT' ||
+                      dataOrder?.statusCode == 'COMPLETED' ||
+                      dataOrder?.statusCode == 'ACCEPTED'
+                    "
+                    class="w-full text-white text-sm font-semibold hover:cursor-pointer flex justify-around items-center rounded-md shadow h-8 bg-green-500 mb-4 hover:opacity-80"
+                  >
+                    {{ 'routes.admin.order.Content billing' | translate }}
+                    <i class="las la-angle-right text-xs"></i>
+                  </button>
+                </div>
+              </section>
+              <section class="w-full py-5 pl-5 pr-10 rounded-md bg-white shadow">
+                <div class="pb-2 col-span-12 text-left border-b-2 border-gray-200 flex justify-between">
+                  <p class="font-medium text-black text-lg">
+                    {{ 'routes.admin.order.Farmer Information' | translate }}
+                  </p>
+                </div>
+                <div *ngIf="profileFarmerFacade?.data$ | async as dataFarmer" class="space-y-0.5 py-4">
+                  <div class="flex gap-x-4 w-full">
+                    <div class="w-1/2">
+                      <img
+                        [src]="dataFarmer?.farmerAvatarUrl?.fileUrl"
+                        class="border rounded-full object-cover w-44 h-44 mx-auto"
+                      />
+                      <h1 class="mx-auto text-center mt-4 text-xl font-semibold">{{ dataFarmer?.name }}</h1>
+                      <h1 class="mx-auto text-center text-gray-400">{{ dataFarmer?.medicalDegree?.title }}</h1>
+                    </div>
+                    <div class="w-1/2">
+                      <h2 class="mt-2 text-black font-semibold">
+                        {{ 'routes.admin.order.Citizen ID photo' | translate }}
+                      </h2>
+                      <div class="grid grid-cols-2 gap-4 mt-1">
+                        <a
+                          *ngFor="let item of dataFarmer?.farmerNationalIdListImage"
+                          [attr.data-description]="item?.description"
+                          [href]="item?.fileUrl"
+                          class="glightbox"
+                        >
+                          <img [src]="item?.fileUrl" class="w-32 h-20 object-cover rounded-lg shadow" />
+                        </a>
+                      </div>
+                      <h2 class="mt-4 text-black font-semibold">{{ 'routes.admin.order.Degree photo' | translate }}</h2>
+                      <div class="grid grid-cols-2 gap-4 mt-1">
+                        <a
+                          *ngFor="let item of dataFarmer?.farmerDegreeListImage"
+                          [attr.data-description]="item?.description"
+                          [href]="item?.fileUrl"
+                          class="glightbox"
+                        >
+                          <img [src]="item?.fileUrl" class="w-32 h-20 object-cover rounded-lg shadow" />
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="mt-6">
+                    <div class="flex gap-x-5 space-y-0.5 py-4">
+                      <div class="w-1/2">
+                        <h4 class="text-gray-500">{{ 'routes.admin.order.Username' | translate }}</h4>
+                        <strong>{{ dataFarmer?.createdByUserName }}</strong>
+                      </div>
+                      <div class="w-1/2">
+                        <h4 class="text-gray-500">{{ 'routes.admin.order.Gender' | translate }}</h4>
+                        <strong *ngIf="dataFarmer?.gender == 'MALE'">{{
+                          'routes.admin.order.Male' | translate
+                        }}</strong>
+                        <strong *ngIf="dataFarmer?.gender == 'FEMALE'">{{
+                          'routes.admin.order.Female' | translate
+                        }}</strong>
+                      </div>
+                    </div>
+                    <div class="flex gap-x-5 space-y-0.5 py-4">
+                      <div class="w-1/2">
+                        <h4 class="text-gray-500">{{ 'routes.admin.order.Address' | translate }}</h4>
+                        <strong>{{
+                          dataFarmer?.address +
+                            ', ' +
+                            dataFarmer?.commune?.communeName +
+                            ', ' +
+                            dataFarmer?.district?.districtName +
+                            ', ' +
+                            dataFarmer?.province?.tenTinh
+                        }}</strong>
+                      </div>
+                      <div class="w-1/2">
+                        <h4 class="text-gray-500">{{ 'routes.admin.order.total_year_of_experience' | translate }}</h4>
+                        <strong>{{ dataFarmer?.totalYearOfExperience }}</strong>
+                      </div>
+                    </div>
+                    <div class="flex gap-x-5 space-y-0.5 py-4">
+                      <div class="w-1/2">
+                        <h4 class="text-gray-500">{{ 'routes.admin.order.Introduce' | translate }}</h4>
+                        <strong
+                          [nzTooltipColor]="'blue'"
+                          class="whitespace-pre-line max-w-[276px]"
+                          nz-tooltip="{{ dataFarmer?.workingProcessDescription }}"
+                        >
+                          {{ dataFarmer?.workingProcessDescription }}
+                        </strong>
+                      </div>
+                      <div class="w-1/2">
+                        <h4 class="text-gray-500">{{ 'routes.admin.order.register_tips' | translate }}</h4>
+                        <ul>
+                          <li *ngFor="let i of dataFarmer?.medicalProcedure" class="list-disc list-inside ml-2">
+                            <strong>{{ i?.name }}</strong>
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </section>
+              <section class="w-full p-4 mt-5 rounded-md bg-white">
+                <p class="font-medium text-black text-lg pb-2 col-span-12 text-left border-b-2 border-gray-300">
+                  {{ 'routes.admin.order.Negotiation diary' | translate }}
+                </p>
+                <table
+                  *ngIf="OrdersFacade.dataProposal$ | async as dataProposal"
+                  class="table-auto w-full rounded-t-md mt-5"
+                >
+                  <thead class="bg-blue-600 text-white rounded-t-md h-10 text-sm">
+                    <tr>
+                      <th class="px-2 w-32 py-4 rounded-tl-md font-medium">
+                        {{ 'routes.admin.order.Suggested date and time' | translate }}
+                      </th>
+                      <th class="px-2 py-4 font-medium">{{ 'routes.admin.order.Proposal commission' | translate }}</th>
+                      <th class="px-2 py-4 w-16 font-medium">
+                        {{ 'routes.admin.order.Level of difficult' | translate }}
+                      </th>
+                      <th class="px-2 py-4 font-medium">{{ 'routes.admin.order.Recommended reason' | translate }}</th>
+                      <th class="px-2 py-4 rounded-tr-md font-medium">
+                        {{ 'routes.admin.order.Feedback Oderside' | translate }}
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody class="text-center font-semibold text-black">
+                    <tr
+                      (click)="router.navigate([language + '/order', dataOrder?.id, 'proposal', i?.id])"
+                      *ngFor="let i of dataProposal"
+                      class="h-8 hover:bg-gray-200 hover:cursor-pointer"
+                    >
+                      <td>{{ moment(i?.newTreatmentDate).utc().format('DD/MM/YYYY - HH:mm') }}</td>
+                      <td>{{ i?.newCommissionAmount?.toLocaleString() }}đ</td>
+                      <td>{{ i?.newDifficulty?.title }}</td>
+                      <td>
+                        <p
+                          #description
+                          [nzTooltipColor]="'rgba(0, 150, 255, 0.8)'"
+                          [nzTooltipTrigger]="description.offsetWidth < description.scrollWidth ? 'hover' : null"
+                          class="truncate w-24"
+                          nz-tooltip="{{ i?.note }}"
+                        >
+                          {{ i?.note }}
+                        </p>
+                      </td>
+                      <td *ngIf="i?.isAccepted == true" class="text-blue-500">
+                        {{ 'routes.admin.order.Agree' | translate }}
+                      </td>
+                      <td *ngIf="i?.isAccepted == false" class="text-red-500">
+                        {{ 'routes.admin.order.REJECTED' | translate }}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </section>
+              <section *ngIf="dataOrder?.statusCode != 'ASSIGNED'" class="w-full p-4 mt-5 rounded-md bg-white">
+                <p class="font-medium text-black text-lg pb-2 col-span-12 text-left border-b-2 border-gray-300">
+                  {{ 'routes.admin.order.Implementation log' | translate }}
+                </p>
+                <div class="max-w-full overflow-y-auto mt-2">
+                  <g-datatable
+                    #tableTreamentDiaries
+                    (ngChange)="OrdersFacade.getListTreamentDiaries(this.route.snapshot.params.id, $event)"
+                    [columns]="columnsTableDiaries"
+                    [data]="(OrdersFacade.paginationTreamentDiaries$ | async)?.content"
+                    [loading]="OrdersFacade.isLoading$ | async"
+                    [pageSizeOptions]="[5]"
+                    [showSearch]="false"
+                    [size]="5"
+                    [total]="(OrdersFacade.paginationTreamentDiaries$ | async)?.totalElements"
+                  >
+                    <ng-template #treatmentDate let-data>
+                      <p
+                        #treatmentDate
+                        (click)="router.navigate([language + '/order', dataOrder?.id, 'treamentDiaries', data.id])"
+                        class="text-blue-800 hover:text-blue-600 font-medium truncate cursor-pointer text-sm"
+                        nz-tooltip
+                      >
+                        {{ transformDayTime(data.treatmentDate) }}
+                      </p>
+                    </ng-template>
+                    <ng-template #NumbersOfTeeth let-data>
+                      <strong class="mx-auto w-5 text-sm">{{ data.numbersOfTeeth.length }}</strong>
+                    </ng-template>
+                  </g-datatable>
+                </div>
+              </section>
+            </div>
+            <section
+              class="mx-auto xl:max-w-[700px] px-4 xl:px-0 bg-white sticky xl:hidden bottom-0 rounded-md z-30 shadow"
+            >
+              <div *ngIf="OrdersFacade?.data$ | async as dataOrder" class="flex gap-x-5 justify-end mt-2 p-5 w-full">
+                <g-modal-form
+                  (clickCancel)="handleCancelModal()"
+                  (clickOk)="handleOkModal($event)"
+                  [columns]="columnsCancel"
+                  [title]="'Nhập lí do'"
+                  [visible]="isVisibleCancel"
+                  [widthLabel]="0"
+                  [width]="600"
+                >
+                </g-modal-form>
+                <button
+                  (click)="handleShowRejectOrder(dataOrder.id)"
+                  *ngIf="dataOrder?.statusCode == 'WAIT_FOR_APPROVAL' || dataOrder?.statusCode == 'APPROVED'"
+                  class="py-1.5 px-4 bg-red-600 rounded-md text-sm font-semibold text-white"
+                >
+                  {{ 'routes.admin.order.REJECTED' | translate }}
+                </button>
+                <button
+                  (click)="OrdersFacade.postApproveOrder(dataOrder.id)"
+                  *ngIf="dataOrder?.statusCode == 'WAIT_FOR_APPROVAL' || dataOrder?.statusCode == 'REJECTED'"
+                  class="py-1.5 px-4 bg-blue-600 rounded-md text-sm font-semibold text-white"
+                >
+                  {{ 'routes.admin.order.Browse' | translate }}
+                </button>
+                <button
+                  (click)="OrdersFacade.postDistributionOrder(dataOrder.id)"
+                  *ngIf="dataOrder?.statusCode == 'APPROVED'"
+                  class="py-1.5 px-4 bg-blue-600 rounded-md text-sm font-semibold text-white"
+                >
+                  {{ 'routes.admin.order.Distribution' | translate }}
+                </button>
+                <button (click)="handleBack()" class="py-1.5 px-4 bg-gray-300 rounded-md text-sm font-semibold mr-2">
+                  {{ 'routes.admin.order.Close' | translate }}
+                </button>
+              </div>
+            </section>
+          </div>
+          <div *ngIf="dataOrder?.statusCode == 'REJECTED'" class="w-[40%] h-full">
+            <section class="w-full p-4 rounded-md bg-white">
+              <p class="font-medium text-black text-lg pb-2 col-span-12 text-left border-b-2 border-gray-300">
+                {{ 'routes.admin.order.Reason for rejection' | translate }}
+              </p>
+              <p class="font-medium text-black text-sm text-left mt-4">{{ dataOrder?.note }}</p>
+            </section>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</section>

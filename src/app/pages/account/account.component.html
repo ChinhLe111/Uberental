@@ -1,0 +1,135 @@
+<section class="mx-3">
+  <div class="bg-white container mx-auto -intro-x">
+    <div class="w-full flex justify-between pt-8">
+      <h2 class="text-2xl font-medium">
+        {{
+          (isCustomer ? 'routes.admin.user.listCustomerAccounts' : 'routes.admin.user.listInternalAccounts') | translate
+        }}
+      </h2>
+      <g-button
+        [icon]="'las la-plus'"
+        [text]="'routes.admin.Layout.addNew' | translate"
+        (click)="isCustomer ? router.navigate([language + '/customer-account/add']) : router.navigate([language + '/internal-account/add'])"
+      ></g-button>
+    </div>
+
+    <div class="flex flex-row items-center space-x-3 my-5">
+      <div class="space-y-1">
+        <div class="flex flex-col items-start">
+          <nz-form-label class="font-medium">{{ 'components.data-table.search' | translate }}</nz-form-label>
+          <nz-form-control>
+            <div class="relative">
+              <input
+                class="w-60 ant-input rounded-md text-gray-700 bg-white border border-solid border-gray-200 pr-9 pl-4 outline-blue-400"
+                [(ngModel)]="tableAccount.search"
+                (change)="tableAccount.searchFull()"
+                type="text"
+                placeholder="{{ 'routes.admin.user.search' | translate }}"
+              />
+              <i class="text-lg las la-search absolute top-1/2 -translate-y-1/2 right-2 z-[1]"></i>
+            </div>
+          </nz-form-control>
+        </div>
+      </div>
+      <div class="space-y-1">
+        <div class="flex flex-col items-start">
+          <nz-form-label class="font-medium">{{ 'routes.admin.user.date' | translate }}</nz-form-label>
+          <nz-range-picker
+            class="w-32"
+            nzAllowClear
+            [nzPlaceHolder]="['routes.admin.user.dateStart' | translate, 'routes.admin.user.dateEnd' | translate]"
+            [(ngModel)]="tableAccount.paramTable.filter.DateRange"
+            (ngModelChange)="filteDateRange($event)"
+          ></nz-range-picker>
+        </div>
+      </div>
+      <div class="space-y-1">
+        <div class="flex flex-col items-start">
+          <nz-form-label class="font-medium">{{ 'routes.admin.user.role' | translate }}</nz-form-label>
+          <nz-select
+            class="w-36"
+            nzAllowClear
+            nzShowSearch
+            nzPlaceHolder="{{ 'routes.admin.user.choose' | translate }}"
+            [(ngModel)]="tableAccount.paramTable.filter.RoleCode"
+            (ngModelChange)="tableAccount.filter('RoleCode', null, $event)"
+          >
+            <nz-option
+              *ngFor="let role of (isCustomer ? roleFacade.rolesCustomer$ : roleFacade.rolesInternal$) | async"
+              [nzValue]="role.value"
+              [nzLabel]="role.label"
+            ></nz-option>
+          </nz-select>
+        </div>
+      </div>
+
+      <ng-container *ngIf="isCustomer" class="space-y-1">
+        <div class="flex flex-col items-start">
+          <nz-form-label class="font-medium">{{ 'routes.admin.user.status' | translate }}</nz-form-label>
+          <nz-select
+            class="w-36"
+            nzAllowClear
+            nzShowSearch
+            nzPlaceHolder="{{ 'routes.admin.user.choose' | translate }}"
+            [(ngModel)]="tableAccount.paramTable.filter.IsEmailVerified"
+            (ngModelChange)="tableAccount.filter('IsEmailVerified', null, $event)"
+          >
+            <nz-option nzValue="true" nzLabel="{{ 'routes.admin.user.verified' | translate }}"></nz-option>
+            <nz-option nzValue="false" nzLabel="{{ 'routes.admin.user.unconfirmed' | translate }}"></nz-option>
+          </nz-select>
+        </div>
+      </ng-container>
+
+      <div class="space-y-1">
+        <div class="flex flex-col items-start">
+          <nz-form-label class="font-medium">{{ 'routes.admin.user.active' | translate }}</nz-form-label>
+          <nz-select
+            class="w-36"
+            nzAllowClear
+            nzShowSearch
+            nzPlaceHolder="{{ 'routes.admin.user.choose' | translate }}"
+            [(ngModel)]="tableAccount.paramTable.filter.IsLockedOut"
+            (ngModelChange)="tableAccount.filter('IsLockedOut ', null, $event)"
+          >
+            <nz-option nzValue="true" nzLabel="{{ 'routes.admin.user.lock' | translate }}"></nz-option>
+            <nz-option nzValue="false" nzLabel="{{ 'routes.admin.user.unlock' | translate }}"></nz-option>
+          </nz-select>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="bg-gray-100 rounded-tl-md rounded-tr-md py-3">
+  <div class="p-2.5 intro-x rounded-md container h-[calc(100vh-288px)] overflow-y-auto mx-auto">
+    <g-datatable
+      #tableAccount
+      [classRow]="classRow"
+      [extendData]="{ id: id }"
+      [columns]="columnsTable"
+      [loading]="userFacade.isLoading$ | async"
+      [data]="(userFacade.pagination$ | async)?.content"
+      [total]="(userFacade.pagination$ | async)?.totalElements"
+      [showSearch]="false"
+      (ngChange)="isCustomer ? userFacade.getList($event) : filterUsers($event)"
+    >
+      <ng-template #name let-data>
+        <button class="text-blue-800 hover:text-blue-600 font-medium truncate cursor-pointer" [title]="'routes.admin.Layout.detail' | translate" [routerLink]="[data?.id]">
+          {{ data?.name }}
+        </button>
+      </ng-template>
+
+      <ng-template #isEmailVerified let-data>
+        <p
+          class="w-full p-1 text-xs text-white flex justify-center"
+          [ngClass]="{
+            'bg-[#0066FF] ': data?.isEmailVerified == true,
+            'bg-[#FF0000] ': data?.isEmailVerified == false
+          }"
+        >
+          {{ (data?.isEmailVerified ? 'routes.admin.user.verified' : 'routes.admin.user.unconfirmed') | translate }}
+        </p>
+      </ng-template>
+    </g-datatable>
+  </div>
+</section>

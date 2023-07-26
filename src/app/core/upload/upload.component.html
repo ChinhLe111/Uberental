@@ -1,0 +1,148 @@
+<div class="flex gap-2 mb-2">
+  <input [type]="!isUploading ? 'file' : 'text'" class="!hidden" (change)="customReq($event, '')" #fileUpload />
+  <g-button
+    [loading]="isUploading"
+    class="relative"
+    (click)="!isUploading && fileUpload.click()"
+    icon="las la-upload text-xl"
+    text="{{ 'components.upload.upload' | translate }}"
+    extendClass="!px-1"
+  >
+  </g-button>
+  <div
+    class="button !px-1 cursor-pointer inline-block"
+    *ngIf="!isFile"
+    tabindex="0"
+    [ngClass]="{ '!bg-blue-300': isUploading }"
+    (paste)="!isUploading && onPaste($event)"
+  >
+    <i class="las la-paste text-xl" *ngIf="!isUploading"></i>
+    <i class="las la-spinner text-xl animate-spin" *ngIf="isUploading"></i>
+    {{ 'components.upload.paste_photo' | translate }}
+  </div>
+</div>
+
+<div class="grid gap-2" [ngClass]="'grid-cols-' + cols">
+  <div class="col-span-2" *ngIf="url && !multiple">
+    <nz-spin [nzSpinning]="isUploading">
+      <div
+        [ngClass]="{ 'w-40': !multiple }"
+        class="overflow-hidden object-cover relative flex justify-center items-center rounded-md border border-dashed border-gray-300 bg-gray-50 h-40 break-all text-center"
+      >
+        <a
+          class="px-2"
+          *ngIf="!multiple && typeImage?.indexOf(url?.fileUrl?.split('.')[url?.fileUrl?.split('.')?.length - 1]) === -1"
+          [href]="url?.fileUrl"
+          target="_blank"
+          (click)="$event.stopPropagation()"
+        >
+          {{ url?.fileUrl?.split('/')[url?.fileUrl?.split('/')?.length - 1] }}
+        </a>
+        <a
+          *ngIf="
+            !isUploading &&
+            url?.fileUrl &&
+            !multiple &&
+            typeImage.indexOf(url?.fileUrl.split('.')[url?.fileUrl.split('.').length - 1]) > -1
+          "
+          [href]="url?.fileUrl"
+          class="glightbox"
+          [attr.data-description]="url?.description"
+        >
+          <img [src]="url?.fileUrl" class="w-full object-cover" alt="" />
+        </a>
+        <div
+          *ngIf="url?.fileUrl && !multiple"
+          nz-popconfirm
+          nzPopconfirmTitle="{{ 'components.upload.title_confirm' | translate }}"
+          nzOkText="{{ 'components.upload.ok_text' | translate }}"
+          nzCancelText="{{ 'components.upload.cancel_text' | translate }}"
+          (nzOnConfirm)="removeImage(url)"
+          class="absolute top-1 right-1 bg-gray-300 hover:bg-red-500 text-white rounded-full cursor-pointer w-6 h-6 transition-all duration-300 flex items-center justify-center"
+        >
+          <i class="las text-lg la-trash"></i>
+        </div>
+        <div
+          nzPopoverTrigger="click" nz-popover [nzPopoverContent]="des" [(nzPopoverVisible)]="visible"
+          class="absolute top-1 right-8 z-10 bg-gray-300 hover:bg-blue-500 text-white rounded-full cursor-pointer w-6 h-6 transition-all duration-300 flex items-center justify-center"
+        >
+          <i class="las text-lg text-blue-400 hover:text-white la-comment-alt"></i>
+        </div>
+        <ng-template #des>
+          <div class="flex flex-col gap-2 py-1">
+            <textarea [value]="url.description" (change)="changeDescription($event, -1)"></textarea>
+            <g-button (click)="visible = false" extendClass="!w-full" text="{{ 'components.form.save' | translate }}"></g-button>
+          </div>
+        </ng-template>
+      </div>
+    </nz-spin>
+  </div>
+  <ng-template [ngIf]="multiple">
+    <ng-template let-item ngFor [ngForOf]="url" let-i="index">
+      <div class="rounded-md overflow-hidden relative break-all text-center">
+        <ng-template #des>
+          <div class="flex flex-col gap-2 py-1">
+            <textarea [value]="item.description" (change)="changeDescription($event, i)"></textarea>
+            <g-button extendClass="!w-full" text="{{ 'components.form.save' | translate }}"></g-button>
+          </div>
+        </ng-template>
+        <div
+          nzPopoverTrigger="click" nz-popover [nzPopoverContent]="des"
+          class="absolute top-1 right-8 z-10 bg-gray-300 hover:bg-blue-500 text-white rounded-full cursor-pointer w-6 h-6 transition-all duration-300 flex items-center justify-center"
+        >
+          <i class="las text-lg text-blue-400 hover:text-white la-comment-alt"></i>
+        </div>
+        <div
+          *ngIf="i > 0"
+          (click)="moverImage(i, i - 1)"
+          class="absolute top-1 right-1 z-10 bg-gray-300 hover:bg-blue-500 text-white rounded-full cursor-pointer w-6 h-6 transition-all duration-300 flex items-center justify-center"
+        >
+          <i class="las text-lg text-blue-400 hover:text-white la-angle-up"></i>
+        </div>
+        <div
+          *ngIf="i < url.length - 1"
+          [ngClass]="{ 'top-8 ': i > 0, 'top-1': i === 0 }"
+          (click)="moverImage(i, i + 1)"
+          class="absolute top-8 right-1 z-10 bg-gray-300 hover:bg-blue-500 text-white rounded-full cursor-pointer w-6 h-6 transition-all duration-300 flex items-center justify-center"
+        >
+          <i class="las text-lg text-blue-400 hover:text-white la-angle-down"></i>
+        </div>
+        <div
+          [ngClass]="{
+            'top-16 ': i > 0 && i < url.length - 1,
+            'top-8': i === 0 || i === url.length - 1,
+            '!top-1': url.length - 1 === 0
+          }"
+          nz-popconfirm
+          nzPopconfirmTitle="{{ 'components.upload.title_confirm' | translate }}"
+          nzOkText="{{ 'components.upload.ok_text' | translate }}"
+          nzCancelText="{{ 'components.upload.cancel_text' | translate }}"
+          (nzOnConfirm)="removeImage(item, i)"
+          class="absolute top-16 right-1 z-10 bg-gray-300 hover:bg-red-500 text-white rounded-full cursor-pointer w-6 h-6 transition-all duration-300 flex items-center justify-center"
+        >
+          <i class="las text-lg la-trash text-red-400 hover:text-white"></i>
+        </div>
+        <a
+          class="px-2"
+          [href]="item?.fileUrl"
+          target="_blank"
+          *ngIf="typeImage?.indexOf(item?.fileUrl?.split('.')[item?.fileUrl?.split('.').length - 1]) === -1"
+        >
+          {{ item?.fileUrl.split('/')[item?.fileUrl.split('/').length - 1] }}
+        </a>
+        <a
+          [href]="item?.fileUrl"
+          class="glightbox"
+          *ngIf="!isUploading && typeImage.indexOf(item?.fileUrl?.split('.')[item?.fileUrl?.split('.').length - 1]) > -1"
+          [attr.data-description]="item?.description"
+        >
+          <img
+            [src]="item?.fileUrl"
+            class="h-40 w-full object-cover rounded-md border border-dashed border-gray-300"
+            alt=""
+          />
+        </a>
+      </div>
+    </ng-template>
+  </ng-template>
+</div>

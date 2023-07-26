@@ -1,0 +1,34 @@
+<nz-modal
+  [nzTitle]="!fullScreen ? title : ''"
+  [nzWidth]="!fullScreen ? width : ''"
+  [(nzVisible)]="visible"
+  (nzOnCancel)="handleCancel()"
+  (nzAfterOpen)="afterOpen()"
+  [nzKeyboard]="keyboard"
+  [nzFooter]="notFooter === true ? null : modalFooter"
+  [nzWrapClassName]="fullScreen ? 'modal-full-screen' : ''"
+  [nzClassName]="classModal"
+  [nzMaskClosable]="false"
+  [nzCentered]="true"
+>
+  <ng-template nzModalContent>
+    <nz-spin [nzSpinning]="!!loading">
+      <ng-container [ngTemplateOutlet]="contentModal"></ng-container>
+    </nz-spin>
+  </ng-template>
+  <ng-template #modalFooter>
+    <ng-container [ngTemplateOutlet]="extendFooterButton"></ng-container>
+    <g-button
+      [ngClass]="okDisabled || loading ? 'pointer-events-none border-gray-300 bg-blue-500 text-white font-medium' : ''"
+      [disabled]="okDisabled || loading"
+      (click)="handleOk()"
+      [id]="idButton"
+      [text]="okText ? okText : ('components.modal-form.save' | translate)"
+      [icon]="loading ? 'las la-spinner animate-spin' : ''"
+    >
+    </g-button>
+    <g-button [disabled]="!!loading" (click)="handleCancel()" extendClass="!bg-gray-300 !text-black !font-medium"
+              [text]="cancelText? cancelText:'components.modal-form.cancel' | translate">
+    </g-button>
+  </ng-template>
+</nz-modal>

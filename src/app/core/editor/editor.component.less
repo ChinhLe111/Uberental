@@ -1,0 +1,87 @@
+@import "font-size";
+.ce-paragraph.capitalize:first-letter {
+  @apply text-6xl leading-none block float-left font-semibold mr-1 ~'mt-2.5 leading-[0.5]';
+}
+.codex-editor--narrow {
+  .ce-block { @apply w-full; }
+  .ce-block--focused { @apply pr-0;}
+  .ce-toolbar__actions {
+  @apply pr-0;
+    @media (min-width: 651px) {
+    @apply right-0;
+    }
+  }
+  .ce-toolbar__content, .ce-block__content { @apply ~'max-w-[868px]' m-0; }
+  .ce-settings { @apply left-auto right-0; }
+
+  .codex-editor__redactor {
+    @apply border rounded-md pl-1 pr-12 ~'max-w-[870px] min-h-[300px]' mb-2 !mr-1 !pb-0;
+
+    @media (max-width: 651px) {  @apply pr-1; }
+
+    h1 { @apply text-4xl; }
+    h2 { @apply text-3xl; }
+    h3 { @apply text-2xl; }
+    h4 { @apply text-xl; }
+    h5 { @apply text-lg; }
+    h6 { @apply text-sm; }
+
+    //ul { @apply list-disc pl-6; }
+    //ol { @apply list-decimal pl-6 my-4; }
+    //b { @apply font-semibold; }
+    //p {
+    //@apply pt-2;
+    //  img{
+    //  @apply py-2;
+    //  }
+    //}
+    //.with-background {
+    //@apply bg-gray-200 p-10 rounded-md overflow-hidden;
+    //  img { @apply ~'w-3/4' mx-auto; }
+    //}
+    //.border-img {
+    //@apply border border-gray-100;
+    //}
+    //.stretched {
+    //@apply max-w-none ~'w-[110%]' ~'ml-[-5%]';
+    //}
+    //code { @apply bg-gray-100 text-red-500 px-1 ~'py-0.5 mx-0.5' rounded-md font-medium; }
+    //table {
+    //@apply w-full;
+    //  th, td {
+    //  @apply text-left border border-gray-200 px-2 py-1;
+    //  }
+    //}
+    //.blockquote {
+    //@apply mx-auto table;
+    //  blockquote {
+    //    background:
+    //      linear-gradient(to right, theme('textColor.indigo.500') 2px, transparent 1px) 0 100%,
+    //      linear-gradient(to left, theme('textColor.indigo.500') 2px, transparent 1px) 100% 0,
+    //      linear-gradient(to bottom, theme('textColor.indigo.500') 2px, transparent 1px) 100% 0,
+    //      linear-gradient(to top, theme('textColor.indigo.500') 2px, transparent 1px) 0 100%;
+    //    background-size: 20px 20px;
+    //  @apply my-8 mx-auto table text-justify ~'py-1.5' px-2 bg-no-repeat;
+    //
+    //    &:before,
+    //    &:after {
+    //      font-family: Line Awesome Free;
+    //    @apply font-black absolute text-indigo-500 text-xl;
+    //    }
+    //
+    //    &:before {
+    //      content: "\f10d";
+    //    @apply -top-3 right-full -mr-3;
+    //    }
+    //
+    //    &:after {
+    //      content: "\f10e";
+    //    @apply -bottom-3 left-full top-auto -ml-3;
+    //    }
+    //  }
+    //  small {
+    //  @apply -mt-9 font-semibold block text-right;
+    //  }
+    //}
+  }
+}

@@ -1,0 +1,5 @@
+<button class="button" [ngClass]="extendClass" [disabled]="disabled || loading" [id]="id" (paste)="onPaste.emit($event)" [title]="title || text">
+  <i [ngClass]="icon" *ngIf="icon && !loading"></i>
+  <i class="las la-spinner text-xl animate-spin" *ngIf="loading"></i>
+  {{ text }}
+</button>

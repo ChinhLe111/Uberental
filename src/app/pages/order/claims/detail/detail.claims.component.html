@@ -1,0 +1,114 @@
+<section class="pt-10 py-5 px-2.5">
+  <div class="bg-white max-w-[70vw] mx-auto -intro-x">
+    <div class="w-full flex justify-between mt-8 relative">
+      <button class="absolute top-0 -left-9"
+              [routerLink]="[language + '/order',this.route.snapshot.params.id,'claims']">
+        <i class="las la-arrow-left text-3xl text-blue-600"></i>
+      </button>
+      <h2 class="text-2xl font-semibold">{{ 'routes.admin.order.Service error details' | translate }}</h2>
+    </div>
+    <div class="grid grid-cols-2 lg:grid-cols-3 justify-between mt-5" *ngIf="OrdersFacade?.dataClaims$| async as dataClaims">
+      <div class="flex justify-start mb-4 ">
+        <p class="font-semibold text-gray-400 w-20">{{ 'routes.admin.order.Status' | translate }}</p>
+        <div class="px-2 py-0.5" [ngClass]="{ 'bg-amber-500': dataClaims?.statusCode == 'WAIT_FOR_APPROVAL', 'bg-orange-500': dataClaims?.statusCode == 'APPROVE','bg-blue-600': dataClaims?.statusCode == 'CLOSED','bg-red-600': dataClaims?.statusCode == 'REJECTED'
+              }">
+          <p class="text-white" *ngIf="dataClaims?.statusCode=='WAIT_FOR_APPROVAL'">Chờ duyệt</p>
+          <p class="text-white" *ngIf="dataClaims?.statusCode=='APPROVE'">Chưa sửa lỗi</p>
+          <p class="text-white" *ngIf="dataClaims?.statusCode=='CLOSED'">Đã sửa lỗi</p>
+          <p class="text-white" *ngIf="dataClaims?.statusCode=='REJECTED'">Từ chối</p>
+        </div>
+      </div>
+      <div class="flex justify-start gap-2">
+        <p class="font-semibold text-gray-400 w-28">Cập nhật cuối</p>
+        <strong class="font-semibold text-gray-400">{{transform(dataClaims?.createdOnDate)}}</strong>
+      </div>
+    </div>
+  </div>
+</section>
+<section>
+  <div class="bg-gray-100 rounded-md pt-5 pb-10 h-[calc(100vh-250px)] intro-x" *ngIf="OrdersFacade?.dataClaims$| async as dataClaims">
+    <div class="flex gap-x-8 justify-center translate-x-6 min-h-[390px]">
+      <div class="w-[43%] max-w-[700px]">
+        <section class="w-full p-5 rounded-md bg-white shadow"
+                 *ngIf="OrdersFacade?.dataClaims$| async as dataClaims">
+          <div class="pb-2 col-span-12 text-left border-b-2 border-gray-200 flex justify-between">
+            <p class="font-medium text-black text-lg">{{ 'routes.admin.order.Single information' | translate }}</p>
+          </div>
+          <div class="flex gap-x-5 space-y-0.5 py-4 border-b-2 border-gray-200">
+            <div class="w-1/2">
+              <div>
+                <label class="text-gray-500">{{ 'routes.admin.order.Error date time' | translate }}</label><br/>
+                <strong>{{transform(dataClaims?.createdOnDate)}}</strong>
+              </div>
+            </div>
+            <div class="w-1/2">
+              <div>
+                <label class="text-gray-500">{{ 'routes.admin.order.Farmer made' | translate }}</label><br/>
+                <strong>{{dataClaims?.farmerUserName}}</strong>
+              </div>
+            </div>
+          </div>
+          <div class="flex gap-x-5 space-y-0.5 py-4 border-b-2 border-gray-200">
+            <div class="w-1/2">
+              <div>
+                <label class="text-gray-500">{{ 'routes.admin.order.Reason' | translate }}</label><br/>
+                <strong>{{dataClaims?.feedbackDescription}}</strong>
+              </div>
+            </div>
+          </div>
+          <div class="flex gap-x-5 space-y-0.5 py-4 border-b-2 border-gray-200">
+            <div class="w-full">
+              <div>
+                <label class="text-gray-500">{{ 'routes.admin.order.Treatment content' | translate }}</label><br/>
+                <p class="font-semibold whitespace-pre-line">{{dataClaims?.claimDescription}}</p>
+              </div>
+            </div>
+          </div>
+        </section>
+        <section class="w-full p-5 rounded-md bg-white shadow mt-2" *ngIf="dataClaims.statusCode=='REJECTED'">
+          <div class="pb-2 col-span-12 text-left border-b-2 border-gray-200 flex justify-between">
+            <p class="font-medium text-black text-lg">Lý do từ chối</p>
+          </div>
+            <div class="w-full mt-4">
+                <p class="font-semibold whitespace-pre-line te">{{dataClaims?.rejectReason}}</p>
+              </div>
+        </section>
+        <section
+          class="mx-auto xl:max-w-[700px] px-4 xl:px-0 bg-white bottom-0 rounded-md z-30 shadow">
+          <div class="flex gap-x-5 justify-end mt-2 p-5 w-full" >
+            <g-modal-form [visible]="isVisibleCancel" [title]="'Lí do'" [columns]="columnsCancel" [width]="600"
+                          [widthLabel]="0" (clickOk)="handleOkModal($event)" (clickCancel)="isVisibleCancel=false">
+            </g-modal-form>
+            <button *ngIf="dataClaims?.statusCode == 'WAIT_FOR_APPROVAL'"
+                    class="py-1.5 px-4 bg-red-600 rounded-md text-sm font-semibold text-white"
+                    (click)="handleShowRejectOrder(dataClaims.id)"> {{ 'routes.admin.order.REJECTED' | translate }}
+            </button>
+            <button *ngIf="dataClaims?.statusCode=='WAIT_FOR_APPROVAL'"
+                    (click)="OrdersFacade.putApproveClaims(dataClaims.id)"
+                    class="py-1.5 px-4 bg-blue-600 rounded-md text-sm font-semibold text-white">{{ 'routes.admin.order.Browse' | translate }}
+            </button>
+            <button class="py-1.5 px-4 bg-gray-300 rounded-md text-sm font-semibold mr-2"
+                    [routerLink]="[language + '/order',this.route.snapshot.params.id,'claims']">{{ 'routes.admin.order.Close' | translate }}
+            </button>
+          </div>
+        </section>
+      </div>
+      <div class="w-[43%]">
+        <section class="w-full p-5 rounded-md bg-white shadow">
+          <div class="pb-2 col-span-12 text-left border-b-2 border-gray-200 flex justify-between">
+            <p class="font-medium text-black text-lg">{{ 'routes.admin.order.Service error photo' | translate }}</p>
+          </div>
+          <div class="mt-2" *ngIf="OrdersFacade?.dataClaims$| async as dataClaims">
+            <div class="flex gap-4">
+              <a class="glightbox" *ngFor="let item of dataClaims?.attachments" [href]="item?.fileUrl" [attr.data-description]="item?.description">
+              <img class="w-40 h-36 object-cover rounded-md"
+                    [src]="item?.fileUrl">
+              </a>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+</section>
+

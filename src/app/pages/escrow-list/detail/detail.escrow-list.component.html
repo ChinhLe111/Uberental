@@ -1,0 +1,216 @@
+<main *ngIf="escrowListFacade.data$ | async as data">
+  <section class="mx-3 -intro-x">
+    <div class="bg-white w-[1100px] mx-auto">
+      <div class="relative w-full flex justify-between mt-8" (click)="handleBack()">
+        <button class="absolute top-0 -left-12">
+          <i class="las la-arrow-left text-3xl text-blue-600"></i>
+        </button>
+        <h2 class="text-2xl font-medium">{{ 'routes.admin.escrow.detail_escrow' | translate }}</h2>
+      </div>
+      <div class="flex space-x-10 my-5">
+        <div *ngIf="findStatus(data?.statusCode) as status" class="flex space-x-3">
+          <label>{{ 'routes.admin.escrow.status' | translate }}:</label>
+          <p
+            [ngStyle]="{
+                  backgroundColor: status.backgroundColor,
+                  color: status.color,
+               }"
+            class="px-2 h-5 flex items-center text-13 cursor-default"
+          >
+            {{ status.label | translate }}
+          </p>
+        </div>
+        <div class="flex space-x-3">
+          <label>{{ 'routes.admin.escrow.code_escrow' | translate }}:</label>
+          <p class="font-semibold">{{ data?.code }}</p>
+        </div>
+        <div class="flex space-x-3">
+          <label>{{ 'routes.admin.escrow.date_escrow' | translate }}:</label>
+          <p class="font-semibold">{{ data?.createdOnDate | formatDate : 'DD/MM/YYYY - HH:mm' }}</p>
+        </div>
+        <div class="flex space-x-3">
+          <label>{{ 'routes.admin.escrow.last_update' | translate }}:</label>
+          <p class="font-semibold">{{ data?.lastModifiedOnDate | formatDate : 'DD/MM/YYYY - HH:mm' }}</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="bg-gray-100 rounded-tl-md rounded-tr-md py-5 intro-x">
+    <div class="min-h-[calc(100vh-260px)] w-[1100px] mx-auto gap-x-5 flex items-stretch">
+      <div class="w-1/2 bg-white grid grid-cols-1 divide-y-2 p-5 rounded-md self-start">
+        <h2 class="pb-5 text-[18px] font-semibold">{{ 'routes.admin.escrow.escrow_order_details' | translate }}</h2>
+        <div class="flex items-center py-5 gap-x-5">
+          <div class="w-1/2">
+            <label>{{ 'routes.admin.escrow.full_name' | translate }}</label
+            ><br />
+            <strong>{{ data?.createdByName }}</strong>
+          </div>
+          <div *ngIf="route.snapshot.params?.profileType == 'FARMER_SIDE'" class="w-1/2">
+            <label>{{ 'routes.admin.escrow.medical_degree' | translate }}</label
+            ><br />
+            <strong>{{ data?.medicalDegree?.title }}</strong>
+          </div>
+          <div *ngIf="route.snapshot.params?.profileType == 'ORDER_SIDE'" class="w-1/2">
+            <label>{{ 'Username' | translate }}</label
+            ><br />
+            <strong>{{ data?.createdByUserName }}</strong>
+          </div>
+        </div>
+        <div class="flex items-center py-5 gap-x-5">
+          <div class="w-1/2">
+            <label>{{ 'routes.admin.escrow.type_account' | translate }}</label
+            ><br />
+            <strong>{{ data?.profileTypeCode == 'FARMER_SIDE' ? 'Farmer Side' : 'Order Side' }}</strong>
+          </div>
+          <div class="w-1/2">
+            <label>{{ 'routes.admin.escrow.money_amount' | translate }}</label
+            ><br />
+            <strong>{{ (data.depositAmount ? data.depositAmount : 0) | formatCurrency : '₫' }}</strong>
+          </div>
+        </div>
+        <div *ngIf="data?.statusCode == 'REJECTED'" class="flex items-center py-5 gap-x-5">
+          <div class="w-1/2">
+            <label>{{ 'routes.admin.escrow.reason_for_rejection' | translate }}</label
+            ><br />
+            <strong>{{ data?.rejectReason }}</strong>
+          </div>
+        </div>
+        <div class="flex space-x-5 justify-end items-center pt-5">
+          <g-button
+            *ngIf="data?.statusCode == 'WFA'"
+            [extendClass]="'!bg-[#2563EB] hover:!opacity-80 !font-semibold'"
+            [text]="'routes.admin.escrow.approve' | translate"
+            (click)="escrowListFacade.approve(data.id)"
+          ></g-button>
+          <g-button
+            *ngIf="data?.statusCode == 'WFA'"
+            [extendClass]="'!bg-[#DC2626] hover:!opacity-80 !font-semibold'"
+            [text]="'routes.admin.escrow.reject' | translate"
+            (click)="isVisibleReject = true"
+          >
+            <app-modal-reasons-escrow-list
+              [isVisible]="isVisibleReject"
+              [idReasons]="route.snapshot.params.id"
+              (handleCancel)="isVisibleReject = false"
+            >
+            </app-modal-reasons-escrow-list>
+          </g-button>
+          <g-button
+            [extendClass]="'!bg-[#D9D9D9] !text-black hover:!opacity-80 !font-semibold'"
+            [text]="'routes.admin.escrow.close' | translate"
+            (click)="handleBack()"
+          ></g-button>
+        </div>
+      </div>
+      <div
+        *ngIf="
+          route.snapshot.params?.profileType == 'FARMER_SIDE' && (profileFarmerFacade.data$ | async) as dataProfile
+        "
+        class="w-1/2 bg-white grid grid-cols-1 divide-y-2 p-5 rounded-md self-start"
+      >
+        <h2 class="pb-5 text-[18px] font-semibold">{{ 'routes.admin.escrow.information_farmer' | translate }}</h2>
+        <div class="pt-5">
+          <div class="flex gap-x-5">
+            <div class="w-1/2">
+              <div class="w-full rounded-md bg-white">
+                <a [href]="dataProfile?.farmerAvatarUrl?.fileUrl" class="glightbox">
+                  <img
+                    class="w-2/3 mx-auto aspect-square rounded-full"
+                    [src]="dataProfile?.farmerAvatarUrl?.fileUrl"
+                    alt=""
+                  />
+                </a>
+                <div class="text-center mt-5">
+                  <h3 class="text-black text-xl font-semibold break-words text-shadow">{{ dataProfile?.name }}</h3>
+                  <p class="text-gray-500 text-base font-medium break-all text-shadow">
+                    {{ dataProfile?.medicalDegree?.title }}
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div class="w-1/2">
+              <div>
+                <strong>{{ 'routes.admin.escrow.image_CCCD' | translate }}</strong
+                ><br />
+                <div class="grid grid-cols-2 gap-2 my-2">
+                  <ng-template ngFor let-img [ngForOf]="dataProfile?.farmerNationalIdListImage">
+                    <a [href]="img?.fileUrl" class="glightbox">
+                      <img
+                        style="aspect-ratio: 3 / 2"
+                        class="w-full rounded-md object-cover"
+                        [src]="img.fileUrl"
+                        alt=""
+                      />
+                    </a>
+                  </ng-template>
+                </div>
+              </div>
+              <div>
+                <strong>{{ 'routes.admin.escrow.image_medical_degree' | translate }}</strong
+                ><br />
+                <div class="grid grid-cols-2 gap-2 my-2">
+                  <ng-template ngFor let-img [ngForOf]="dataProfile?.farmerDegreeListImage">
+                    <a [href]="img?.fileUrl" class="glightbox">
+                      <img
+                        style="aspect-ratio: 3 / 2"
+                        class="w-full rounded-md object-cover"
+                        [src]="img.fileUrl"
+                        alt=""
+                      />
+                    </a>
+                  </ng-template>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="pt-5">
+            <div class="flex items-center py-5 gap-x-5">
+              <div class="w-1/2">
+                <label>{{ 'Username' | translate }}</label
+                ><br />
+                <strong>{{ dataProfile?.createdByUserName }}</strong>
+              </div>
+              <div class="w-1/2">
+                <label>{{ 'routes.admin.escrow.gender' | translate }}</label
+                ><br />
+                <strong>{{ dataProfile?.gender == 'MALE' ? 'Nam' : 'Nữ' }}</strong>
+              </div>
+            </div>
+            <div class="flex items-center py-5 gap-x-5">
+              <div class="w-1/2">
+                <label>{{ 'routes.admin.escrow.address' | translate }}</label
+                ><br />
+                <strong
+                  >{{ dataProfile?.address }}, {{ dataProfile?.commune?.communeName }},
+                  {{ dataProfile?.district?.districtName }}, {{ dataProfile?.province?.tenTinh }}</strong
+                >
+              </div>
+              <div class="w-1/2">
+                <label>{{ 'routes.admin.escrow.total_year_of_experience' | translate }}</label
+                ><br />
+                <strong>{{ dataProfile?.totalYearOfExperience }}</strong>
+              </div>
+            </div>
+            <div class="flex items-center py-5 gap-x-5">
+              <div class="w-1/2">
+                <label>{{ 'routes.admin.escrow.introduce' | translate }}</label
+                ><br />
+                <strong>{{ dataProfile?.workingProcessDescription }}</strong>
+              </div>
+              <div class="w-1/2">
+                <label>{{ 'routes.admin.escrow.register_tips' | translate }}</label
+                ><br />
+                <ul>
+                  <li class="list-disc list-inside" *ngFor="let item of dataProfile?.medicalProcedure">
+                    <strong>{{ item.name }}</strong>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>

@@ -1,0 +1,33 @@
+<nz-spin [nzSpinning]="medicalProcedureFacade.isLoading$ | async">
+  <section class="pt-10 py-5 px-2.5 -intro-x">
+    <div class="relative w-[700px] mx-auto">
+      <button class="absolute top-0 -left-12" (click)="handleBack()">
+        <i class="las la-arrow-left text-3xl text-blue-600"></i>
+      </button>
+      <h1 class="font-semibold text-xl">
+        {{
+          ((medicalProcedureFacade.data$ | async)
+            ? 'routes.admin.medical-procedure.edit_trick'
+            : 'routes.admin.medical-procedure.add_trick'
+          ) | translate
+        }}
+      </h1>
+    </div>
+  </section>
+  <section class="-intro-x" *ngIf="codeTypesFacade.status$ | async">
+    <div class="px-2.5 pt-5 pb-10 bg-gray-100 min-h-[calc(100vh-178px)]">
+      <div class="min-700-scroll bg-white mx-auto p-5 rounded-md">
+        <h2 class="font-medium text-black text-xl mb-5">
+          {{ 'routes.admin.medical-procedure.information' | translate }}
+        </h2>
+        <g-form
+          [columns]="columnsForm"
+          [values]="medicalProcedureFacade.data$ | async"
+          [textSubmit]="'routes.admin.medical-procedure.save_trick' | translate"
+          (handBack)="handleBack()"
+          (handSubmit)="handelSubmit($event)"
+        ></g-form>
+      </div>
+    </div>
+  </section>
+</nz-spin>

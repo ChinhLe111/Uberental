@@ -1,0 +1,79 @@
+<div class="flex pt-10 py-5 px-2.5 bg-white intro-x">
+  <div class="w-[970px] mx-auto flex gap-4">
+    <button (click)="handleBack()" [title]="'routes.admin.Layout.back' | translate">
+      <i class="las la-arrow-left text-2xl text-blue-500"></i>
+    </button>
+    <h2 class="text-2xl font-semibold">
+      {{ 'routes.admin.user.infomationAccount' | translate }}
+    </h2>
+  </div>
+</div>
+<div class="min-h-[calc(100vh-128px)] bg-gray-100 rounded-tl-md rounded-tr-md p-5">
+  <nz-spin [nzSpinning]="userFacade.isLoading$ | async">
+    <div
+      class="w-[900px] mx-auto p-5 rounded-md bg-white shadow -intro-x"
+      *ngIf="this.userFacade.data$ | async as user"
+    >
+      <div class="flex justify-between mt-3">
+        <p class="font-medium text-black text-lg mb-5">
+          {{
+          (isCustomer ? 'routes.admin.user.infomationCustomerAccount' : 'routes.admin.user.infomationInternalAccount')
+            | translate
+          }}
+        </p>
+        <g-button
+          nz-popconfirm
+          [nzPopconfirmTitle]="(user.isLockedOut ? 'routes.admin.user.wUnlock' : 'routes.admin.user.wLock') | translate"
+          (nzOnConfirm)="user.isLockedOut == true ? userFacade.putUnlock(user.id || '') : userFacade.putLock(user.id || '')"
+          [extendClass]="user.isLockedOut ? '!bg-green-600' : '!bg-red-600'"
+          [text]="(user.isLockedOut ? 'routes.admin.user.lock' : 'routes.admin.user.unlock') | translate"
+        ></g-button>
+      </div>
+
+      <table class="w-full">
+        <tbody>
+        <tr>
+          <th class="border border-slate-300 font-normal text-gray-500 text-right px-3 py-3 w-36 bg-gray-100">
+            {{ 'routes.admin.user.userName' | translate }}
+          </th>
+          <th class="border border-slate-300 font-medium text-gray-900 text-left px-3">{{ user?.name }}</th>
+          <th class="border border-slate-300 font-normal text-gray-500 text-right px-3 py-3 w-52 bg-gray-100">Email</th>
+          <th class="border border-slate-300 font-medium text-gray-900 text-left px-3">{{ user?.email }}</th>
+        </tr>
+        <tr>
+          <th class="border border-slate-300 font-normal text-gray-500 text-right px-3 py-3 bg-gray-100">
+            {{ 'routes.admin.user.gender' | translate }}
+          </th>
+          <th class="border border-slate-300 font-medium text-gray-900 text-left px-3">
+            {{ (user?.gender === 'MALE' ? 'routes.admin.user.male' : 'routes.admin.user.female') | translate }}
+          </th>
+          <th class="border border-slate-300 font-normal text-gray-500 text-right px-3 py-3 bg-gray-100">
+            {{ 'routes.admin.user.role' | translate }}
+          </th>
+          <th
+            *ngIf="user.listRole && user.listRole[0]"
+            class="border border-slate-300 font-medium text-gray-900 text-left px-3"
+          >
+            {{ user.listRole[0].name }}
+          </th>
+        </tr>
+        <tr>
+          <th class="border border-slate-300 font-normal text-gray-500 text-right px-3 py-3 bg-gray-100">
+            {{ 'routes.admin.user.phoneNumber' | translate }}
+          </th>
+          <th class="border border-slate-300 font-medium text-gray-900 text-left px-3">
+            {{ user?.phoneNumber }}
+          </th>
+          <th class="border border-slate-300 font-normal text-gray-500 text-right px-3 py-3 bg-gray-100">
+            {{ 'routes.admin.user.lastActivityDate' | translate }}
+          </th>
+          <th class="border border-slate-300 font-medium text-gray-900 text-left px-3">
+            {{ user?.lastActivityDate | date : 'dd/MM/yyyy' }}
+          </th>
+        </tr>
+        </tbody>
+      </table>
+
+    </div>
+  </nz-spin>
+</div>

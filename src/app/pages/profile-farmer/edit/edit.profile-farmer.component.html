@@ -1,0 +1,58 @@
+<nz-spin [nzSpinning]="profileFarmerFacade.isLoading$ | async">
+  <section id="section">
+  <div class="pt-10 py-5 px-2.5 -intro-x">
+    <div class="relative w-[700px] mx-auto">
+      <button class="absolute top-0 -left-12" (click)="handleBack()">
+        <i class="las la-arrow-left text-3xl text-blue-600"></i>
+      </button>
+      <h2 class="text-xl font-semibold">
+        {{ 'routes.admin.profile-farmer.edit_profile_farmer_information' | translate }}
+      </h2>
+    </div>
+  </div>
+
+  <div class="bg-gray-100 rounded-tl-md rounded-tr-md px-2.5 pt-5 pb-10">
+    <div class="w-[700px] mx-auto intro-x">
+      <div class="bg-white rounded-md p-5">
+        <p class="font-medium text-black text-xl mb-5">
+          {{ 'routes.admin.profile-farmer.general_information' | translate }}
+        </p>
+          <g-form #formInfo [columns]="columnsFormInfo" [values]="profileFarmerFacade.data$ | async"></g-form>
+      </div>
+      <div class="mt-5 bg-white rounded-md p-5 shadow">
+          <form [formGroup]="formUpload" *ngIf="templateUpload.length > 0">
+            <p class="font-medium text-black text-xl mb-5">{{ 'routes.admin.profile-farmer.upload' | translate }}</p>
+            <div class="mb-5" *ngFor="let template of uploadFacade.attachmentTemplates$ | async">
+              <nz-form-item class="w-full !mb-5 col-span-4">
+                <nz-form-label nzRequired class="w-full text-left font-medium text-black text-base mb-1.5">{{
+                  template.docTypeName
+                  }}</nz-form-label>
+                <nz-form-control>
+                  <g-upload
+                    [multiple]="template.docType.split('_')[template.docType.split('_').length - 1] != 'avatar'"
+                    [isDescription]="false"
+                    [cols]="4"
+                    [physicalPath]="template.docType"
+                    [formControlName]="template.docType"
+                  ></g-upload>
+                </nz-form-control>
+              </nz-form-item>
+            </div>
+          </form>
+      </div>
+      <div class="mt-3 p-5 rounded-md bg-white flex justify-end sticky bottom-0 z-50 shadow gap-5">
+        <g-button
+          extendClass=" !font-medium"
+          [text]="'routes.admin.profile-farmer.save' | translate"
+          (click)="handleSubmit(formUpload)"
+        ></g-button>
+        <g-button
+          extendClass="!bg-gray-200 !font-medium !text-black hover:!text-blue-400"
+          [text]="'routes.admin.profile-farmer.close' | translate"
+          (click)="handleBack()"
+        ></g-button>
+      </div>
+    </div>
+  </div>
+</section>
+</nz-spin>

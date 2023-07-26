@@ -1,0 +1,33 @@
+<div
+  class="w-full bg-gray-100 min-h-[calc(100vh-128px)]"
+  *ngIf="(this.globalFacade.getInfo$ | async)?.userModel as user"
+>
+  <div class="flex items-center gap-5 p-5 bg-white">
+    <img
+      class="rounded-full w-24 cursor-pointer ml-20"
+      width="28"
+      height="28"
+      src="../../../../assets/images/avatar.jpeg"
+      alt="Avatar"
+    />
+    <div>
+      <h1 class="text-xl font-semibold">{{ user?.name }}</h1>
+      <h1 class="text-gray-400">{{ user?.email }}</h1>
+    </div>
+  </div>
+
+  <div class="w-[700px] mx-20 p-5 mt-5 bg-white rounded-md shadow">
+    <p class="font-medium text-black text-lg mb-5 pb-2">
+      {{ 'routes.admin.user.editInformationProfile' | translate }}
+    </p>
+    <g-form
+      #form
+      [columns]="columnsForm"
+      [loading]="globalFacade.isLoading$ | async"
+      [values]="(this.globalFacade.getInfo$ | async)?.userModel"
+      [textSubmit]="'components.form.save' | translate"
+      (handSubmit)="handleSubmit($event, user?.id)"
+      (handBack)="router.navigate([''])"
+    ></g-form>
+  </div>
+</div>

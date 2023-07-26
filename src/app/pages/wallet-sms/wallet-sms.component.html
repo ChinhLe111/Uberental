@@ -1,0 +1,38 @@
+<section class="mx-3 -intro-x">
+  <div class="bg-white max-w-[1140px] mx-auto">
+    <div class="flex justify-end items-center">
+      <div class="flex space-x-3 my-5">
+        <div class="space-y-1">
+          <label class="text-gray-700 font-medium">{{ 'routes.admin.wallet.search' | translate }}</label
+          ><br />
+          <div class="relative w-fit">
+            <input
+              class="w-56 h-8 rounded-md text-gray-700 bg-white border border-solid border-gray-200 pr-9 pl-4 outline-blue-400"
+              [(ngModel)]="tableWalletSms.search"
+              (change)="tableWalletSms.searchFull()"
+              type="text"
+              placeholder="{{ 'routes.admin.wallet.enter-to-search' | translate }}"
+            />
+            <i class="text-lg las la-search absolute top-1/2 -translate-y-1/2 right-2 z-[1]"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="bg-gray-100 rounded-tl-md rounded-tr-md py-3 intro-x">
+  <div class="h-[calc(100vh-228px)] max-w-[1140px] mx-auto overflow-y-auto">
+    <g-datatable
+      #tableWalletSms
+      [columns]="columnsTable"
+      [data]="(walletSmsFacade.pagination$ | async)?.content"
+      [total]="(walletSmsFacade.pagination$ | async)?.totalElements"
+      [loading]="walletSmsFacade.isLoading$ | async"
+      [showSearch]="false"
+      (ngChange)="walletSmsFacade.get($event)"
+    ></g-datatable>
+  </div>
+</section>
+<div class="text-green-600"></div>
+<div class="text-red-600"></div>

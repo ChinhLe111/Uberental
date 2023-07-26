@@ -1,0 +1,90 @@
+<section class="mx-3">
+  <div class="pt-10 py-5 -intro-x">
+    <div class="mx-10">
+      <div class="relative max-w-[550px] mx-auto">
+        <button class="absolute top-0 -left-12" (click)="handleBack()" [title]="'routes.admin.Layout.back' | translate">
+          <i class="las la-arrow-left text-3xl text-blue-500"></i>
+        </button>
+        <h2 class="text-2xl mb-5 font-semibold">
+          {{ 'routes.admin.Layout.escrow_fund_configuration' | translate }}
+        </h2>
+        <div class="space-y-1">
+          <label class="text-gray-700 font-medium">{{ 'routes.admin.Layout.search' | translate }}</label
+          ><br />
+          <div class="relative w-fit">
+            <input
+              class="w-60 h-8 rounded-md text-gray-700 bg-white border border-solid border-gray-200 pr-4 pl-9 outline-blue-400"
+              type="text"
+              [(ngModel)]="search"
+              [formControl]="fullTextSearch"
+              placeholder="{{ 'routes.admin.Layout.search_by_degree_name' | translate }}"
+            />
+            <i class="text-lg text-black las la-search absolute top-1/2 -translate-y-1/2 left-2 z-[1]"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<nz-spin [nzSpinning]="codeTypesFacade.isLoading$ | async">
+  <div class="bg-gray-100 pt-5 pb-10 px-10 rounded-tl-md rounded-tr-md intro-x">
+    <div
+      class="max-w-[550px] mx-auto h-[calc(100vh-336px)] overflow-y-auto pr-1"
+      *ngIf="codeTypesFacade.paginationEscrowMoney$ | async as paginationEscrowMoney"
+    >
+      <table class="tableEscrowMoney w-full shadow">
+        <thead>
+        <tr>
+          <th class="rounded-tl-md">#</th>
+          <th>
+            {{ 'routes.admin.Layout.degree_name' | translate }}
+          </th>
+          <th class="rounded-tr-md">{{ 'routes.admin.Layout.minimum_security_deposit_amount' | translate }}</th>
+        </tr>
+        </thead>
+        <tbody>
+        <ng-template ngFor let-item [ngForOf]="paginationEscrowMoney.content" let-i="index">
+          <tr>
+            <ng-container>
+              <td>
+                <div>
+                  <span *ngIf="(paginationEscrowMoney.page - 1) * paginationEscrowMoney.size + i < 9">0</span
+                  >{{ (paginationEscrowMoney.page - 1) * paginationEscrowMoney.size + i + 1 }}
+                </div>
+              </td>
+              <td>
+                {{ item.medicalDegree }}
+              </td>
+              <td class="!px-5 !text-right" (click)="changEditTemplate = true">
+                <span *ngIf="!changEditTemplate" class="w-full">{{ item.minimumDepositAmount | formatCurrency }}</span>
+                <input
+                  *ngIf="changEditTemplate"
+                  [id]="i"
+                  class="w-40 px-2"
+                  min="0"
+                  [mask]="'separator.3'"
+                  thousandSeparator=","
+                  [ngModel]="item.minimumDepositAmount"
+                  (ngModelChange)="handleEscrowMoney(i, $event, false)"
+                  (keyup.enter)="handleEscrowMoney(i, undefined, true)"
+                />
+              </td>
+            </ng-container>
+          </tr>
+        </ng-template>
+        </tbody>
+      </table>
+      <div class="border-t border-gray-100 pb-3">
+        <g-pagination
+          class="w-full"
+          [total]="paginationEscrowMoney.totalElements"
+          [page]="paginationEscrowMoney.page"
+          [size]="paginationEscrowMoney.size"
+          [pageSizeOptions]="[10, 20, 30, 40]"
+          (queryParams)="codeTypesFacade.getEscrowMoney($event); query = $event"
+        ></g-pagination>
+      </div>
+    </div>
+  </div>
+</nz-spin>

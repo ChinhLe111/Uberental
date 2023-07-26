@@ -1,0 +1,30 @@
+<div class="layout-auth bg-cover bg-center p-20 relative z-10">
+  <div class="container mx-auto block lg:flex bg-white rounded-md overflow-hidden">
+    <div class="w-full lg:w-3/5 p-10 into relative z-10 overflow-hidden flex justify-between flex-col">
+      <div class="mb-5">
+        <h2 class="font-semibold text-3xl -intro-x">
+          <a href="#" class="flex items-center text-white hover:text-yellow-500">
+            <img class="w-14 mr-3" src="../../../assets/icons/logo.svg" alt=""/> Uberental System Admin
+          </a>
+        </h2>
+      </div>
+      <div class="">
+        <h2 class="-intro-x font-semibold text-3xl text-white mb-2">Welcome To Uberental</h2>
+        <p class="-intro-x text-white">
+          Copyright © Designed &amp; Developed by <a href="https://geneat.vn/">geneat</a>
+        </p>
+      </div>
+    </div>
+    <div class="w-full lg:w-2/5 p-10 relative flex items-center">
+      <div class="w-full">
+        <router-outlet></router-outlet>
+        <div class="intro-x text-center mt-5">
+          <nz-select ngModel="{{ translate.getDefaultLang() }}" (ngModelChange)="changeLanguage($event)">
+            <nz-option nzValue="vn" nzLabel="Tiếng việt"></nz-option>
+            <nz-option nzValue="en" nzLabel="Tiếng anh"></nz-option>
+          </nz-select>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

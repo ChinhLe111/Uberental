@@ -1,0 +1,117 @@
+<main *ngIf="ordersFacade.status$ | async">
+  <section class="mx-3">
+    <div class="bg-white max-w-[900px] mx-auto -intro-x">
+      <div class="w-full flex justify-between mt-8 relative">
+        <h2 class="text-2xl font-medium">{{ 'routes.admin.order.Service error content' | translate }}</h2>
+        <button [routerLink]="[language + '/order', this.route.snapshot.params.id]" class="absolute top-0 -left-9">
+          <i class="las la-arrow-left text-3xl text-blue-600"></i>
+        </button>
+      </div>
+      <div class="flex space-x-3 my-5">
+        <div class="space-y-1">
+          <label class="text-gray-700 font-medium">{{ 'routes.admin.order.search' | translate }}</label
+          ><br />
+          <div class="relative w-fit">
+            <input
+              (change)="tableClaims.searchFull()"
+              [(ngModel)]="tableClaims.search"
+              class="md:w-56 w-72 h-8 rounded-md text-gray-700 bg-white border border-solid border-gray-200 pr-9 pl-2 outline-blue-400"
+              placeholder="{{ 'routes.admin.order.search_by_name_description' | translate }}"
+              type="text"
+            />
+            <i class="text-lg las la-search absolute top-1/2 -translate-y-1/2 right-2 z-[1]"></i>
+          </div>
+        </div>
+        <div class="space-y-1">
+          <label class="text-gray-700 font-medium">{{ 'routes.admin.order.Status' | translate }}</label
+          ><br />
+          <nz-select
+            (ngModelChange)="tableClaims.filter('statusCode', null, $event)"
+            [(ngModel)]="tableClaims.paramTable.filter.statusCode"
+            class="w-44"
+            nzAllowClear
+            nzPlaceHolder="{{ 'routes.admin.order.choose' | translate }}"
+          >
+            <nz-option
+              *ngFor="let item of listStatus"
+              [nzLabel]="item.label | translate"
+              [nzValue]="item.status"
+            ></nz-option>
+          </nz-select>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section class="bg-gray-100 rounded-tl-md rounded-tr-md py-3">
+    <div class="h-[calc(100vh-280px)] max-w-[900px] mx-auto overflow-y-auto intro-x">
+      <div class="bg-white rounded-b-md pb-2">
+        <g-datatable
+          #tableClaims
+          (ngChange)="ordersFacade.getListClaims(route.snapshot.params.id, $event)"
+          [columns]="columnsTable"
+          [data]="(ordersFacade.paginationClaims$ | async)?.content"
+          [loading]="ordersFacade.isLoading$ | async"
+          [showSearch]="false"
+          [total]="(ordersFacade.paginationClaims$ | async)?.totalElements"
+        >
+          <ng-template #farmerUserName let-data>
+            <p class="text-blue-600 font-medium truncate">{{ data?.farmerUserName }}</p>
+          </ng-template>
+          <ng-template #feedbackOnDate let-data>
+            <p
+              (click)="router.navigate([language + '/order', route.snapshot.params.id, 'claims', data.id])"
+              class="text-blue-600 hover:text-blue-800 font-medium truncate cursor-pointer"
+            >
+              {{ data?.createdOnDate | formatDate : 'DD/MM/YYYY - HH:mm' }}
+            </p>
+          </ng-template>
+          <ng-template #status let-data>
+            <div *ngIf="data?.statusCode == 'APPROVE'" class="inline-block px-2 h-5 text-white bg-orange-500">
+              {{ 'routes.admin.order.Not fixed the error' | translate }}
+            </div>
+            <div *ngIf="data?.statusCode == 'CLOSED'" class="inline-block px-2 h-5 text-white bg-blue-500">
+              {{ 'routes.admin.order.Fixed the error' | translate }}
+            </div>
+            <div *ngIf="data?.statusCode == 'WAIT_FOR_APPROVAL'" class="inline-block px-2 h-5 text-white bg-yellow-500">
+              {{ 'routes.admin.order.WAIT_FOR_APPROVAL' | translate }}
+            </div>
+            <div *ngIf="data?.statusCode == 'REJECTED'" class="inline-block px-2 h-5 text-white bg-red-500">
+              {{ 'routes.admin.order.REJECTED' | translate }}
+            </div>
+          </ng-template>
+          <ng-template #claimDescription let-data>
+            <p class="text-black font-medium truncate">{{ data?.claimDescription }}</p>
+          </ng-template>
+        </g-datatable>
+      </div>
+
+      <div class="flex gap-x-5 justify-end bg-white py-4 mt-1.5 pr-5 rounded-md">
+        <button class="h-8 hover:opacity-80 px-4 bg-red-600 rounded-md text-sm font-semibold text-white">
+          {{ 'routes.admin.order.Create a meeting' | translate }}
+        </button>
+        <button
+          (click)="router.navigate([language + '/order', this.route.snapshot.params.id, 'changeFarmer'])"
+          class="h-8 hover:opacity-80 px-4 bg-green-600 rounded-md text-sm font-semibold text-white"
+        >
+          {{ 'routes.admin.order.Change farmer' | translate }}
+        </button>
+        <button
+          [routerLink]="[language + '/order', this.route.snapshot.params.id]"
+          class="h-8 hover:opacity-80 px-4 bg-gray-300 rounded-md text-sm font-semibold mr-2"
+        >
+          {{ 'routes.admin.order.Close' | translate }}
+        </button>
+      </div>
+    </div>
+  </section>
+</main>
+<g-modal-form
+  (clickCancel)="isVisibleCancel = false"
+  (clickOk)="handleOkModal($event)"
+  [columns]="columnsCancel"
+  [title]="'Nhập lí do'"
+  [visible]="isVisibleCancel"
+  [widthLabel]="0"
+  [width]="600"
+>
+</g-modal-form>

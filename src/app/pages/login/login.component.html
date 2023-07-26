@@ -1,0 +1,28 @@
+<div class="mb-8">
+  <h1 class="intro-x text-4xl mb-3 font-semibold" id="title">{{ 'routes.auth.login.title' | translate }}</h1>
+  <h5 class="intro-x font-medium text-gray-300">{{ 'routes.auth.login.subTitle' | translate }}</h5>
+</div>
+
+<div class="intro-x">
+  <g-form
+    [widthLabel]="0"
+    [columns]="columns"
+    [loading]="globalFacade.isLoading$ | async"
+    (handSubmit)="submitForm($event)"
+    [isBack]="false"
+    textSubmit="{{ 'routes.auth.login.loginButton' | translate }}"
+  ></g-form>
+</div>
+
+<!-- <div class="mt-3 intro-x">
+  Don't have an account?
+  <a class="text-blue-500 hover:text-blue-400" [routerLink]="['/auth/register']">{{
+    'routes.auth.login.signUp' | translate
+  }}</a>
+</div>
+<div class="mt-1 intro-x">
+  {{ 'routes.auth.login.dontRememberYourPass' | translate }}
+  <a class="text-blue-500 hover:text-blue-400" [routerLink]="['/auth/forgot-password']">{{
+    'routes.auth.forgot.forgot-pass' | translate
+  }}</a>
+</div> -->

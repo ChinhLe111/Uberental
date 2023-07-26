@@ -1,0 +1,44 @@
+<div *ngIf="total && total > 0" class="flex items-center justify-between mt-3 select-none">
+  <label>
+    <nz-select
+      *ngIf="showSizeChanger"
+      class="min-w-[115px]"
+      [(ngModel)]="size"
+      (ngModelChange)="onPageSizeChange(size); buildIndexes()"
+      nzShowSearch
+    >
+      <nz-option *ngFor="let item of pageSizeOptions" [nzValue]="item" nzLabel="{{ item }} / page"></nz-option>
+    </nz-select>
+    <span *ngIf="showTotal" class="ml-3 text-black">
+      {{ ranges[0] }}
+      -{{ ranges[1] }} {{ 'components.data-table.of' | translate }} {{ total }}
+      {{ 'components.data-table.items' | translate }}
+    </span>
+  </label>
+
+  <div class="flex justify-center border border-gray-200 h-7 rounded-md bg-white ml-1">
+    <div class="flex flex-wrap justify-center items-center p-0.5">
+      <a
+        href="#"
+        *ngFor="let item of listOfPageItem"
+        class="text-center duration-300 transition-all py-0.5 px-1.5 text-xs font-medium"
+        [attr.aria-label]="'page ' + item.index"
+        (click)="
+          onPageIndexChange(item.type == 'prev' ? page - 1 : item.type == 'next' ? page + 1 : item.index);
+          $event.preventDefault()
+        "
+        [ngClass]="{
+          'text-blue-700 hover:text-blue-500': page != item.index,
+          'bg-blue-500 rounded-full text-white hover:text-white': page == item.index,
+          'pointer-events-none': item.disabled || ['next_5', 'prev_5'].includes(item.type)
+        }"
+      >
+        <i *ngIf="item.type == 'prev'" class="las la-angle-left text-xs"></i>
+        <i *ngIf="item.type == 'next'" class="las la-angle-right text-xs"></i>
+        <span *ngIf="item.type == 'page'">{{ item.index }}</span>
+        <span *ngIf="item.type == 'prev_5'">...</span>
+        <span *ngIf="item.type == 'next_5'">...</span>
+      </a>
+    </div>
+  </div>
+</div>

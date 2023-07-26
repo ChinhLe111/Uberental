@@ -1,0 +1,65 @@
+<div class="py-5 px-2.5 -intro-x" *ngIf="datasFacade.status$ | async">
+    <div class="container mx-auto flex">
+      <button tabindex="0" (click)="handleBack()" [title]="'routes.admin.Layout.back' | translate">
+        <i class="las la-arrow-left text-3xl text-blue-600"></i>
+      </button>
+      <h2 class="text-2xl pl-3 font-semibold">
+        {{ (id ? 'routes.admin.data.updateData' : 'routes.admin.data.addNewData') | translate }}
+      </h2>
+    </div>
+  </div>
+  <section class="bg-gray-100 min-h-[calc(100vh-177px)] rounded-tl-md rounded-tr-md py-3 intro-x">
+    <div class="container flex-wrap p-5 mx-auto flex gap-x-5">
+      <div class=" flex-1 bg-white rounded-md p-5 -intro-x">
+        <div class="p-5 border">
+          <p class="font-semibold text-black text-xl pb-2">{{ 'routes.admin.data.info' | translate }}</p>
+            <g-form
+              #formData
+              [columns]="columnsData"
+              [loading]="datasFacade.isLoading$ | async"
+              [values]="!id ? null : datasFacade.data$ | async"
+            ></g-form>
+            <div class="mt-3 p-5 bg-white flex justify-end sticky bottom-0 z-50 gap-5">
+              <g-button
+                [loading]="datasFacade.isLoading$ | async"
+                (click)="handelSubmit(formUpload)"
+                [text]="'components.form.save' | translate"
+                extendClass="bg-blue-600 text-white border hover:bg-blue-300 rounded-md w-24 !h-8 !px-0 font-medium"
+              >
+              </g-button>
+              <g-button
+                [loading]="datasFacade.isLoading$ | async"
+                (click)="handleBack()"
+                [text]="'components.form.close' | translate"
+                extendClass="!bg-gray-200 !text-black hover:!text-blue-300 border rounded-md w-24 !h-8 !px-0 font-medium"
+              >
+              </g-button>
+            </div>
+        </div>
+      </div>
+      <div class="w-[402px] bg-white rounded-md p-5 intro-x">
+        <div class="border p-5">
+          <nz-spin [nzSpinning]="uploadFacade.isLoading$ | async">
+            <form [formGroup]="formUploadd" *ngIf="templateUpload.length > 0">
+              <p class="font-semibold text-xl pb-2">{{ 'routes.admin.post.image' | translate }}</p>
+              <div class="mb-5" *ngFor="let template of uploadFacade.attachmentTemplates$ | async">
+                <nz-form-item class="w-full !mb-5 col-span-4">
+                  <nz-form-label class="w-full text-left font-medium text-black text-base mb-1.5">{{
+                    template.docTypeName | translate
+                    }}</nz-form-label>
+                  <nz-form-control>
+                    <g-upload
+                      [isDescription]="false"
+                      [cols]="4"
+                      [physicalPath]="template.docType"
+                      [formControlName]="template.docType"
+                    ></g-upload>
+                  </nz-form-control>
+                </nz-form-item>
+              </div>
+            </form>
+          </nz-spin>
+        </div>
+      </div>
+    </div>
+  </section>

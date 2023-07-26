@@ -1,0 +1,167 @@
+<g-modal
+  [visible]="isVisible"
+  [title]="'routes.admin.wallet.deposit_order' | translate"
+  (clickCancel)="handleCancelDetail()"
+  [contentModal]="contentModal"
+  [notFooter]="true"
+  [width]="600"
+>
+  <ng-template #contentModal>
+    <div class="m-2" *ngIf="walletDepositsFacade.data$ | async as deposits">
+      <h3 class="my-3 font-medium text-base" *ngIf="user?.level! > 8">
+        {{ 'routes.admin.wallet.creator' | translate }}
+      </h3>
+      <table class="table w-full">
+        <tr *ngIf="user?.level! > 8">
+          <th>{{ 'routes.admin.wallet.full_name_ctv' | translate }}</th>
+          <td>{{ deposits.createdByUser }}</td>
+        </tr>
+        <tr *ngIf="user?.level! > 8">
+          <th>{{ 'routes.admin.wallet.phone' | translate }}</th>
+          <td>{{ deposits.createdByUserPhone }}</td>
+        </tr>
+        <tr *ngIf="user?.level! < 9">
+          <th>{{ 'routes.admin.wallet.note' | translate }}</th>
+          <td class="whitespace-pre-line">
+            {{ 'routes.admin.wallet.note_description' | translate }}
+          </td>
+        </tr>
+        <tr>
+          <th>{{ 'routes.admin.wallet.command_status' | translate }}</th>
+          <td>
+            <button
+              class="cursor-default px-2 py-1"
+              [ngStyle]="{
+                backgroundColor: listColorStatus[deposits.status],
+                borderColor: listColorStatus[deposits.status],
+                color: '#FFFFFF'
+              }"
+            >
+              {{ 'routes.admin.status.' + deposits.status | translate }}
+            </button>
+          </td>
+        </tr>
+        <tr *ngIf="user?.level! > 8 && deposits.status === 'CANCELED'">
+          <th>{{ 'routes.admin.wallet.reason_for_cancellation' | translate }}</th>
+          <td>{{ deposits.cancelReason }}</td>
+        </tr>
+      </table>
+      <h3 class="my-3 font-medium text-base">{{ 'routes.admin.wallet.transfer_information' | translate }}</h3>
+      <p class="mb-3">{{ 'routes.admin.wallet.note_transfer_information' | translate }}</p>
+      <table class="table w-full">
+        <tr>
+          <th>{{ 'routes.admin.wallet.content' | translate }}</th>
+          <td>
+            <strong>{{ deposits.transferContent }}</strong>
+          </td>
+        </tr>
+        <tr>
+          <th>{{ 'routes.admin.wallet.money_amount' | translate }}</th>
+          <td>
+            <strong>{{ deposits.amount | formatCurrency : '₫' }}</strong>
+          </td>
+        </tr>
+        <tr>
+          <th>{{ 'routes.admin.wallet.go_to_the_bank' | translate }}</th>
+          <td>{{ deposits.bankName }}</td>
+        </tr>
+        <tr>
+          <th>{{ 'routes.admin.wallet.go_to_the_account_number' | translate }}</th>
+          <td>{{ deposits.bankAccountNumber }}</td>
+        </tr>
+        <tr>
+          <th>{{ 'routes.admin.wallet.go_to_the_account_holder' | translate }}</th>
+          <td>{{ deposits.bankAccountName }}</td>
+        </tr>
+      </table>
+      <h3 class="my-3 font-medium text-base">{{ 'routes.admin.wallet.payment_information' | translate }}</h3>
+      <table class="table w-full">
+        <tr>
+          <th>{{ 'routes.admin.wallet.payment_status' | translate }}</th>
+          <td>
+            <button
+              class="cursor-default px-2 py-1"
+              [ngStyle]="{
+                backgroundColor: deposits.isTransferConfirmed ? '#5260ff' : '#92949C',
+                borderColor: deposits.isTransferConfirmed ? '#5260ff' : '#92949C',
+                color: '#FFFFFF'
+              }"
+            >
+              {{ 'routes.admin.wallet.' + (deposits.isTransferConfirmed ? 'confirmed' : 'unconfirmed') | translate }}
+            </button>
+          </td>
+        </tr>
+        <tr *ngIf="deposits.isTransferConfirmed">
+          <th>{{ 'routes.admin.wallet.transaction_time' | translate }}</th>
+          <td>
+            {{ deposits.transferConfirmedDate | formatDate : 'HH:mm:ss DD/MM/YYYY' }}
+          </td>
+        </tr>
+        <tr>
+          <th>{{ 'routes.admin.wallet.reception_status' | translate }}</th>
+          <td>
+            <button
+              class="cursor-default px-2 py-1"
+              [ngStyle]="{
+                backgroundColor: deposits.isReceived ? '#5260ff' : '#92949C',
+                borderColor: deposits.isReceived ? '#5260ff' : '#92949C',
+                color: '#FFFFFF'
+              }"
+            >
+              {{
+                'routes.admin.wallet.' + (deposits.isReceived ? 'credited_to_the_account' : 'unconfirmed') | translate
+              }}
+            </button>
+          </td>
+        </tr>
+        <tr *ngIf="deposits.receivedDate && user?.level! > 9">
+          <th>{{ 'routes.admin.wallet.reception_time' | translate }}</th>
+          <td>{{ deposits.receivedDate | formatDate : 'HH:mm:ss DD/MM/YYYY' }}</td>
+        </tr>
+        <tr *ngIf="deposits.receivalConfirmedBy && user?.level! > 9">
+          <th>{{ 'routes.admin.wallet.confirmed_by' | translate }}</th>
+          <td>{{ deposits.receivalConfirmedBy }}</td>
+        </tr>
+      </table>
+      <div class="text-right my-5">
+        <ng-template [ngForOf]="deposits.allowedActions" ngFor let-status>
+          <button
+            class="p-2 ml-5 rounded-md"
+            (click)="handleStatus(status, deposits)"
+            [ngStyle]="{
+              backgroundColor: listColorStatus[status],
+              borderColor: listColorStatus[status],
+              color: '#FFFFFF'
+            }"
+          >
+            {{ 'routes.admin.status.' + status | translate }}
+          </button>
+        </ng-template>
+      </div>
+      <ng-container *ngIf="(detail?.messages)!.length > 0">
+        <h3 class="my-3 font-medium text-base">{{ 'routes.admin.wallet.list_of_related_SMS' | translate }}</h3>
+        <p class="mb-3">{{ 'routes.admin.wallet.select_a_message_to_match_the_command' | translate }}</p>
+        <g-datatable
+          #tableMessage
+          [columns]="columnsMessages"
+          [data]="detail?.messages"
+          [total]="0"
+          [showSearch]="false"
+          [save]="false"
+        >
+        </g-datatable>
+      </ng-container>
+    </div>
+  </ng-template>
+</g-modal>
+
+<g-modal-form
+  [visible]="isVisibleCancel"
+  [title]="'routes.admin.wallet.cancel_command' | translate"
+  (clickOk)="handleOkModal($event)"
+  (clickCancel)="handleCancelModal()"
+  [columns]="columnsCancel"
+  [width]="600"
+  [widthLabel]="0"
+>
+</g-modal-form>

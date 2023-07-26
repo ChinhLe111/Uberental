@@ -1,0 +1,445 @@
+<div class="datatable-wrapper overflow-y-hidden">
+  <div
+    *ngIf="!!leftHeader || showSearch || renderGrid || rightHeader"
+    class="mb-3 w-full flex"
+    [ngClass]="alignBetween ? 'justify-between' : 'justify-start'"
+  >
+    <div class="flex space-x-2 mt-1">
+      <div *ngIf="showSearch">
+        <div class="relative">
+          <input
+            class="w-60 h-7 rounded-md text-gray-600 bg-white border border-solid border-gray-200 pr-7 pl-2"
+            [(ngModel)]="search"
+            type="text"
+            placeholder="{{ 'components.data-table.pleaseEnterValueToSearch' | translate }}"
+            (change)="searchFull()"
+          />
+          <i class="text-base las la-search absolute top-0.5 right-3 z-[1]"></i>
+        </div>
+      </div>
+      <ng-container [ngTemplateOutlet]="leftHeader"></ng-container>
+
+      <div [ngClass]="{ 'ml-4': showSearch }" *ngIf="showLayout && renderGrid">
+        <div class="flex rounded-md overflow-hidden">
+          <button
+            type="button"
+            class="px-4 py-1 flex items-center"
+            [ngClass]="{
+              'bg-blue-500 text-white hover:bg-blue-400': display === 1,
+              'bg-white text-blue-700': display !== 1
+            }"
+            (click)="handleChangeDisplay(1)"
+          >
+            <i class="las la-th-list la-lg leading-5"></i>
+            <span class="ml-1">{{ 'components.data-table.Table' | translate }}</span>
+          </button>
+          <button
+            type="button"
+            class="px-4 py-1 flex items-center"
+            [ngClass]="{
+              'bg-blue-500 text-white hover:bg-blue-400': display === 2,
+              'bg-white text-blue-700': display !== 2
+            }"
+            (click)="handleChangeDisplay(2)"
+          >
+            <i class="las la-th-large la-lg leading-5"></i>
+            <span class="ml-1">{{ 'components.data-table.Grid' | translate }}</span>
+          </button>
+        </div>
+      </div>
+      <div *ngIf="display === 2 && filterGrid" class="grid grid-flow-col auto-cols-max gap-2.5">
+        <ng-container [ngTemplateOutlet]="filterGrid"></ng-container>
+      </div>
+    </div>
+
+    <div>
+      <ng-container [ngTemplateOutlet]="rightHeader"></ng-container>
+    </div>
+  </div>
+
+  <nz-table
+    *ngIf="display === 1"
+    #nzTable
+    class="mr-0"
+    nzSize="small"
+    nzShowPagination="false"
+    [nzData]="data || []"
+    [nzPageSize]="paramTable.size"
+    nzTableLayout="fixed"
+    [nzLoading]="loading"
+    [nzScroll]="!!width ? { x: width, y: null } : {}"
+  >
+    <thead *ngIf="showHeader">
+      <tr>
+        <th nzWidth="30px" *ngIf="expandTemplate"></th>
+        <th
+          *ngIf="showCheckbox"
+          [nzWidth]="withCheckbox"
+          [nzChecked]="checked"
+          [nzIndeterminate]="indeterminate"
+          (nzCheckedChange)="onAllChecked($event)"
+        ></th>
+        <th *ngIf="showCount" [nzWidth]="maxLengthCount * 13 + 30 + 'px'" class="!text-center">
+          {{ 'components.data-table.stt' | translate }}
+        </th>
+        <ng-template ngFor let-i="index" let-column [ngForOf]="columns">
+          <th
+            *ngIf="!!column.tableItem && column.tableItem.sort === undefined"
+            [nzAlign]="column.tableItem.align ? column.tableItem.align : 'left'"
+            [nzColumnKey]="column.name"
+            [nzWidth]="column.tableItem.width || null"
+            [nzCustomFilter]="!!column.tableItem.filter"
+          >
+            {{ column.title || '' | translate }}
+            <ng-template [ngIf]="!!column.tableItem.filter">
+              <nz-filter-trigger
+                [(nzVisible)]="!!column.tableItem.filter.visible"
+                (nzVisibleChange)="checkFilter($event, i)"
+                [nzActive]="checkActive(column)"
+                [nzDropdownMenu]="dropdownFilter"
+              >
+                <i
+                  class="las la-lg"
+                  [ngClass]="{
+                    'la-search': column.tableItem.filter.type === 'search',
+                    'la-check-square': column.tableItem.filter.type === 'checkbox',
+                    'la-dot-circle': column.tableItem.filter.type === 'radio',
+                    'la-calendar': column.tableItem.filter.type === 'date'
+                  }"
+                ></i>
+              </nz-filter-trigger>
+              <nz-dropdown-menu #dropdownFilter="nzDropdownMenu">
+                <div class="ant-table-filter-dropdown">
+                  <div class="container" [ngSwitch]="column.tableItem.filter.type">
+                    <input
+                      *ngSwitchDefault
+                      class="ant-input px-4"
+                      type="text"
+                      placeholder="{{ 'components.data-table.pleaseEnterValueToSearch' | translate }}"
+                      [(ngModel)]="column.tableItem.filter.value"
+                      (ngModelChange)="logFilter($event)"
+                    />
+                    <nz-checkbox-wrapper *ngSwitchCase="'checkbox'" (nzOnChange)="logFilter($event)">
+                      <label
+                        nz-checkbox
+                        [nzValue]="o.value"
+                        *ngFor="let o of column.tableItem.filter.list"
+                        [ngModel]="
+                          !!column.tableItem.filter.value &&
+                          o.value &&
+                          column.tableItem.filter.value.indexOf(o.value) > -1
+                        "
+                        >{{ o.label }}</label
+                      >
+                    </nz-checkbox-wrapper>
+                    <nz-radio-group
+                      *ngSwitchCase="'radio'"
+                      [(ngModel)]="column.tableItem.filter.value"
+                      (ngModelChange)="logFilter($event)"
+                    >
+                      <label nz-radio [nzValue]="o.value" *ngFor="let o of column.tableItem.filter.list">{{
+                        o.label
+                      }}</label>
+                    </nz-radio-group>
+                    <nz-range-picker
+                      *ngSwitchCase="'date'"
+                      [(ngModel)]="column.tableItem.filter.value"
+                      (ngModelChange)="logFilter($event)"
+                    ></nz-range-picker>
+                  </div>
+                  <div class="group-btn mt-1">
+                    <button
+                      type="button"
+                      class="border bg-white text-gray-600 hover:border-blue-500 hover:text-blue-500 border-gray-300 px-2 py-1.5 rounded-md transition-all duration-300"
+                      (click)="resetFilter(i, column.name)"
+                    >
+                      {{ 'components.data-table.reset' | translate }}
+                    </button>
+
+                    <button
+                      type="button"
+                      class="search-button border bg-blue-500 text-white hover:bg-blue-400 px-2 py-1.5 rounded-md transition-all duration-300 flex items-center"
+                      [ngClass]="!filterValue ? 'pointer-events-none border-gray-300 bg-gray-100 text-gray-400' : ''"
+                      [disabled]="!filterValue"
+                      (click)="filter(column.name, i, filterValue)"
+                    >
+                      <i class="las la-search"></i>
+                      <span class="ml-1">{{ 'components.data-table.search' | translate }}</span>
+                    </button>
+                  </div>
+                </div>
+              </nz-dropdown-menu>
+            </ng-template>
+          </th>
+
+          <th
+            *ngIf="!!column.tableItem && column.tableItem.sort !== undefined"
+            [nzAlign]="column.tableItem.align ? column.tableItem.align : 'left'"
+            [nzColumnKey]="column.name"
+            [nzSortOrder]="column.tableItem.sort || null"
+            [nzSortFn]="compare"
+            (nzSortOrderChange)="sort($event, column.name)"
+            [nzWidth]="column.tableItem.width || null"
+            [nzCustomFilter]="!!column.tableItem.filter"
+          >
+            {{ column.title || '' | translate }}
+            <ng-template [ngIf]="!!column.tableItem.filter">
+              <nz-filter-trigger
+                [(nzVisible)]="!!column.tableItem.filter.visible"
+                (nzVisibleChange)="checkFilter($event, i)"
+                [nzActive]="checkActive(column)"
+                [nzDropdownMenu]="dropdownFilter"
+              >
+                <i
+                  class="las la-lg"
+                  [ngClass]="{
+                    'la-search': column.tableItem.filter.type === 'search',
+                    'la-check-square': column.tableItem.filter.type === 'checkbox',
+                    'la-dot-circle': column.tableItem.filter.type === 'radio',
+                    'la-calendar': column.tableItem.filter.type === 'date'
+                  }"
+                ></i>
+              </nz-filter-trigger>
+              <nz-dropdown-menu #dropdownFilter="nzDropdownMenu">
+                <div class="ant-table-filter-dropdown">
+                  <div class="container" [ngSwitch]="column.tableItem.filter!.type">
+                    <input
+                      *ngSwitchDefault
+                      class="ant-input px-4"
+                      type="text"
+                      placeholder="{{ 'components.data-table.pleaseEnterValueToSearch' | translate }}"
+                      [(ngModel)]="column.tableItem.filter.value"
+                      (ngModelChange)="logFilter($event)"
+                    />
+                    <nz-checkbox-wrapper *ngSwitchCase="'checkbox'" (nzOnChange)="logFilter($event)">
+                      <label
+                        nz-checkbox
+                        [nzValue]="o.value"
+                        *ngFor="let o of column.tableItem.filter.list"
+                        [ngModel]="
+                          !!column.tableItem.filter.value &&
+                          o.value &&
+                          column.tableItem.filter.value.indexOf(o.value) > -1
+                        "
+                        >{{ o.label }}</label
+                      >
+                    </nz-checkbox-wrapper>
+                    <nz-radio-group
+                      *ngSwitchCase="'radio'"
+                      [(ngModel)]="column.tableItem.filter.value"
+                      (ngModelChange)="logFilter($event)"
+                    >
+                      <label nz-radio [nzValue]="o.value" *ngFor="let o of column.tableItem.filter.list">{{
+                        o.label
+                      }}</label>
+                    </nz-radio-group>
+                    <nz-range-picker
+                      *ngSwitchCase="'date'"
+                      [(ngModel)]="column.tableItem.filter.value"
+                      (ngModelChange)="logFilter($event)"
+                    ></nz-range-picker>
+                  </div>
+                  <div class="group-btn mt-1">
+                    <button
+                      type="button"
+                      class="border bg-white text-gray-600 hover:border-blue-500 hover:text-blue-500 border-gray-300 px-2 py-1.5 rounded-md transition-all duration-300"
+                      (click)="resetFilter(i, column.name)"
+                    >
+                      {{ 'components.data-table.reset' | translate }}
+                    </button>
+
+                    <button
+                      type="button"
+                      class="search-button border bg-blue-500 text-white hover:bg-blue-400 px-2 py-1.5 rounded-md transition-all duration-300 flex items-center"
+                      [ngClass]="!filterValue ? 'pointer-events-none border-gray-300 bg-gray-100 text-gray-400' : ''"
+                      [disabled]="!filterValue"
+                      (click)="filter(column.name, i, filterValue)"
+                    >
+                      <i class="las la-search"></i>
+                      <span class="ml-1">{{ 'components.data-table.search' | translate }}</span>
+                    </button>
+                  </div>
+                </div>
+              </nz-dropdown-menu>
+            </ng-template>
+          </th>
+        </ng-template>
+      </tr>
+    </thead>
+    <tbody>
+      <ng-template ngFor let-data [ngForOf]="nzTable.data" let-i="index">
+        <tr (click)="handleClickRow(data)" [ngClass]="classRow(data, extendData)">
+          <td *ngIf="expandTemplate" (click)="handleExpandChange(data.id, expandSet.has(data.id), data?.isHideExpand)">
+            <i
+              *ngIf="!data?.isHideExpand"
+              class="las la-angle-right transition-all duration-300 ease-in-out"
+              [ngClass]="{ 'rotate-90': expandSet.has(data.id) }"
+            ></i>
+          </td>
+          <td
+            *ngIf="showCheckbox"
+            [nzDisabled]="checkboxCondition && checkboxCondition(data)"
+            [nzChecked]="setOfChecked.has(data[checkboxValue])"
+            (nzCheckedChange)="onItemChecked(data, $event)"
+            [ngStyle]="{
+              backgroundColor: columns && !!columns[0]!.tableItem?.bgColor && columns[0].tableItem?.bgColor(data),
+              color:
+                columns &&
+                columns[0] &&
+                !!columns[0]!.tableItem?.bgColor &&
+                pickTextColorBasedOnBgColorAdvanced(columns[0].tableItem?.bgColor(data), '#FFFFFF', '#1a1b25')
+            }"
+          ></td>
+          <td
+            *ngIf="showCount && columns && columns.length > 0"
+            [ngStyle]="{
+              backgroundColor: columns && !!columns[0]!.tableItem?.bgColor && columns[0].tableItem?.bgColor(data),
+              color:
+                columns &&
+                columns[0] &&
+                !!columns[0]!.tableItem?.bgColor &&
+                pickTextColorBasedOnBgColorAdvanced(columns[0].tableItem?.bgColor(data), '#FFFFFF', '#1a1b25')
+            }"
+            class="!text-center"
+          >
+            <span *ngIf="i + (paramTable.page - 1) * paramTable.size + 1 < 10">0</span
+            >{{ i + (paramTable.page - 1) * paramTable.size + 1 }}
+          </td>
+          <ng-template ngFor let-column [ngForOf]="columns">
+            <td
+              *ngIf="!!column.tableItem && !column.tableItem.render"
+              (click)="column.tableItem.onClick && column.tableItem.onClick(data)"
+              [ngStyle]="{
+                backgroundColor: column.tableItem.bgColor && column.tableItem.bgColor(data),
+                color:
+                  column.tableItem.bgColor &&
+                  pickTextColorBasedOnBgColorAdvanced(column.tableItem.bgColor(data), '#FFFFFF', '#1a1b25')
+              }"
+              [align]="column.tableItem.align && column.tableItem.align"
+              [ngClass]="{ hover: !!column.tableItem.onClick, font_large: large }"
+            >
+              <span *ngIf="!column.tableItem.actions && !column.tableItem.renderTemplate">
+                {{ data[column.name] }}
+              </span>
+              <ng-container
+                *ngIf="!!column.tableItem.renderTemplate"
+                [ngTemplateOutlet]="column.tableItem.renderTemplate"
+                [ngTemplateOutletContext]="{ $implicit: data, index: i }"
+              >
+              </ng-container>
+
+              <ng-template
+                [ngIf]="!!column.tableItem.actions"
+                [ngForOf]="column.tableItem.actions"
+                ngFor
+                let-action
+              >
+
+                <ng-template
+                  [ngIf]="!action.condition || action.condition(data)">
+                  <ng-container [ngSwitch]="action.type">
+                    <div *ngSwitchCase="'badge'" class="relative w-auto inline-block">
+                      <ng-container *ngTemplateOutlet="button"></ng-container>
+                      <span class="absolute -top-2.5 -right-1 border border-white min-w-5 h-5 px-1.5 text-xs whitespace-nowrap bg-red-500 text-white rounded-full text-center flex items-center">{{action.text(data) | translate}}</span>
+                    </div>
+                    <ng-container *ngSwitchDefault>
+                      <ng-container *ngTemplateOutlet="button"></ng-container>
+                    </ng-container>
+                  </ng-container>
+                  <ng-template #button>
+                    <button
+                      type="button"
+                      class="border bg-white text-gray-600 hover:text-blue-500 border-gray-300 p-1 text-xs rounded-md mx-0.5"
+                      [disabled]="action.disabled && action.disabled(data)"
+                      *ngIf="action.text"
+                      [ngStyle]="{
+                        backgroundColor: action.bgColor && action.bgColor(data),
+                        color: action.bgColor &&
+                            pickTextColorBasedOnBgColorAdvanced(action.bgColor(data), '#FFFFFF', '#1a1b25')
+                    }"
+                      [ngClass]="{'no-click': !action.onClick, font_large: large, 'pointer-events-none border-gray-300 bg-gray-100 text-gray-400': action.disabled && action.disabled(data)}"
+                      nz-popconfirm
+                      [nzCondition]="!action.confirm"
+                      nzPopconfirmTitle="{{'components.data-table.areYouSureWant' | translate}} {{action?.textConfirm ? (action?.textConfirm(data) | translate) : (action.text(data) | translate).toLowerCase()}}"
+                      (nzOnConfirm)="action.onClick && action.onClick(data, i)"
+                      nzCancelText="{{'components.data-table.cancel' | translate}}"
+                      nzOkText="{{'components.data-table.okay' | translate}}"
+                      nz-popover
+                      [nzPopoverPlacement]="!!action.templateDropdown ? 'left' : 'top'"
+                      [nzPopoverContent]="!action.templateDropdown && !!action.icon ? (action.text(data) | translate) : templateDropdown"
+                    >
+                      <i *ngIf="!!action.icon" class="las {{action.icon(data)}} la-lg"></i>
+                      <span *ngIf="!action.icon">{{action.text(data) | translate}}</span>
+                    </button>
+                  </ng-template>
+                  <ng-template #templateDropdown>
+                    <ng-container [ngTemplateOutlet]="action.templateDropdown" [ngTemplateOutletContext]="{ $implicit: data, index: i }">
+                    </ng-container>
+                  </ng-template>
+
+                </ng-template>
+              </ng-template>
+            </td>
+            <td
+              *ngIf="!!column.tableItem && column.tableItem.render"
+              [ngStyle]="{
+                backgroundColor: column.tableItem.bgColor && column.tableItem.bgColor(data),
+                color: column.tableItem.bgColor
+                  ? pickTextColorBasedOnBgColorAdvanced(column.tableItem.bgColor(data), '#FFFFFF', '#1a1b25')
+                  : '#1a1b25'
+              }"
+              [align]="column.tableItem.align && column.tableItem.align"
+              [innerHtml]="column.tableItem.render(data, i) | translate"
+              (click)="column.tableItem.onClick && column.tableItem.onClick(data)"
+              [ngClass]="{ hover: !!column.tableItem.onClick, font_large: large }"
+            ></td>
+          </ng-template>
+        </tr>
+        <tr *ngIf="expandTemplate" [nzExpand]="expandSet.has(data.id)">
+          <ng-container [ngTemplateOutlet]="expandTemplate" [ngTemplateOutletContext]="{ $implicit: data, index: i }">
+          </ng-container>
+        </tr>
+      </ng-template>
+    </tbody>
+  </nz-table>
+
+  <div *ngIf="display === 1 && showPagination">
+    <g-pagination
+      class="mx-4 block"
+      [total]="total"
+      [page]="paramTable.page"
+      [size]="showPagination ? paramTable.size : data?.length || 0"
+      [pageSizeOptions]="pageSizeOptions"
+      (queryParams)="nzQueryParams($event)"
+    ></g-pagination>
+  </div>
+
+  <div *ngIf="display === 2">
+    <nz-spin [nzSpinning]="loading">
+      <div class="grid grid-cols-12 gap-2.5">
+        <ng-template [ngForOf]="data" ngFor let-item let-i="index">
+          <div
+            class="sm:col-span-6 md:con-span-4 lg:col-span-3 xl:col-span-2"
+            [ngClass]="renderGridTwoColumnMobile ? 'col-span-6' : 'col-span-12'"
+          >
+            <ng-container [ngTemplateOutlet]="renderGrid" [ngTemplateOutletContext]="{ $implicit: item, index: i }">
+            </ng-container>
+          </div>
+        </ng-template>
+      </div>
+      <g-pagination
+        [total]="total"
+        [page]="paramTable.page"
+        [size]="showPagination ? (total === 0 ? size : paramTable.size) : data?.length || 0"
+        [pageSizeOptions]="pageSizeOptions"
+        (pageIndexChange)="
+          nzQueryParams({
+            size: showPagination ? (total === 0 ? size : paramTable.size) : data?.length,
+            page: $event
+          })
+        "
+        (pageSizeChange)="nzQueryParams({ size: $event, page: paramTable.page })"
+      ></g-pagination>
+    </nz-spin>
+  </div>
+</div>

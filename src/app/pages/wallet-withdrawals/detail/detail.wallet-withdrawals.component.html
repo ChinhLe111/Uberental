@@ -1,0 +1,135 @@
+<g-modal
+  [visible]="isVisible"
+  [title]="'routes.admin.wallet.cash_withdrawal_command' | translate"
+  (clickCancel)="handleCancelDetail()"
+  [contentModal]="contentModal"
+  [keyboard]="false"
+  [notFooter]="true"
+  [width]="600"
+>
+  <ng-template #contentModal>
+    <div class="m-2" *ngIf="walletWithDrawalsFacade.data$ | async as withDrawals">
+      <h3 class="my-3 font-medium text-base" *ngIf="user?.level! > 8">
+        {{ 'routes.admin.wallet.creator' | translate }}
+      </h3>
+      <table class="tableWithDrawals w-full">
+        <tr *ngIf="user?.level! > 8">
+          <th>{{ 'routes.admin.wallet.full_name_ctv' | translate }}</th>
+          <td>
+            {{ withDrawals.createdByUser }}
+          </td>
+        </tr>
+        <tr *ngIf="user?.level! > 8">
+          <th>{{ 'routes.admin.wallet.phone' | translate }}</th>
+          <td>
+            {{ withDrawals.createdByUserPhone }}
+          </td>
+        </tr>
+        <tr>
+          <th>{{ 'routes.admin.wallet.command_status' | translate }}</th>
+          <td>
+            <button
+              class="cursor-default px-2 py-1"
+              [ngStyle]="{
+                backgroundColor: listColorStatus[withDrawals.status],
+                borderColor: listColorStatus[withDrawals.status],
+                color: '#FFFFFF'
+              }"
+            >
+              {{ 'routes.admin.status.' + withDrawals.status | translate }}
+            </button>
+          </td>
+        </tr>
+        <tr *ngIf="user?.level! > 8 && withDrawals.status === 'CANCELED'">
+          <th>{{ 'routes.admin.wallet.reason_for_cancellation' | translate }}</th>
+          <td>
+            {{ withDrawals.cancelReason }}
+          </td>
+        </tr>
+      </table>
+      <h3 class="my-3 font-medium text-base">{{ 'routes.admin.wallet.transfer_information' | translate }}</h3>
+      <table class="tableWithDrawals w-full">
+        <tr>
+          <th>{{ 'routes.admin.wallet.content' | translate }}</th>
+          <td>
+            <strong>{{ withDrawals.transferContent }}</strong>
+          </td>
+        </tr>
+        <tr>
+          <th>{{ 'routes.admin.wallet.money_amount' | translate }}</th>
+          <td>
+            <strong>{{ withDrawals.amount | formatCurrency : '₫' }}</strong>
+          </td>
+        </tr>
+        <tr>
+          <th>{{ 'routes.admin.wallet.go_to_the_bank' | translate }}</th>
+          <td>{{ withDrawals.bankName }}</td>
+        </tr>
+        <tr>
+          <th>{{ 'routes.admin.wallet.go_to_the_account_number' | translate }}</th>
+          <td>{{ withDrawals.bankAccountNumber }}</td>
+        </tr>
+        <tr>
+          <th>{{ 'routes.admin.wallet.go_to_the_account_holder' | translate }}</th>
+          <td>{{ withDrawals.bankAccountName }}</td>
+        </tr>
+      </table>
+      <div class="text-right my-5">
+        <ng-template [ngForOf]="withDrawals?.allowedActions" ngFor let-status>
+          <button
+            class="p-2 ml-5 rounded-md"
+            (click)="handleStatus(status, withDrawals)"
+            [ngStyle]="{
+              backgroundColor: listColorStatus[status],
+              borderColor: listColorStatus[status],
+              color: '#FFFFFF'
+            }"
+          >
+            {{ 'routes.admin.status.' + status | translate }}
+          </button>
+        </ng-template>
+      </div>
+      <form [formGroup]="formUpload">
+        <div class="mb-3" *ngFor="let template of uploadFacade.attachmentTemplates$ | async">
+          <h3 class="my-3 font-medium text-base">{{ template.docTypeName }}</h3>
+          <nz-form-item class="w-full !mb-3">
+            <nz-form-control>
+              <g-upload
+                [multiple]="true"
+                [isDescription]="false"
+                [cols]="3"
+                [physicalPath]="template.docType"
+                (handleChange)="changeUpload(formUpload)"
+                [formControlName]="template.docType"
+              ></g-upload>
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+      </form>
+
+      <ng-container *ngIf="(detail?.messages)!.length > 0">
+        <h3 class="my-3 font-medium text-base">{{ 'routes.admin.wallet.list_of_related_SMS' | translate }}</h3>
+        <p class="mb-3">{{ 'routes.admin.wallet.select_a_message_to_match_the_command' | translate }}</p>
+        <g-datatable
+          #tableMessage
+          [columns]="columnsMessages"
+          [data]="detail?.messages"
+          [total]="0"
+          [showSearch]="false"
+          [save]="false"
+        >
+        </g-datatable>
+      </ng-container>
+    </div>
+  </ng-template>
+</g-modal>
+<g-modal-form
+  [visible]="isVisibleCancel"
+  [title]="'routes.admin.wallet.cancel_command' | translate"
+  (clickOk)="handleOkModal($event)"
+  (clickCancel)="handleCancelModal()"
+  [columns]="columnsCancel"
+  [width]="600"
+  [widthLabel]="0"
+>
+</g-modal-form>

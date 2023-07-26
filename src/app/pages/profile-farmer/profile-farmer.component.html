@@ -1,0 +1,140 @@
+<section class="mx-3">
+  <div class="bg-white min-1140-scroll mx-auto -intro-x">
+    <div class="w-full flex justify-between pt-8">
+      <h2 class="text-2xl font-medium">{{ 'routes.admin.profile-farmer.profile_farmer_list' | translate }}</h2>
+    </div>
+    <div class="flex space-x-3 my-5">
+      <div class="space-y-1">
+        <label class="text-gray-700 font-medium">{{ 'routes.admin.profile-farmer.search' | translate }}</label
+        ><br />
+        <div class="relative w-fit">
+          <input
+            class="w-56 h-8 rounded-md text-gray-700 bg-white border border-solid border-gray-200 pr-9 pl-4 outline-blue-400"
+            [(ngModel)]="tableProfileFarmer.search"
+            (change)="tableProfileFarmer.searchFull()"
+            type="text"
+            placeholder="{{ 'routes.admin.profile-farmer.search-by-name-description' | translate }}"
+          />
+          <i class="text-lg las la-search absolute top-1/2 -translate-y-1/2 right-2 z-[1]"></i>
+        </div>
+      </div>
+      <div class="space-y-1">
+        <label class="text-gray-700 font-medium">{{
+          'routes.admin.profile-farmer.date_of_participation' | translate
+        }}</label
+        ><br />
+        <nz-range-picker
+          class="!w-60"
+          nzAllowClear
+          [nzPlaceHolder]="[
+            'routes.admin.profile-farmer.start' | translate,
+            'routes.admin.profile-farmer.end' | translate
+          ]"
+          [(ngModel)]="tableProfileFarmer.paramTable.filter.DateRange"
+          (ngModelChange)="tableProfileFarmer.filter('DateRange', null, $event)"
+        ></nz-range-picker>
+      </div>
+      <div class="space-y-1">
+        <label class="text-gray-700 font-medium">{{ 'routes.admin.profile-farmer.trick' | translate }}</label
+        ><br />
+        <nz-select
+          class="w-72"
+          nzAllowClear
+          nzMode="multiple"
+          nzShowSearch
+          nzPlaceHolder="{{ 'routes.admin.profile-farmer.select' | translate }}"
+          [(ngModel)]="tableProfileFarmer.paramTable.filter.MedicalProcedureCode"
+          (ngModelChange)="tableProfileFarmer.filter('MedicalProcedureCode', null, $event)"
+        >
+          <nz-option
+            *ngFor="let item of (medicalProcedureFacade.pagination$ | async)?.content"
+            [nzValue]="item.code"
+            [nzLabel]="item.name"
+          ></nz-option>
+        </nz-select>
+      </div>
+      <div class="space-y-1">
+        <label class="text-gray-700 font-medium">{{ 'routes.admin.profile-farmer.status' | translate }}</label
+        ><br />
+        <nz-select
+          class="w-36"
+          nzAllowClear
+          nzPlaceHolder="{{ 'routes.admin.profile-farmer.select' | translate }}"
+          [(ngModel)]="tableProfileFarmer.paramTable.filter.StatusCode"
+          (ngModelChange)="tableProfileFarmer.filter('StatusCode', null, $event)"
+        >
+          <nz-option *ngFor="let status of listStatus" [nzValue]="status.status" [nzLabel]="status.label"></nz-option>
+        </nz-select>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="bg-gray-100 rounded-tl-md rounded-tr-md py-3">
+  <div class="h-[calc(100vh-292px)] pr-1 min-1140-scroll mx-auto overflow-y-auto intro-x">
+    <g-datatable
+      #tableProfileFarmer
+      [classRow]="classRow"
+      [heightRow]="46"
+      [extendData]="{ id: id }"
+      [columns]="columnsTable"
+      [loading]="profileFarmerFacade.isLoading$ | async"
+      [data]="(profileFarmerFacade.pagination$ | async)?.content"
+      [total]="(profileFarmerFacade.pagination$ | async)?.totalElements"
+      [showSearch]="false"
+      (ngChange)="profileFarmerFacade.get($event)"
+    >
+      <ng-template #farmerName let-data>
+        <p
+          #farmerName
+          nz-tooltip
+          [nzTooltipTitle]="data?.name"
+          [nzTooltipColor]="'blue'"
+          [nzTooltipTrigger]="farmerName.offsetWidth < farmerName.scrollWidth ? 'hover' : null"
+          class="text-blue-800 hover:text-blue-600 font-medium truncate cursor-pointer"
+          [routerLink]="[data.id]"
+        >
+          {{ data?.name }}
+        </p>
+        <p
+          *ngIf="!data.isTesting"
+          class="px-1 h-4 flex items-center text-xs cursor-default bg-orange-400 text-white w-fit"
+        >
+          {{ data.isTesting ? '' : 'Testing' }}
+        </p>
+      </ng-template>
+      <ng-template #userName let-data>
+        <p
+          #userName
+          nz-tooltip
+          [nzTooltipTitle]="data?.createdByUserName"
+          [nzTooltipColor]="'blue'"
+          [nzTooltipTrigger]="userName.offsetWidth < userName.scrollWidth ? 'hover' : null"
+          class="text-blue-800 hover:text-blue-600 font-medium truncate cursor-pointer"
+          [routerLink]="[data.id]"
+        >
+          {{ data?.createdByUserName }}
+        </p>
+      </ng-template>
+      <ng-template #status let-data>
+        <ng-container *ngFor="let item of listStatus">
+          <div
+            *ngIf="item.status === data?.statusCode"
+            class="inline-block px-2 text-13 text-white"
+            nz-popconfirm
+            nzPopconfirmTitle="{{ 'routes.admin.profile-farmer.areYouSureWant_approve' | translate }}"
+            [nzPopconfirmTrigger]="data?.statusCode == 'WAIT_FOR_APPROVAL' ? 'click' : null"
+            (nzOnConfirm)="profileFarmerFacade.putApproveProfile(data.id)"
+            [ngClass]="{
+              'bg-amber-500': data?.statusCode == 'WAIT_FOR_APPROVAL',
+              'bg-sky-500': data?.statusCode == 'APPROVED'
+            }"
+          >
+            {{ item.label }}
+          </div>
+        </ng-container>
+      </ng-template>
+    </g-datatable>
+  </div>
+</section>
+<div class="text-gray-400"></div>

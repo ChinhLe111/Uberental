@@ -1,0 +1,28 @@
+.ant-modal-wrap  {
+  &.no-center {
+    @apply block;
+
+    .ant-modal {
+      @apply pb-2 ~"top-2.5" transition-all;
+
+    }
+  }
+  .ant-modal {
+    @apply pb-0 top-0;
+
+    &-content { @apply rounded-md; }
+    &-header, &-body { @apply py-2 px-3 rounded-t-md; }
+    &-close-x { @apply w-8 h-8 leading-8; }
+    &-footer { @apply gap-2 flex justify-end; }
+  }
+  &.modal-full-screen {
+    .ant-modal, .ant-modal-content {
+      min-height: 100vh!important;
+      @apply ~'w-[100vw]' m-0 top-0 pb-0;
+    }
+    .ant-modal-body {
+      @apply ~'h-[calc(100vh-55px)]';
+    }
+  }
+}
+

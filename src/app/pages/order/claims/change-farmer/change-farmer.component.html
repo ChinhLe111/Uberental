@@ -1,0 +1,165 @@
+<section class="mx-10">
+  <div class="flex flex-wrap gap-x-8 justify-center pt-10 py-5 px-2.5">
+    <div class="w-[700px] relative">
+      <button class="absolute top-0 -left-9" [routerLink]="[language + '/order', this.route.snapshot.params.id, 'claims']">
+        <i class="las la-arrow-left text-3xl text-blue-600"></i>
+      </button>
+      <h2 class="text-2xl font-semibold">Đổi Farmer</h2>
+    </div>
+    <div class="w-[700px]"></div>
+  </div>
+</section>
+<section class="px-7 bg-gray-100 rounded-tl-md rounded-tr-md pb-10 scroll h-[calc(100vh-187px)] overflow-y-auto">
+  <div class="flex flex-wrap gap-x-8 justify-center h-full">
+    <section class="pt-5">
+      <div class="xl:w-[700px] mb-2 p-5 rounded-md bg-white shadow">
+        <h2 class="font-medium pb-2 text-lg border-b-2 border-gray-200">Thông tin thay đổi</h2>
+        <div class="pb-2 mt-2 w-1/2">
+          <g-form #form [columns]="columnsForm" [widthLabel]="140"></g-form>
+          <div>
+            <label class="!w-36 flex items-center float-left font-medium">Danh sách farmer</label>
+            <button
+              class="py-2 px-2 bg-blue-500 text-white rounded-md hover:opacity-80"
+              (click)="this.view = !this.view"
+            >
+              Xem danh sách
+            </button>
+          </div>
+        </div>
+        <div class="mt-2 font-bold">Farmer được chọn</div>
+        <div *ngIf="!farmer">
+          <div class="shadow p-2 mt-2" *ngIf="OrdersFacade.data$ | async as dataFarmer">
+            <div class="flex">
+              <div class="w-28">
+                <img
+                  [src]="dataFarmer?.farmerProfile?.farmerAvatarUrl"
+                  class="w-24 h-24 object-cover rounded-full shadow"
+                />
+              </div>
+              <div class="pl-6 pr-6 border-r border-dotted w-48">
+                <h2 class="text-blue-500 text-sm font-semibold">{{ dataFarmer?.farmerProfile?.name }}</h2>
+                <p class="text-gray-400 text-xs">{{ dataFarmer?.farmerProfile?.createdByUserName }}</p>
+                <strong class="block mt-4">{{ dataFarmer?.farmerProfile?.medicalDegree?.title }}</strong>
+              </div>
+              <div class="pl-6 pr-16 flex flex-col justify-start w-80 gap-4">
+                <h2 class="text-sm font-semibold mb-4 w-80">Địa chỉ cụ thể</h2>
+                <p class="text-black">{{ dataFarmer?.address }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div *ngIf="farmer">
+          <div class="shadow p-2 mt-2" *ngIf="profileFarmerFacade.data$ | async as dataFarmer">
+            <div class="flex">
+              <div class="w-28">
+                <img [src]="dataFarmer?.farmerAvatarUrl?.fileUrl" class="w-24 h-24 object-cover rounded-full shadow" />
+              </div>
+              <div class="pl-6 pr-6 border-r border-dotted w-48">
+                <h2 class="text-blue-500 text-sm font-semibold">{{ dataFarmer?.name }}</h2>
+                <p class="text-gray-400 text-xs">{{ dataFarmer?.createdByUserName }}</p>
+                <strong class="block mt-4">{{ dataFarmer?.medicalDegree?.title }}</strong>
+              </div>
+              <div class="pl-6 pr-16 flex flex-col gap-4 justify-start w-80">
+                <h2 class="text-sm font-semibold mb-4">Địa chỉ cụ thể</h2>
+                <p class="text-black">
+                  {{
+                    dataFarmer?.address +
+                      ', ' +
+                      dataFarmer?.commune?.communeName +
+                      ', ' +
+                      dataFarmer?.district?.districtName +
+                      ', ' +
+                      dataFarmer?.province?.tenTinh
+                  }}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="mx-auto container xl:w-[700px] bg-white sticky bottom-0 rounded-md z-30 shadow">
+        <div class="flex gap-x-5 justify-end mt-2 p-5 w-full">
+          <g-button [extendClass]="'!bg-blue-500 hover:!opacity-80'" [text]="'Lưu lại'" (click)="handleSubmit()">
+          </g-button>
+          <g-button
+            [routerLink]="[language + '/order', this.route.snapshot.params.id, 'claims']"
+            [text]="'Hủy bỏ'"
+            [extendClass]="'!bg-gray-300 hover:!opacity-80 !text-black'"
+          >
+          </g-button>
+        </div>
+      </div>
+    </section>
+    <section class="py-5 container xl:w-[700px]">
+      <div
+        class="w-full p-5 rounded-md bg-white shadow"
+        [ngClass]="{ hidden: view == false, block: view == true }"
+      >
+        <h2 class="font-medium pb-2 text-lg border-b-2 border-gray-200">Danh sách Farmer</h2>
+        <div class="space-y-1">
+          <label class="text-gray-700 font-medium">{{ 'routes.admin.order.search' | translate }}</label
+          ><br />
+          <div class="relative w-fit">
+            <input
+              class="md:w-56 w-72 h-8 rounded-md text-gray-700 bg-white border border-solid border-gray-200 pr-9 pl-2 outline-blue-400"
+              type="text"
+              placeholder="{{ 'routes.admin.order.search_by_name_description' | translate }}"
+              [(ngModel)]="tableFarmers.search"
+              (change)="tableFarmers.searchFull()"
+            />
+            <i class="text-lg las la-search absolute top-1/2 -translate-y-1/2 right-2 z-[1]"></i>
+          </div>
+        </div>
+        <div class="space-y-1 my-2">
+          <p class="text-black" *ngIf="profileFarmerFacade.data$">
+            Có {{ (profileFarmerFacade.pagination$ | async)?.totalElements }} Farmer gần đây
+          </p>
+        </div>
+        <div class="shadow pb-2 overflow-y-scroll h-[calc(100vh-397px)]">
+          <g-datatable
+            #tableFarmers
+            [columns]="columnsTable"
+            [loading]="profileFarmerFacade.isLoading$ | async"
+            [data]="(profileFarmerFacade.pagination$ | async)?.content"
+            [total]="(profileFarmerFacade.pagination$ | async)?.totalElements"
+            (ngChange)="profileFarmerFacade.get($event)"
+            [showSearch]="false"
+            [showHeader]="false"
+          >
+            <ng-template #image let-data>
+              <div class="m-5 w-max">
+                <img class="w-24 h-24 object-cover rounded-full shadow" [src]="data?.farmerAvatarUrl?.fileUrl" />
+              </div>
+            </ng-template>
+            <ng-template #information let-data>
+              <div class="py-2 border-r-2 border-dotted">
+                <h2 (click)="viewdata(data)" class="text-blue-500 text-sm font-semibold hover:cursor-pointer">
+                  {{ data?.name }}
+                </h2>
+                <p class="text-gray-400 text-xs">{{ data?.createdByUserName }}</p>
+                <strong class="block mt-4">{{ data?.medicalDegree?.title }}</strong>
+                <strong>{{ data?.medicalProcedure }}</strong>
+              </div>
+            </ng-template>
+            <ng-template #address let-data>
+              <div class="my-2 h-full">
+                <h2 class="text-sm font-semibold mb-6">Địa chỉ cụ thể</h2>
+                <p class="block">
+                  {{
+                    data?.address +
+                      ', ' +
+                      data?.commune?.communeName +
+                      ', ' +
+                      data?.district?.districtName +
+                      ', ' +
+                      data?.province?.tenTinh
+                  }}
+                </p>
+              </div>
+            </ng-template>
+          </g-datatable>
+        </div>
+      </div>
+    </section>
+  </div>
+</section>

@@ -1,0 +1,138 @@
+ <div class="py-5 px-2.5 intro-x" *ngIf="postsFacade.status$ | async">
+    <div class="container mx-auto flex">
+      <button tabindex="0" (click)="handleBack()" [title]="'routes.admin.Layout.back' | translate">
+        <i class="las la-arrow-left text-3xl text-blue-600"></i>
+      </button>
+      <h2 class="text-2xl pl-3 font-semibold">
+        {{ (id ? 'routes.admin.post.updatepost' : 'routes.admin.post.addpost') | translate }}
+      </h2>
+    </div>
+  </div>
+  <div class="bg-gray-100 rounded-tl-md rounded-tr-md pb-10 justify-between ">
+    <div class="container flex-wrap p-5 mx-auto flex gap-x-5">
+      <div class=" flex-1 bg-white rounded-md p-5 -intro-x">
+        <div class="p-5 border">
+          <p class="font-semibold text-black text-xl pb-2">{{ 'routes.admin.post.postInfo' | translate }}</p>
+          <g-form
+            #postForm
+            [loading]="postsFacade.isLoading$ | async"
+            [columns]="postColumns"
+            [values]="!id ? null : postData"></g-form>
+          <ng-template #titleSeo>
+            <div class="font-semibold text-[#000000D9] text-xl py-2 border-b">
+              {{ 'routes.admin.post.seoData' | translate }}
+            </div>
+          </ng-template>
+          <div class="mt-3 p-5 bg-white flex justify-end sticky bottom-0 z-50 gap-5">
+            <g-button
+              [loading]="postsFacade.isLoading$ | async"
+              (click)="handelSubmit()"
+              [text]="'components.form.save' | translate"
+              extendClass="bg-blue-600 text-white border hover:bg-blue-300 rounded-md w-24 !h-8 !px-0 font-medium text-base"
+            >
+            </g-button>
+            <g-button
+              [loading]="postsFacade.isLoading$ | async"
+              (click)="handleBack()"
+              [text]="'components.form.close' | translate"
+              extendClass="!bg-gray-200 !text-black hover:!text-blue-300 border !hover:text-blue-300 rounded-md w-24 !h-8 !px-0 font-medium text-base"
+            >
+            </g-button>
+          </div>
+        </div>
+      </div>
+
+      <nz-spin [nzSpinning]="postsFacade.isLoading$ | async">
+        <div class="w-[402px] bg-white rounded-md p-5 intro-x">
+          <form nz-form [formGroup]="validateForm" *ngIf="data">
+            <div class="flex flex-col space-y-4">
+              <div *ngIf="postData" class="p-5 border">
+                <p class="font-semibold text-xl">{{ 'routes.admin.post.summary' | translate }}</p>
+                <div class="pl-2 flex flex-col space-y-2">
+                  <p>
+                    {{ 'routes.admin.post.timeCreate' | translate }}:
+                    {{ postData.createdOnDate | date : 'dd/MM/YYYY HH:mm' }}
+                  </p>
+                  <p>
+                    {{ 'routes.admin.post.status' | translate }}:
+                    <span
+                      [ngClass]="{
+                    'bg-gray-300': postData?.publishStatus === 'DRAFT',
+                    'bg-green-300': postData?.publishStatus === 'APPROVED',
+                    'bg-blue-600 text-white': postData?.publishStatus === 'PUBLISHED',
+                    'bg-yellow-300': postData?.publishStatus === 'REVIEW'
+                  }"
+                      class="px-1" *ngIf="postData?.publishStatus === 'APPROVED'"
+                    >{{ 'routes.admin.post.approved' | translate }}</span
+                    >
+                  </p>
+                  <p>{{ 'routes.admin.post.postBy' | translate }}: {{ postData?.publishedByUsername }}</p>
+                  <p>
+                    {{ 'routes.admin.post.timePost' | translate }}:
+                    {{ postData?.publishedOnDate | date : 'dd/MM/YYYY HH:mm' }}
+                  </p>
+                </div>
+              </div>
+              <div class="border p-5">
+                <p class="font-semibold text-xl pb-2">{{ 'routes.admin.post.image' | translate }}</p>
+                <div class="flex flex-col justify-between">
+                  <nz-form-item class="!block !mb-0">
+                    <div class="ant-form-item-label">
+                      <label class="font-semibold text-sm !mb-0">{{ 'routes.admin.post.imgcover' | translate }}</label>
+                    </div>
+                    <nz-form-control>
+                      <g-upload
+                        [isDescription]="false"
+                        [formControlName]="'post_cover'"
+                        [physicalPath]="'post_cover'"
+                        [title]=""
+                        [enityId]="postData?.id"
+                      ></g-upload>
+                    </nz-form-control>
+                  </nz-form-item>
+
+                  <nz-form-item class="!block !mb-0">
+                    <div class="ant-form-item-label">
+                      <label class="font-semibold text-sm !mb-0">{{ 'routes.admin.post.Thumbnailimg' | translate }}</label>
+                    </div>
+                    <nz-form-control>
+                      <g-upload
+                        [isDescription]="false"
+                        [formControlName]="'post_thumb'"
+                        [physicalPath]="'post_thumb'"
+                        [title]=""
+                        [enityId]="postData?.id"
+                      ></g-upload>
+                    </nz-form-control>
+                  </nz-form-item>
+                </div>
+              </div>
+
+              <div class="p-5 border">
+                <nz-form-item class="!block !mb-0">
+                  <div class="ant-form-item-label">
+                    <label class="!font-semibold !text-xl">{{ 'routes.admin.post.postFormat' | translate }}</label>
+                  </div>
+                  <nz-form-control nzErrorTip="{{ 'routes.admin.post.formatTypeError' | translate }}">
+                    <nz-radio-group
+                      formControlName="formatType"
+                      nzButtonStyle="solid"
+                    >
+                      <label nz-radio nz-radio-button nzValue="STANDARD">Standard</label>
+                      <label nz-radio nz-radio-button nzValue="LONGFORM">Longform</label>
+                    </nz-radio-group>
+                  </nz-form-control>
+                </nz-form-item>
+              </div>
+            </div>
+          </form>
+          <div class="border mt-4 rounded-md p-5">
+            <p class="font-semibold text-black text-xl pb-2">{{ 'routes.admin.post.extraData' | translate }}</p>
+            <div>
+              <g-form #extraForm [columns]="extraDataColumns" [values]="!id ? null : postData" [widthLabel]="-2"></g-form>
+            </div>
+          </div>
+        </div>
+      </nz-spin>
+    </div>
+  </div>

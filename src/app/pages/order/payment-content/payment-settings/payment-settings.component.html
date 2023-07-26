@@ -1,0 +1,69 @@
+<section>
+  <div class="pt-10 py-5 px-2.5">
+    <div class="container xl:w-[900px] mx-auto relative">
+      <button class="absolute top-0 -left-9" [routerLink]="[language + '/order',this.route.snapshot.params.id,'paymentContent']">
+        <i class="las la-arrow-left text-3xl text-blue-600"></i>
+      </button>
+      <h2 class="text-2xl font-semibold">Cài đặt thanh toán</h2>
+    </div>
+  </div>
+</section>
+<section
+  class="bg-gray-100 rounded-tl-md rounded-tr-md py-3 min-h-[calc(100vh-128px)]"
+  *ngIf="OrdersFacade.data$ | async as dataOrder">
+  <div class="mt-10 container xl:w-[600px] mx-auto bg-white">
+    <div class="flex justify-between pt-6 pl-8 pr-12 flex-wrap">
+      <h1 class="text-lg font-semibold">Thông tin thanh toán</h1>
+    </div>
+    <div class="flex justify-between gap-12 border-b pl-8 pr-12 pt-4 py-6 flex-wrap">
+      <div class="min-w-[11rem]">
+        <p>Tiền Hoa hồng thực nhận</p>
+        <strong class="mt-1">{{dataOrder.totalFarmerActuallyReceivedAmount.toLocaleString()}}đ</strong>
+      </div>
+      <div class="min-w-[11rem]">
+        <p>Tiền Farmer Side đặt cọc </p>
+        <strong class="mt-1">{{dataOrder.totalFarmerDepositAmount.toLocaleString()}}đ</strong>
+      </div>
+    </div>
+    <div class="flex justify-between gap-12 border-b pl-8 pr-12 pt-4 py-6 flex-wrap">
+      <div class="min-w-[11rem]">
+        <p>Tổng tiền thanh toán</p>
+        <strong class="mt-1">{{dataOrder.totalCommissionAmount.toLocaleString()}}đ</strong>
+      </div>
+      <div class="min-w-[11rem]" *ngIf="dataOrder.isOneTimeProcedure==false">
+        <p>Ngày orderer xác nhận</p>
+        <strong class="mt-1">{{transform(dataOrder.receivedOnDate)}}</strong>
+      </div>
+    </div>
+    <div class="flex justify-between gap-12 border-b pl-8 pr-12 pt-4 py-6" *ngIf="dataOrder.isOneTimeProcedure==true">
+      <div class="min-w-[11rem]">
+        <p>Ngày orderer xác nhận</p>
+        <strong class="mt-1"
+                *ngIf="dataOrder.CompleteConfirmedDate">{{transform(dataOrder.CompleteConfirmedDate)}}</strong>
+        <strong class="mt-1" *ngIf="!dataOrder.CompleteConfirmedDate">Chưa xác nhận</strong>
+      </div>
+      <div class="min-w-[11rem]">
+        <p class="">Ngày tiền về</p>
+        <strong class="mt-1" *ngIf="dataOrder.paymentEndDate">{{transform(dataOrder.paymentEndDate)}}</strong>
+        <strong class="mt-1" *ngIf="!dataOrder.paymentEndDate">chưa có ngày tiền về</strong>
+      </div>
+    </div>
+  </div>
+  <div class="container xl:w-[600px] bg-white mx-auto rounded-md px-5 pt-5  mt-1"  *ngIf="dataOrder.medicalProcedureGroup.code=='MPG_10' || dataOrder.medicalProcedureGroup.code=='MPG_09'">
+    <h4 class="pb-5 font-semibold text-xl">Cài đặt thanh toán</h4>
+    <g-form #form [columns]="columnsForm"
+            [values]="(OrdersFacade.data$ | async)?.paymentSetting">
+    </g-form>
+  </div>
+  <div class="mt-1 container xl:w-[600px] mx-auto shadow bg-white"
+       *ngIf="(dataOrder.medicalProcedureGroup.code=='MPG_10' || dataOrder.medicalProcedureGroup.code=='MPG_09')&&dataOrder.paymentSetting==null">
+    <div class="flex px-8 py-4 gap-x-5 justify-end">
+      <button class="py-1.5 px-4 bg-blue-500 rounded-md text-sm font-semibold text-white" (click)="handelSubmit()">Đồng
+        ý thanh toán
+      </button>
+      <button class="py-1.5 px-4 bg-gray-300 rounded-md text-sm font-semibold text-black"
+              [routerLink]="[language + '/order',this.route.snapshot.params.id,'paymentContent']">Đóng lại
+      </button>
+    </div>
+  </div>
+</section>

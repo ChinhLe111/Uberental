@@ -1,0 +1,104 @@
+<section class="mx-3 -intro-x" *ngIf="walletListFacade.data$ | async as dataWallet">
+  <div class="bg-white max-w-screen-lg mx-auto flex justify-between">
+    <div class="relative w-full flex items-center">
+      <button class="absolute top-1/2 -translate-y-1/2 -left-12" (click)="handleBack()">
+        <i class="las la-arrow-left text-3xl text-blue-600"></i>
+      </button>
+      <h2 class="text-xl font-medium">
+        {{ 'routes.admin.wallet.wallet_of' | translate }}:<span class="text-2xl ml-2 text-blue-600">{{
+          dataWallet.ownerFullName
+        }}</span>
+      </h2>
+    </div>
+    <div class="my-2 whitespace-nowrap">
+      <p class="">{{ 'routes.admin.wallet.balance_of_the_account' | translate }}:</p>
+      <p class="font-medium text-lg text-blue-600">{{ dataWallet.balance | formatCurrency : '₫' }}</p>
+    </div>
+  </div>
+</section>
+
+<section class="bg-gray-100 rounded-tl-md rounded-tr-md py-3 intro-x">
+  <nz-spin [nzSpinning]="walletListFacade.isLoading$ | async">
+    <div *ngIf="walletListFacade.data$ | async as dataWallet" class="max-w-screen-lg mx-auto bg-white p-2 rounded-md">
+      <nz-tabset
+        nzType="card"
+        [nzTabBarExtraContent]="extraContent"
+        (nzSelectedIndexChange)="selectedIndexChange($event)"
+      >
+        <nz-tab nzTitle="{{ 'routes.admin.wallet.balance_change' | translate }}">
+          <div class="relative w-fit mb-3">
+            <input
+              class="w-56 h-7 rounded-md text-gray-700 bg-white border border-solid border-gray-200 pr-9 pl-4 outline-blue-400"
+              [(ngModel)]="tableTransactions.search"
+              (change)="tableTransactions.searchFull()"
+              type="text"
+              placeholder="{{ 'routes.admin.wallet.enter-to-search' | translate }}"
+            />
+            <i class="text-lg las la-search absolute top-1/2 -translate-y-1/2 right-2 z-[1]"></i>
+          </div>
+          <div class="h-[calc(100vh-298px)] overflow-y-auto">
+            <g-datatable
+              #tableTransactions
+              [columns]="columnsTransactions"
+              [data]="(walletListFacade.transactionsOfWalletPagination$ | async)?.content"
+              [total]="(walletListFacade.transactionsOfWalletPagination$ | async)?.totalElements"
+              [showSearch]="false"
+              (ngChange)="walletListFacade.getTransactionsOfWallet(dataWallet.id, $event)"
+            >
+              <ng-template #moneyAmount let-data>
+                <p
+                  class="font-medium px-2 h-5 flex items-center text-13 text-white w-fit"
+                  [ngClass]="data.amount > 0 ? '!bg-[#318200]' : '!bg-[#ec3737]'"
+                >
+                  {{ data.amount | formatCurrency : '₫' }}
+                </p>
+              </ng-template>
+            </g-datatable>
+          </div>
+        </nz-tab>
+        <nz-tab nzTitle="{{ 'routes.admin.wallet.deposit_command_to_account' | translate }}">
+          <div class="relative w-fit mb-3">
+            <input
+              class="w-56 h-7 rounded-md text-gray-700 bg-white border border-solid border-gray-200 pr-9 pl-4 outline-blue-400"
+              [(ngModel)]="tableDeposits.search"
+              (change)="tableDeposits.searchFull()"
+              type="text"
+              placeholder="{{ 'routes.admin.wallet.enter-to-search' | translate }}"
+            />
+            <i class="text-lg las la-search absolute top-1/2 -translate-y-1/2 right-2 z-[1]"></i>
+          </div>
+          <div class="h-[calc(100vh-298px)] overflow-y-auto">
+            <g-datatable
+              #tableDeposits
+              [columns]="columnsDeposits"
+              [data]="(walletListFacade.depositsOfWalletPagination$ | async)?.content"
+              [total]="(walletListFacade.depositsOfWalletPagination$ | async)?.totalElements"
+              [showSearch]="false"
+              (ngChange)="walletListFacade.getDepositsOfWallet(dataWallet.id, $event)"
+            ></g-datatable>
+          </div>
+          <!--        modal deposits trong wallet-list-->
+          <app-detail-wallet-deposits
+            [isVisible]="isVisibleDeposits"
+            [user]="user"
+            [id]="idDeposits"
+            (handleCancel)="handleUnShowDeposits()"
+          >
+          </app-detail-wallet-deposits>
+        </nz-tab>
+        <ng-template #extraContent>
+          <ng-container *ngIf="walletListFacade.data$ | async as data">
+            <div *ngIf="user?.level === 10" class="text-center my-2">
+              <g-button
+                [extendClass]="!data.locked ? '!bg-[#318200] hover:!opacity-80' : '!bg-[#ec3737] hover:!opacity-80'"
+                [text]="'routes.admin.wallet' + (!data?.locked ? '.lock' : '.unlock') | translate"
+                (click)="handleChangeLock(data.locked)"
+              >
+              </g-button>
+            </div>
+          </ng-container>
+        </ng-template>
+      </nz-tabset>
+    </div>
+  </nz-spin>
+</section>

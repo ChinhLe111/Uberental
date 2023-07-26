@@ -1,0 +1,78 @@
+<section class="mx-3">
+    <div class="bg-white container mx-auto -intro-x">
+      <div class="w-full flex justify-between pt-8">
+        <h2 class="text-2xl font-medium">
+         {{'routes.admin.user.customerManagement' | translate}}
+        </h2>
+      </div>
+
+      <div class="flex flex-row items-center space-x-3 my-5">
+        <div class="space-y-1">
+          <div class="flex flex-col items-start">
+            <nz-form-label class="font-medium">{{ 'components.data-table.search' | translate }}</nz-form-label>
+            <nz-form-control>
+              <div class="relative">
+                <input
+                  class="w-60 ant-input rounded-md text-gray-700 bg-white border border-solid border-gray-200 pr-9 pl-4 outline-blue-400"
+                  [(ngModel)]="tableCustomer.search"
+                  (change)="tableCustomer.searchFull()"
+                  type="text"
+                  placeholder="{{ 'routes.admin.user.search' | translate }}"
+                />
+                <i class="text-lg las la-search absolute top-1/2 -translate-y-1/2 right-2 z-[1]"></i>
+              </div>
+            </nz-form-control>
+          </div>
+        </div>
+        <div class="space-y-1">
+          <div class="flex flex-col items-start">
+            <nz-form-label class="font-medium">{{ 'routes.admin.user.dateOfFiling' | translate }}</nz-form-label>
+            <nz-range-picker
+              class="w-32"
+              nzAllowClear
+              [nzPlaceHolder]="['routes.admin.user.dateStart' | translate, 'routes.admin.user.dateEnd' | translate]"
+              [(ngModel)]="tableCustomer.paramTable.filter.DateRange"
+              (ngModelChange)="filteDateRange($event)"
+            ></nz-range-picker>
+          </div>
+        </div>
+
+      <div class="space-y-1">
+          <div class="flex flex-col items-start">
+            <nz-form-label class="font-medium">{{ 'routes.admin.user.gender' | translate }}</nz-form-label>
+            <nz-select
+              class="w-36"
+              nzAllowClear
+              nzShowSearch
+              nzPlaceHolder="{{ 'routes.admin.user.all' | translate }}"
+              [(ngModel)]="tableCustomer.paramTable.filter.Gender"
+              (ngModelChange)="tableCustomer.filter('Gender', null, $event)"
+            >
+              <nz-option nzValue="MALE" nzLabel="{{ 'routes.admin.user.male' | translate }}"></nz-option>
+              <nz-option nzValue="FEMALE" nzLabel="{{ 'routes.admin.user.female' | translate }}"></nz-option>
+            </nz-select>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="bg-gray-100 rounded-tl-md rounded-tr-md py-3">
+    <div class="p-2.5 intro-x rounded-md container h-[calc(100vh-288px)] overflow-y-auto mx-auto">
+      <g-datatable
+        #tableCustomer
+        [columns]="columnsTable"
+        [loading]="customerFacade.isLoading$ | async"
+        [data]="(customerFacade.pagination$ | async)?.content"
+        [total]="(customerFacade.pagination$ | async)?.totalElements"
+        [showSearch]="false"
+      >
+        <ng-template #name let-data>
+          <button class="text-blue-800 hover:text-blue-600 font-medium text-xs truncate cursor-pointer" [title]="'routes.admin.Layout.detail' | translate">
+            {{ data?.customerName }}
+          </button>
+        </ng-template>
+      </g-datatable>
+    </div>
+  </section>
+

@@ -1,0 +1,82 @@
+<section class="mx-3 -intro-x">
+  <div class="bg-white max-w-[1140px] mx-auto">
+    <div class="flex justify-between items-center">
+      <div class="space-y-1">
+        <nz-radio-group nzButtonStyle="solid" [(ngModel)]="filter" (ngModelChange)="handleFilter($event)">
+          <label nz-radio-button nzValue='{"type": null,"ownerLevel": null}'>{{
+            'routes.admin.wallet.all' | translate
+          }}</label>
+          <label nz-radio-button nzValue='{"type":"SYSTEM","ownerLevel":"0"}'>{{
+            'routes.admin.wallet.system' | translate
+          }}</label>
+          <label nz-radio-button nzValue='{"type":"USER","ownerLevel":"1"}'>Farmer</label>
+          <label nz-radio-button nzValue='{"type":"USER","ownerLevel":"2"}'>Orderer</label>
+        </nz-radio-group>
+        <br />
+        <nz-radio-group
+          nzButtonStyle="solid"
+          [(ngModel)]="filterBalanceFrom"
+          (ngModelChange)="handleFilterBalanceFrom()"
+        >
+          <label nz-radio-button nzValue='{"BalanceFrom": null}'>{{ 'routes.admin.wallet.all' | translate }}</label>
+          <label nz-radio-button nzValue='{"BalanceFrom": 0}'
+            >{{ 'routes.admin.wallet.account_balance' | translate }} > 0</label
+          >
+          <label nz-radio-button nzValue='{"BalanceFrom": 1000000}'
+            >{{ 'routes.admin.wallet.account_balance' | translate }} > 1tr</label
+          >
+          <label nz-radio-button nzValue='{"BalanceFrom": 2000000}'
+            >{{ 'routes.admin.wallet.account_balance' | translate }} > 2tr</label
+          >
+          <label nz-radio-button nzValue='{"BalanceFrom": 3000000}'
+            >{{ 'routes.admin.wallet.account_balance' | translate }} > 3tr</label
+          >
+          <label nz-radio-button nzValue='{"BalanceFrom": 5000000}'
+            >{{ 'routes.admin.wallet.account_balance' | translate }} > 5tr</label
+          >
+        </nz-radio-group>
+      </div>
+      <div class="flex space-x-3 my-5">
+        <div class="space-y-1">
+          <label class="text-gray-700 font-medium">{{ 'routes.admin.wallet.search' | translate }}</label
+          ><br />
+          <div class="relative w-fit">
+            <input
+              class="w-56 h-8 rounded-md text-gray-700 bg-white border border-solid border-gray-200 pr-9 pl-4 outline-blue-400"
+              [(ngModel)]="tableWalletList.search"
+              (change)="tableWalletList.searchFull()"
+              type="text"
+              placeholder="{{ 'routes.admin.wallet.enter-to-search' | translate }}"
+            />
+            <i class="text-lg las la-search absolute top-1/2 -translate-y-1/2 right-2 z-[1]"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="bg-gray-100 rounded-tl-md rounded-tr-md py-3 intro-x">
+  <div class="h-[calc(100vh-228px)] max-w-[1140px] mx-auto overflow-y-auto">
+    <g-datatable
+      #tableWalletList
+      [classRow]="classRow"
+      [extendData]="{ id: id }"
+      [columns]="columnsTable"
+      [data]="(walletListFacade.pagination$ | async)?.content"
+      [total]="(walletListFacade.pagination$ | async)?.totalElements"
+      [loading]="walletListFacade.isLoading$ | async"
+      [showSearch]="false"
+      (ngChange)="walletListFacade.get($event)"
+    >
+      <ng-template #ownerFullName let-data>
+        <p
+          class="text-blue-800 hover:text-blue-600 font-medium truncate cursor-pointer"
+          (click)="detailWalletList(data.id)"
+        >
+          {{ data?.ownerFullName }}
+        </p>
+      </ng-template>
+    </g-datatable>
+  </div>
+</section>

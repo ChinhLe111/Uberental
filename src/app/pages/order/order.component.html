@@ -1,0 +1,190 @@
+<section class="mx-3">
+  <div class="bg-white max-w-[1140px] mx-auto -intro-x">
+    <div class="w-full flex justify-between pt-8 ">
+      <h2 class="text-2xl font-medium">{{ 'routes.admin.order.Single_list' | translate }}</h2>
+    </div>
+    <div class="flex my-5 flex-wrap lg:justify-start justify-center gap-3">
+      <div class="space-y-1">
+        <label class="text-gray-700 font-medium">{{ 'routes.admin.order.search' | translate }}</label><br/>
+        <div class="relative w-fit">
+          <div class="relative mr-2">
+            <input
+              class="w-60 h-8 rounded-md text-gray-600 bg-white border-2 border-solid pr-9 pl-4 text-xs border-gray-200 active:border-blue-400 outline-blue-400"
+              [(ngModel)]="tableOrders.search"
+              (change)="tableOrders.searchFull()"
+              type="text"
+              placeholder="{{ 'components.data-table.pleaseEnterValueToSearch' | translate }}"
+            />
+            <i class="text-lg las la-search absolute top-1.5 right-3 z-[1]"></i>
+          </div>
+        </div>
+      </div>
+      <div class="space-y-1">
+        <label class="text-gray-700 font-medium">{{ 'routes.admin.order.Implementation_date' | translate }}</label><br/>
+        <nz-range-picker
+          class="w-72"
+          nzAllowClear
+          [(ngModel)]="tableOrders.paramTable.filter.DateRange"
+          (ngModelChange)="filteDateRange($event)"
+          [nzPlaceHolder]="['routes.admin.order.start' | translate, 'routes.admin.order.end' | translate]"
+        >
+        </nz-range-picker>
+      </div>
+      <div class="space-y-1">
+        <label class="text-gray-700 font-medium">{{ 'routes.admin.order.procedure_group' | translate }}</label><br/>
+        <nz-select
+          class="w-44"
+          nzAllowClear
+          nzPlaceHolder="{{ 'routes.admin.order.choose' | translate }}"
+          [(ngModel)]="tableOrders.paramTable.filter.MedicalProcedureGroupCode"
+          (ngModelChange)="tableOrders.filter('MedicalProcedureGroupCode', null, $event)"
+        >
+          <nz-option
+            *ngFor="let item of (codeTypesFacade.pagination$ | async)?.content"
+            [nzValue]="item.code"
+            [nzLabel]="item.title"
+          ></nz-option>
+        </nz-select>
+      </div>
+      <div class="space-y-1">
+        <label class="text-gray-700 font-medium">{{ 'routes.admin.order.trick_type' | translate }}</label><br/>
+        <nz-select
+          class="w-44"
+          nzAllowClear
+          nzShowSearch
+          nzPlaceHolder="{{ 'routes.admin.order.choose' | translate }}"
+          [(ngModel)]="tableOrders.paramTable.filter.MedicalProcedureCode"
+          (ngModelChange)="tableOrders.filter('MedicalProcedureCode', null, $event)"
+        >
+          <nz-option
+            *ngFor="let item of (medicalProcedureFacade.pagination$ | async)?.content"
+            [nzValue]="item.code"
+            [nzLabel]="item.name"
+          ></nz-option>
+        </nz-select>
+      </div>
+      <div class="space-y-1">
+        <label class="text-gray-700 font-medium">{{ 'routes.admin.order.trick' | translate }}</label><br/>
+        <nz-select
+          class="w-44"
+          nzAllowClear
+          nzShowSearch
+          nzPlaceHolder="{{ 'routes.admin.order.choose' | translate }}"
+          [(ngModel)]="tableOrders.paramTable.filter.isOneTimeProcedure"
+          (ngModelChange)="tableOrders.filter('isOneTimeProcedure', null, $event)"
+        >
+          <nz-option [nzValue]=true nzLabel="{{ 'routes.admin.order.once' | translate }}"></nz-option>
+          <nz-option [nzValue]=false nzLabel="{{ 'routes.admin.order.twice_or_more' | translate }}"></nz-option>
+        </nz-select>
+      </div>
+      <!-- <div class="space-y-1">
+        <label class="text-gray-700 font-medium">{{ 'routes.admin.order.Status' | translate }}</label><br/>
+        <nz-select
+          class="w-52"
+          nzAllowClear
+          nzShowSearch
+          nzPlaceHolder="{{ 'routes.admin.order.choose' | translate }}"
+          [(ngModel)]="tableOrders.paramTable.filter.statusCode"
+          (ngModelChange)="tableOrders.filter('statusCode', null, $event)"
+        >
+          <nz-option
+            *ngFor="let item of listStatus"
+            [nzValue]="item.status"
+            [nzLabel]="item.label"
+          ></nz-option>
+        </nz-select>
+      </div> -->
+    </div>
+  </div>
+</section>
+
+<section class="bg-gray-100 rounded-tl-md rounded-tr-md py-3">
+  <div class="mt-2 max-w-[1246px] mx-auto intro-x">
+    <div class="flex gap-6 mx-auto justify-center flex-wrap">
+      <div class="relative">
+        <p
+          class="absolute z-10 -top-3 -right-4 rounded-md px-2 text-[0.1 rem] font-semibold bg-red-500 text-white">
+          {{(OrdersFacade.pagination$ | async)?.totalElements}}
+        </p>
+        <button class="p-2 border border-gray-200 shadow rounded-md font-semibold"
+                [ngClass]="{'bg-blue-600 text-white':fitlerStatus=='', 'bg-white text-blue-500': fitlerStatus!=''}"
+                (click)="tableFilter('')"
+        >{{ 'routes.admin.order.All_orders' | translate }}
+        </button>
+      </div>
+      <div *ngFor="let item of listStatus">
+        <div class="relative">
+          <ng-container *ngFor="let it of (OrdersFacade.pagination$ | async)?.statisticOrder,let i=index">
+            <p *ngIf="it.status==item.status"
+               class="absolute z-10 -top-3 -right-4 rounded-md px-2 text-[0.1 rem] font-semibold bg-red-500 text-white">
+              {{it.count}}
+            </p>
+          </ng-container>
+          <button
+            [ngClass]="{'bg-blue-600 text-white':fitlerStatus==item.status, 'bg-white text-blue-500': fitlerStatus!=item.status}"
+            class="p-2 border border-gray-200 shadow rounded-md font-semibold"
+            (click)="tableFilter(item.status)"
+          >{{item.label | translate}}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="h-[calc(100vh-340px)] max-w-[1246px] mx-auto overflow-y-auto mt-2 pb-0.5 px-2 intro-x">
+    <div class="w-[1206px] overflow-x-auto">
+      <g-datatable
+        #tableOrders
+        [heightRow]="50"
+        [classRow]="classRow"
+        [extendData]="{id: id}"
+        [columns]="columnsTable"
+        [loading]="OrdersFacade.isLoading$ | async"
+        [data]="(OrdersFacade.pagination$ | async)?.content"
+        [total]="(OrdersFacade.pagination$ | async)?.totalElements"
+        [showPagination]="true"
+        [showSearch]="false"
+        (ngChange)="OrdersFacade.get($event)"
+      >
+        <ng-template #orderNo let-data>
+          <p
+            #orderNo
+            nz-tooltip
+            class="text-blue-800 hover:text-blue-600 font-medium truncate cursor-pointer"
+            (click)="router.navigate([language + '/order', data.id])"
+          >
+            {{ data.orderNo }}
+          </p>
+        </ng-template>
+        <ng-template #implementationDate let-data>
+          <p
+            class="text-blue-800 font-medium truncate"
+          >
+            {{ transform(data.implementationDate)}}
+          </p>
+        </ng-template>
+        <ng-template #status let-data>
+          <ng-container *ngFor="let item of listStatus">
+            <div
+              *ngIf="item.status === data?.statusCode"
+              class="inline-block px-2 h-5"
+              [ngClass]="{ 'bg-amber-500': data?.statusCode == 'WAIT_FOR_APPROVAL', 'bg-sky-500': data?.statusCode == 'APPROVED', 'bg-pink-500': data?.statusCode == 'ASSIGNED',   'bg-cyan-500': data?.statusCode == 'ACCEPTED','bg-yellow-400': data?.statusCode == 'WAIT_CONFIRM','bg-purple-500': data?.statusCode == 'WAIT_PAYMENT','bg-green-600': data?.statusCode == 'COMPLETED','bg-red-600': data?.statusCode == 'REJECTED'
+              }"
+            >
+              <p class="text-white">{{ item.label | translate }}</p>
+            </div>
+          </ng-container>
+        </ng-template>
+        <ng-template #address let-data>
+          <div class="text-left">
+            <p #name class="font-medium truncate"  [nzTooltipColor]="'blue'" [nzTooltipTrigger]="name.offsetWidth < name.scrollWidth ? 'hover' : null" [nz-tooltip]="data.clinicName">{{data.clinicName}}</p>
+            <p #address class="truncate" [nzTooltipColor]="'blue'" [nzTooltipTrigger]="address.offsetWidth < address.scrollWidth ? 'hover' : null" [nz-tooltip]="data.address">{{data.address}}</p>
+          </div>
+        </ng-template>
+      </g-datatable>
+    </div>
+  </div>
+</section>
+<g-modal-form [visible]="isVisibleCancel" [title]="'Nhập lí do'" [columns]="columnsCancel" [width]="600"
+              [widthLabel]="0" (clickOk)="handleOkModal($event)" (clickCancel)="handleCancelModal()" okText="Lưu lại"
+              cancelText="Đóng lại">
+</g-modal-form>

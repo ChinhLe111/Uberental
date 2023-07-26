@@ -1,0 +1,183 @@
+<section>
+  <div class="pt-10 py-5 px-2.5 -intro-x">
+    <div class="relative w-[900px] mx-auto">
+      <button class="absolute top-0 -left-9" (click)="handleBack()">
+        <i class="las la-arrow-left text-3xl text-blue-600"></i>
+      </button>
+      <h2 class="text-2xl font-semibold">{{ 'routes.admin.profile-farmer.profile_farmer_information' | translate }}</h2>
+    </div>
+  </div>
+
+  <div class="bg-gray-100 rounded-t-md pt-5 pb-10">
+    <nz-spin [nzSpinning]="profileFarmerFacade.isLoading$ | async">
+      <div class="w-[900px] mx-auto flex gap-x-5" *ngIf="profileFarmerFacade.data$ | async as dataProfile">
+        <div class="w-[30%] -intro-x">
+          <div class="w-full rounded-md bg-white py-5 shadow-md">
+            <a
+              [href]="dataProfile?.farmerAvatarUrl?.fileUrl"
+              class="glightbox"
+              [attr.data-description]="dataProfile?.farmerAvatarUrl?.description"
+            >
+              <img
+                class="w-2/3 mx-auto aspect-square rounded-full"
+                [src]="dataProfile?.farmerAvatarUrl?.fileUrl"
+                alt=""
+              />
+            </a>
+            <div class="text-center mt-5 px-5">
+              <h3 class="text-black text-xl font-semibold break-words text-shadow">{{ dataProfile?.name }}</h3>
+              <p class="text-gray-500 text-base font-medium break-all text-shadow">
+                {{ dataProfile?.createdByUserName }}
+              </p>
+            </div>
+          </div>
+          <div class="w-full mt-5 rounded-md bg-white py-2 shadow">
+            <p class="font-medium text-black text-lg pb-2 text-center">
+              {{ 'routes.admin.profile-farmer.single_stats' | translate }}
+            </p>
+            <div class="flex divide-x-2 divide-gray-200 py-1">
+              <div class="w-1/2 text-center space-y-1 text-red-500 font-medium">
+                <p>{{ 'routes.admin.profile-farmer.received' | translate }}</p>
+                <p>{{ dataProfile?.totalOrderReceivedCount }}</p>
+              </div>
+              <div class="w-1/2 text-center space-y-1 text-blue-500 font-medium">
+                <p>{{ 'routes.admin.profile-farmer.completed' | translate }}</p>
+                <p>{{ dataProfile?.totalOrderCompletedCount }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="w-[70%] intro-x">
+          <section class="w-full px-5 pb-5 rounded-md bg-white shadow">
+            <div class="h-14 col-span-12 border-b border-gray-200 flex justify-between items-center">
+              <p class="font-medium text-black text-lg">{{ 'routes.admin.profile-farmer.details' | translate }}</p>
+              <div class="space-x-2">
+                <button [routerLink]="['edit']">
+                  <i class="las la-edit text-2xl text-blue-500"></i>
+                </button>
+                <button
+                  nz-popconfirm
+                  (nzOnConfirm)="profileFarmerFacade.delete(dataProfile.id)"
+                  nzPopconfirmTitle="{{ 'routes.admin.profile-farmer.want-delete' | translate }}"
+                  nzOkText="{{ 'routes.admin.profile-farmer.Agree' | translate }}"
+                  nzCancelText="{{ 'routes.admin.profile-farmer.cancel' | translate }}"
+                >
+                  <i class="las la-trash text-2xl text-red-500"></i>
+                </button>
+              </div>
+            </div>
+            <div class="flex gap-x-5 space-y-0.5 py-4 border-b border-gray-200">
+              <div class="w-1/2">
+                <div>
+                  <label class="text-gray-500">{{ 'routes.admin.profile-farmer.first_and_last_name' | translate }}</label
+                  ><br />
+                  <strong>{{ dataProfile?.name }}</strong>
+                </div>
+              </div>
+              <div class="w-1/2">
+                <div>
+                  <label class="text-gray-500">{{ 'routes.admin.profile-farmer.gender' | translate }}</label
+                  ><br />
+                  <strong>{{ dataProfile?.gender == 'MALE' ? 'Nam' : 'Nữ' }}</strong>
+                </div>
+              </div>
+            </div>
+            <div class="flex gap-x-5 space-y-0.5 py-4 border-b border-gray-200">
+              <div class="w-1/2">
+                <div>
+                  <label class="text-gray-500">{{ 'routes.admin.profile-farmer.email' | translate }}</label
+                  ><br />
+                  <strong>{{ dataProfile?.createdByUserName }}</strong>
+                </div>
+              </div>
+              <div class="w-1/2">
+                <div>
+                  <label class="text-gray-500">{{ 'routes.admin.profile-farmer.medical_degree' | translate }}</label
+                  ><br />
+                  <strong>{{ dataProfile?.medicalDegree?.title }}</strong>
+                </div>
+              </div>
+            </div>
+            <div class="flex gap-x-5 space-y-0.5 py-4 border-b border-gray-200">
+              <div class="w-1/2">
+                <div>
+                  <label class="text-gray-500">{{ 'routes.admin.profile-farmer.address' | translate }}</label
+                  ><br />
+                  <strong
+                  >{{ dataProfile?.address }}, {{ dataProfile?.commune?.communeName }},
+                    {{ dataProfile?.district?.districtName }}, {{ dataProfile?.province?.tenTinh }}</strong
+                  >
+                </div>
+              </div>
+              <div class="w-1/2">
+                <div>
+                  <label class="text-gray-500">{{
+                    'routes.admin.profile-farmer.total_year_of_experience' | translate
+                    }}</label
+                  ><br />
+                  <strong>{{ dataProfile?.totalYearOfExperience }}</strong>
+                </div>
+              </div>
+            </div>
+            <div class="flex gap-x-5 space-y-0.5 py-4">
+              <div class="w-1/2">
+                <div>
+                  <label class="text-gray-500">{{ 'routes.admin.profile-farmer.register_tips' | translate }}</label
+                  ><br />
+                  <ul>
+                    <li class="list-disc list-inside" *ngFor="let item of dataProfile?.medicalProcedure">
+                      <strong>{{ item.name }}</strong>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+              <div class="w-1/2">
+                <div>
+                  <label class="text-gray-500">{{ 'routes.admin.profile-farmer.work_process' | translate }}</label
+                  ><br />
+                  <strong class="whitespace-pre-line">{{ dataProfile?.workingProcessDescription }} </strong>
+                </div>
+              </div>
+            </div>
+          </section>
+          <section class="mt-5 w-full px-5 pb-5 rounded-md bg-white shadow">
+            <p
+              class="font-medium text-black text-lg col-span-12 text-center border-b border-gray-300 h-14 flex items-center"
+            >
+              {{ 'routes.admin.profile-farmer.image' | translate }}
+            </p>
+              <div class="mt-5" *ngFor="let template of uploadFacade.attachmentTemplates$ | async">
+                <p class="font-medium text-black text-base pb-2">{{ template.docTypeName }}</p>
+                <div class="grid grid-cols-4 gap-3">
+                  <ng-container *ngFor="let attachment of dataProfile?.attachments">
+                    <a
+                      *ngIf="attachment.docType === template.docType"
+                      [href]="attachment.fileUrl"
+                      class="glightbox"
+                      [attr.data-description]="attachment?.description"
+                    >
+                      <img class="w-full aspect-square rounded-md object-cover" [src]="attachment.fileUrl" alt="" />
+                    </a>
+                  </ng-container>
+                </div>
+              </div>
+          </section>
+          <section class="mx-auto w-full bg-white sticky bottom-0 rounded-md z-30 shadow">
+            <div class="flex gap-x-5 justify-end mt-2 p-5 w-full">
+              <button
+                *ngIf="dataProfile?.statusCode == 'WAIT_FOR_APPROVAL'"
+                class="py-1.5 px-4 bg-blue-600 rounded-md text-sm font-semibold text-white"
+                (click)="profileFarmerFacade.putApproveProfile(dataProfile.id)"
+              >
+                {{ 'routes.admin.profile-farmer.Browse' | translate }}
+              </button>
+              <button class="py-1.5 px-4 bg-gray-300 rounded-md text-sm font-semibold mr-2" (click)="handleBack()">
+                {{ 'routes.admin.profile-farmer.close' | translate }}
+              </button>
+            </div>
+          </section>
+        </div>
+      </div>
+    </nz-spin>
+  </div>
+</section>

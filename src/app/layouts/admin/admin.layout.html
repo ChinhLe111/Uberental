@@ -1,0 +1,177 @@
+<main>
+  <div
+    class="w-full header h-16 transition-all duration-300 ease-in-out sticky top-0 block z-50 bg-white"
+    [ngClass]="{ 'pl-64': !isCollapsed, 'pl-12': isCollapsed }"
+  >
+    <header class="shadow-[1px_1px_2px_0_rgba(0,0,0,0.1)]">
+      <div class="w-full flex items-center justify-between pr-5 h-16">
+        <div class="flex items-center">
+          <div class="hamburger mx-2" (click)="globalFacade.collapsed(!isCollapsed)"
+               [ngClass]="{'is-active': isCollapsed}">
+            <span class="line"></span>
+            <span class="line"></span>
+            <span class="line"></span>
+          </div>
+
+          <ng-template
+            let-i="index"
+            ngFor
+            let-item
+            [ngForOf]="breadcrumbs"
+            *ngIf="globalFacade.breadcrumbs$ | async as breadcrumbs"
+          >
+            <span
+              [ngClass]="{'text-gray-400': i < breadcrumbs.length - 1, 'font-medium': i === breadcrumbs.length - 1}"
+            >
+              {{item.title | translate}}
+            </span>
+            <i class="las la-angle-right text-xs mx-1" *ngIf="i < breadcrumbs.length - 1"></i>
+          </ng-template>
+        </div>
+
+        <div class="flex items-center shine cursor-pointer"  nz-dropdown [nzDropdownMenu]="menu" nzTrigger="hover" nzOverlayClassName="right">
+          <div class="leading-none pr-2">
+            <div class="font-medium text-right leading-snug mb-0.5">
+              {{ (globalFacade.user$ | async)?.userModel?.name }}
+            </div>
+            <div class="text-gray-500 text-xs text-right">{{ (globalFacade.user$ | async)?.userModel?.email }}</div>
+          </div>
+          <img
+            class="rounded-md w-7"
+            width="28"
+            height="28"
+            src="../../../../assets/images/avatar.jpeg"
+            alt="Avatar"
+          />
+        </div>
+      </div>
+      <nz-dropdown-menu #menu="nzDropdownMenu">
+        <ul nz-menu nzSelectable>
+          <li nz-menu-item
+          (click)="router.navigate([language + '/edit-profile'])">{{'routes.admin.Layout.editProfile'|translate}}</li>
+          <li nz-menu-item nzDanger (click)="globalFacade.logout()">{{'routes.admin.Layout.signOut'|translate}}</li>
+        </ul>
+      </nz-dropdown-menu>
+    </header>
+  </div>
+  <div
+    class="flex items-center text-gray-800 hover:text-gray-500 h-16 fixed top-0 left-0 px-1 font-medium transition-all duration-300 ease-in-out z-50"
+    [ngClass]="{ 'w-64': !isCollapsed, 'w-12': isCollapsed }"
+  >
+    <a href="#" class="flex items-center space-x-5">
+      <img class="w-9 ml-2" src="../../../assets/icons/logo192.png" alt=""/>
+      <div
+        [ngClass]="{
+          'opacity-100 text-xl transition-all duration-300 ease-in-out': !isCollapsed,
+          'opacity-0 text-[0px] transition-all duration-300 ease-in-out': !!isCollapsed
+        }"
+      >
+        Admin
+      </div>
+    </a>
+  </div>
+  <div
+    class="fixed z-50 top-16 left-0 h-screen transition-all duration-300 ease-in-out bg-white shadow-[1px_1px_2px_0_rgba(0,0,0,0.1)]"
+    [ngClass]="{ 'w-64': !isCollapsed, 'w-12': isCollapsed, '-left-12': isCollapsed && !isDesktop }"
+  >
+    <ul class="w-full overflow-y-auto h-[calc(100vh-80px)] hidden-scroll">
+
+      <li
+        class="menu transition-all duration-300 cursor-pointer"
+        [ngClass]="!isCollapsed ? 'overflow-hidden' : ''"
+        [id]="g.code"
+        *ngFor="let g of listMenu"
+        #group
+        [style.height.px]="!isCollapsed && g.open ? group.scrollHeight : 40"
+        (click)="!isCollapsed ? (g.open = !g.open) : false"
+      >
+        <ng-container *ngIf="g.child?.length > 0; else notGroup">
+          <ng-template #contentTemplate>
+            <a
+              class="sub-menu h-10 hover:text-blue-500 pr-3 font-medium flex items-center transition-all duration-300"
+              (click)="goRoute($event, [language + child.path[0]], child.queryParams)"
+              *ngFor="let child of g.child"
+              [id]="child.code"
+              [routerLink]="[language + child.path[0]]"
+              [routerLinkActive]="'bg-blue-50 border-r-[3px] border-blue-500 text-blue-500'"
+            >
+              <i class="w-8 text-xl" *ngIf="child.icon" [ngClass]="child.icon"></i>
+              <span class="flex-auto truncate">{{ child.name }}</span>
+            </a>
+          </ng-template>
+          <div
+            class="px-2 w-full h-10 relative flex justify-between items-center hover:text-blue-500 font-medium select-none group"
+            nz-popover
+            [nzPopoverContent]="contentTemplate"
+            nzPopoverPlacement="rightTop"
+            [nzPopoverTrigger]="isCollapsed  ? 'hover' : null"
+          >
+            <i class="w-8 flex-none text-2xl" *ngIf="g.icon" [ngClass]="g.icon"></i>
+            <span
+              class="flex-auto transition-all duration-300 truncate mr-3"
+              [ngClass]="isCollapsed ? 'opacity-0' : 'opacity-100'"
+            >
+              {{ g.name }}
+            </span>
+            <i
+              class="absolute right-3 top-2.5 las la-angle-down text-gray-500 transition-all duration-300"
+              [ngClass]="{ '-rotate-180': g.open, 'opacity-0': isCollapsed, 'opacity-100': !isCollapsed }"
+            ></i>
+
+            <div
+              class="hidden w-60 shadow shadow-slate-300 -translate-x-[0.010rem] rounded-md bg-zinc-50 scroll absolute top-0 left-12 transition-all duration-300 group-hover:block"
+              *ngIf="isCollapsed"
+            >
+              <a
+                class="h-10 px-2 text-gray-500 hover:text-blue-500 font-medium flex items-center transition-all duration-300"
+                (click)="goRoute($event, [language + child.path[0]], child.queryParams)"
+                *ngFor="let child of g.child; first as first; last as last"
+                [ngClass]="{ 'rounded-t-md': first, 'rounded-b-md': last }"
+                [routerLink]="[language + child.path[0]]"
+                [routerLinkActive]="'bg-blue-50 text-blue-500'"
+              >
+                <i class="w-8 text-xl" *ngIf="child.icon" [ngClass]="child.icon"></i>
+                <span class="flex-auto truncate">{{ child.name }}</span>
+              </a>
+            </div>
+          </div>
+          <ng-container *ngIf="!isCollapsed">
+            <a
+              class="sub-menu h-10 pl-8 hover:text-blue-500 pr-3 font-medium flex items-center transition-all duration-300"
+              (click)="goRoute($event, [language + child.path[0]], child.queryParams)"
+              *ngFor="let child of g.child"
+              [id]="child.code"
+              [routerLink]="[language + child.path[0]]"
+              [routerLinkActive]="'bg-blue-50 border-r-[3px] border-blue-500 text-blue-500'"
+            >
+              <i class="w-8 text-xl" *ngIf="child.icon" [ngClass]="child.icon"></i>
+              <span class="flex-auto truncate">{{ child.name }}</span>
+            </a>
+          </ng-container>
+        </ng-container>
+        <ng-template #notGroup>
+          <a
+            class="h-10 px-2 hover:text-blue-500 pr-6 font-medium flex items-center transition-all duration-300"
+            [id]="g.code"
+            (click)="goRoute($event, [language + g.path[0]], g.queryParams)"
+            [routerLink]="[language + g.path[0]]"
+            [routerLinkActive]="'bg-blue-50 border-r-[3px] border-blue-500 text-blue-500'"
+          >
+            <i class="w-8 text-2xl" *ngIf="g.icon" [ngClass]="g.icon"></i>
+            <span class="truncate transition-all duration-300" [ngClass]="isCollapsed ? 'opacity-0' : 'opacity-100'"
+            >{{ g.name }}</span
+            >
+          </a>
+        </ng-template>
+      </li>
+    </ul>
+  </div>
+
+  <div
+    class="transition-all duration-300 ease-in-out z-10"
+    [ngClass]="{ 'ml-64': !isCollapsed && isDesktop, 'ml-12': isCollapsed && isDesktop }"
+  >
+    <router-outlet></router-outlet>
+    <div class="text-center pt-1.5">Geneat Software Ltd. ©{{ year }}</div>
+  </div>
+</main>

@@ -1,0 +1,80 @@
+<section class="mx-3 -intro-x">
+  <div class="bg-white max-w-[1140px] mx-auto">
+    <div class="flex justify-between items-center">
+      <div class="space-x-2">
+        <button
+          class="px-3.5 py-2 border shadow rounded-md hover:text-[#1890ff] hover:border-[#1890ff]"
+          [ngClass]="{ 'text-white bg-[#1890ff] border-[#1890ff] hover:!text-white': status === '' }"
+          (click)="handleChangeStatus('')"
+        >
+          {{ 'routes.admin.wallet.all_request' | translate }}
+        </button>
+        <ng-template ngFor let-data [ngForOf]="listStatus">
+          <ng-container *ngIf="data !== 'WHSL_COMPLETED' || (data === 'WHSL_COMPLETED' && user?.level === 10)">
+            <button
+              class="px-3.5 py-2 border shadow rounded-md hover:text-blue-600 hover:border-blue-600"
+              [ngStyle]="{
+                backgroundColor: status === data ? (data === 'WHSL_COMPLETED' ? '#FFA800' : listColorStatus[data]) : '',
+                borderColor: status === data ? (data === 'WHSL_COMPLETED' ? '#FFA800' : listColorStatus[data]) : '',
+                color: status === data ? '#FFFFFF' : ''
+              }"
+              (click)="handleChangeStatus(data)"
+            >
+              {{ 'routes.admin.status.' + data | translate }}
+            </button>
+          </ng-container>
+        </ng-template>
+      </div>
+      <div class="flex space-x-3 my-5">
+        <div class="space-y-1">
+          <label class="text-gray-700 font-medium">{{ 'routes.admin.wallet.search' | translate }}</label
+          ><br />
+          <div class="relative w-fit">
+            <input
+              class="w-56 h-8 rounded-md text-gray-700 bg-white border border-solid border-gray-200 pr-9 pl-4 outline-blue-400"
+              [(ngModel)]="tableWalletWithDrawals.search"
+              (change)="tableWalletWithDrawals.searchFull()"
+              type="text"
+              placeholder="{{ 'routes.admin.wallet.enter-to-search' | translate }}"
+            />
+            <i class="text-lg las la-search absolute top-1/2 -translate-y-1/2 right-2 z-[1]"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="bg-gray-100 rounded-tl-md rounded-tr-md py-3 intro-x">
+  <div class="h-[calc(100vh-228px)] max-w-[1140px] mx-auto overflow-y-auto">
+    <g-datatable
+      #tableWalletWithDrawals
+      [columns]="columnsTable"
+      [data]="(walletWithDrawalsFacade.pagination$ | async)?.content"
+      [total]="(walletWithDrawalsFacade.pagination$ | async)?.totalElements"
+      [loading]="walletWithDrawalsFacade.isLoading$ | async"
+      [showSearch]="false"
+      (ngChange)="walletWithDrawalsFacade.get($event)"
+    >
+      <ng-template #statusTable let-data>
+        <button
+          class="px-2 h-5 flex items-center mx-auto text-13 cursor-default"
+          [ngStyle]="{
+            backgroundColor: this.listColorStatus[data.status],
+            color: '#FFFFFF',
+          }"
+        >
+          {{ 'routes.admin.status.' + (data.status !== 'WHSL_COMPLETED' ? data.status : 'COMPLETED') | translate }}
+        </button>
+      </ng-template>
+      <app-detail-wallet-withdrawals
+        [isVisible]="isVisibleDetail"
+        [withdrawalsId]="withdrawalsId"
+        [user]="user"
+        (handleCancel)="handleUnShowDetail()"
+      >
+      </app-detail-wallet-withdrawals>
+    </g-datatable>
+  </div>
+</section>
+<div class="text-green-600"></div>

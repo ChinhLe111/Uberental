@@ -1,0 +1,52 @@
+<section>
+  <div class="pt-10 py-5 px-2.5">
+    <div class="w-[800px] mx-auto relative">
+      <button class="absolute top-0 -left-9">
+        <i class="las la-arrow-left text-3xl text-blue-600"
+           [routerLink]="[language + '/order',this.route.snapshot.params.id,'paymentContent']"></i>
+      </button>
+      <h2 class="text-2xl font-semibold">Lịch sử thanh toán</h2>
+    </div>
+  </div>
+</section>
+<section class="bg-gray-100 rounded-tl-md rounded-tr-md py-3 flex flex-col justify-between h-[calc(100vh-208px)]">
+  <div class="max-w-[1440px] mx-auto">
+    <div class="h-[calc(100vh-250px)] max-w-[800px] overflow-y-auto">
+      <g-datatable
+        #tablePaymentHistory
+        [columns]="columnsTable"
+        [loading]="OrdersFacade.isLoading$ | async"
+        [data]="(OrdersFacade.paginationPaymentHistory$ | async)?.content"
+        [total]="(OrdersFacade.paginationPaymentHistory$ | async)?.totalElements"
+        [showSearch]="false"
+        (ngChange)="OrdersFacade.getPaymentHistory(this.route.snapshot.params.id, $event)"
+      >
+        <ng-template #tableUserName let-data>
+          <p class="font-semibold"> {{data?.farmerUserName}} </p>
+        </ng-template>
+        <ng-template #paymentDay let-data>
+          <p class="font-semibold">{{transform(data?.paymentDate)}}</p>
+        </ng-template>
+        <ng-template #paymentInstallment let-data *ngIf="tablePaymentHistory.total!= undefined">
+          <div *ngFor="let item of tablePaymentHistory.data, let i= index">
+            <p *ngIf="item.id ==data.id" class="font-semibold w-8 mx-auto">{{tablePaymentHistory.total - i}}</p>
+          </div>
+        </ng-template>
+        <ng-template #totalReceiveAmount let-data>
+          <p class="font-semibold">{{(data.totalReceiveAmount).toLocaleString()}}đ</p>
+        </ng-template>
+        <ng-template #isPaid let-data>
+          <ng-container>
+            <div
+              class="inline-block px-2 h-5"
+              [ngClass]="{ 'bg-red-500': data?.isPaid == false, 'bg-blue-500': data?.isPaid == true}"
+            >
+              <p *ngIf="data?.isPaid ==true" class="text-white">Đã thanh toán</p>
+              <p *ngIf="data?.isPaid ==false" class="text-white">Chưa thanh toán</p>
+            </div>
+          </ng-container>
+        </ng-template>
+      </g-datatable>
+    </div>
+  </div>
+</section>

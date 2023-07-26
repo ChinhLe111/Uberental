@@ -1,0 +1,73 @@
+<div class="relative pt-10 py-5 px-2.5 -intro-x">
+  <div class="w-[700px] mx-auto">
+    <h2 class="text-2xl font-semibold relative">
+      <button class="absolute -left-9" [routerLink]="[language + '/clinics/detail/', id]">
+        <i class="las la-arrow-left text-3xl text-blue-600"></i>
+      </button>
+      Sửa thông tin Phòng khám
+    </h2>
+  </div>
+</div>
+<nz-spin [nzSpinning]="clinicsFacade.isLoading$ | async">
+  <div class="rounded-t-md pt-6 pb-10 bg-gray-100 min-h-[calc(100vh-128px)] intro-x">
+    <div class="w-[700px] bg-white mx-auto rounded-md p-5 mb-5">
+      <h4 class="pb-5 font-semibold text-xl">Thông tin chung</h4>
+      <g-form #form [columns]="columnsForm" [values]="!id ? null : (clinicsFacade.data$ | async)"></g-form>
+    </div>
+    <div class="w-[700px] bg-white mx-auto rounded-md p-5 mb-5">
+      <h4 class="mb-6 font-semibold text-xl">Thông tin người đứng đầu</h4>
+      <g-form #formSuper [columns]="columnsFormSupper" [values]="!id ? null : (clinicsFacade.data$ | async)"></g-form>
+    </div>
+    <div class="w-[700px] bg-white mx-auto rounded-t-md p-5">
+      <h4 class="mb-5 font-semibold text-xl">Tải lên</h4>
+      <form [formGroup]="formUpload" *ngIf="templateUpload.length > 0">
+        <div *ngFor="let template of uploadFacade.attachmentTemplates$ | async" class="min-h-[80px]">
+          <nz-form-item class="flex flex-col">
+            <nz-form-label nzRequired class="font-medium text-black text-base pb-2 block w-max">{{
+              template.docTypeName
+            }}</nz-form-label>
+            <nz-form-control>
+              <g-upload
+                *ngIf="
+                  template.docTypeName == 'Ảnh đại diện phòng khám' ||
+                  template.docTypeName == 'Ảnh đại diện người đứng đầu'
+                "
+                [multiple]="false"
+                [isDescription]="false"
+                [physicalPath]="template.docType"
+                [formControlName]="template.docType"
+              ></g-upload>
+              <g-upload
+                *ngIf="
+                  template.docTypeName != 'Ảnh đại diện phòng khám' &&
+                  template.docTypeName != 'Ảnh đại diện người đứng đầu'
+                "
+                [multiple]="true"
+                [cols]="4"
+                [physicalPath]="template.docType"
+                [formControlName]="template.docType"
+              ></g-upload>
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+      </form>
+    </div>
+    <div class="w-[700px] bg-white mx-auto rounded-b-md mt-2 p-5 sticky bottom-0 z-50">
+      <div class="w-full flex justify-end gap-5">
+        <button
+          class="bg-blue-600 w-[90px] p-[9px] text-center font-semibold text-white rounded-md hover:opacity-60"
+          (click)="handleSubmit(formUpload)"
+        >
+          Lưu lại
+        </button>
+        <button
+          class="bg-gray-100 w-[90px] p-[9px] text-center font-semibold rounded-md hover:text-blue-500"
+          [routerLink]="[language + '/clinics/detail/', id]"
+        >
+          Đóng lại
+        </button>
+      </div>
+    </div>
+    <div class="h-2"></div>
+  </div>
+</nz-spin>

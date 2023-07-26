@@ -1,0 +1,88 @@
+<section class="mx-3 -intro-x">
+  <div class="pt-8 py-5">
+    <div class="mx-10">
+      <div class="relative max-w-[1000px] mx-auto">
+        <button class="absolute top-0 -left-12" [routerLink]="[language + '/medical-procedure']">
+          <i class="las la-arrow-left text-3xl text-blue-500"></i>
+        </button>
+        <h2 class="text-2xl mb-5 font-semibold">
+          {{ 'routes.admin.medical-procedure.configure_commission_rates' | translate }}
+        </h2>
+        <div class="space-y-1">
+          <label class="text-gray-700 font-medium">{{ 'routes.admin.medical-procedure.search' | translate }}</label
+          ><br />
+          <div class="relative w-fit">
+            <input
+              class="w-60 h-8 rounded-md text-gray-700 bg-white border border-solid border-gray-200 pr-4 pl-9 outline-blue-400"
+              type="text"
+              [(ngModel)]="search"
+              [formControl]="fullTextSearch"
+              placeholder="{{ 'routes.admin.medical-procedure.search-by-province-name' | translate }}"
+            />
+            <i class="text-lg text-black las la-search absolute top-1/2 -translate-y-1/2 left-2 z-[1]"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<nz-spin [nzSpinning]="medicalProcedureFacade.isLoading$ | async">
+  <div class="bg-gray-100 pt-3 pb-10 px-10 rounded-md intro-x">
+    <div
+      class="flex items-stretch space-x-5 max-w-[1000px] mx-auto"
+      *ngIf="medicalProcedureFacade.commissionList$ | async as commission"
+    >
+      <table
+        class="tableHH w-1/4 self-start shadow"
+        *ngFor="let table of Array(Math.ceil(commission.length / 16)).keys()"
+      >
+        <thead>
+        <tr>
+          <th class="rounded-tl-md">#</th>
+          <th class="!text-left">
+            {{ 'routes.admin.medical-procedure.province-name' | translate }}
+          </th>
+          <th class="rounded-tr-md">%</th>
+        </tr>
+        </thead>
+        <tbody>
+        <ng-template ngFor let-item [ngForOf]="medicalProcedureFacade.commissionList$ | async" let-i="index">
+          <tr *ngIf="i >= 16 * table && i < 16 * table + 16">
+            <ng-container>
+              <td>
+                <div><span *ngIf="i < 9">0</span>{{ i + 1 }}</div>
+              </td>
+              <td class="!text-left">
+                {{ item?.provinceName }}
+              </td>
+              <td
+                class="!px-0"
+                [ngClass]="{
+                  '!text-red-500': item.commissionPercentage < 100,
+                  '!text-black': item.commissionPercentage == 100,
+                  '!text-blue-500': item.commissionPercentage > 100
+                }"
+                (click)="changEditTemplate = true"
+              >
+                <span *ngIf="!changEditTemplate" class="w-12">{{ item?.commissionPercentage }}</span>
+                <input
+                  *ngIf="changEditTemplate"
+                  [id]="i"
+                  class="w-12"
+                  type="number"
+                  min="0"
+                  max="1000"
+                  [ngModel]="item.commissionPercentage"
+                  (ngModelChange)="handleCommission(i, $event, false)"
+                  (keyup.enter)="handleCommission(i, undefined, true)"
+                />
+              </td>
+            </ng-container>
+          </tr>
+        </ng-template>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</nz-spin>

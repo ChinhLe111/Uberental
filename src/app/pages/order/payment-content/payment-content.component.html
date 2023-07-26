@@ -1,0 +1,71 @@
+<section>
+  <div class="pt-10 py-5 px-2.5">
+    <div class="container xl:w-[900px] mx-auto relative -intro-x">
+      <button [routerLink]="[language + '/order', this.route.snapshot.params.id]" class="absolute top-0 -left-9">
+        <i class="las la-arrow-left text-3xl text-blue-600"></i>
+      </button>
+      <h2 class="text-2xl font-semibold">Nội dung thanh toán</h2>
+    </div>
+  </div>
+</section>
+<section
+  class="bg-gray-100 rounded-tl-md rounded-tr-md py-3 min-h-[calc(100vh-128px)] flex flex-col justify-between"
+>
+  <div *ngIf="OrdersFacade.data$ | async as dataOrder" class="mt-10 max-w-[900px] mx-auto shadow bg-white intro-x">
+    <div class="flex justify-start gap-12 border-b px-8 pt-4 py-6 flex-wrap">
+      <div class="min-w-[11rem]">
+        <p>Tiền Farmer Side đặt cọc</p>
+        <strong class="mt-1">{{ dataOrder?.totalFarmerDepositAmount?.toLocaleString() }}đ</strong>
+      </div>
+      <div class="min-w-[11rem]">
+        <p>Tiền hoa hồng thực nhận</p>
+        <strong class="mt-1">{{ dataOrder?.totalFarmerActuallyReceivedAmount?.toLocaleString() }}đ</strong>
+      </div>
+      <div class="min-w-[11rem]">
+        <p>Tiền Farmer Side đã nhận</p>
+        <strong *ngIf="dataOrder?.paymentSetting" class="mt-1"
+          >{{ dataOrder?.totalPaidAmount?.toLocaleString() }} đ</strong
+        >
+        <strong *ngIf="!dataOrder?.paymentSetting" class="mt-1">Chờ cài đặt</strong>
+      </div>
+    </div>
+    <div class="flex justify-start gap-12 shadow px-8 pt-4 py-6">
+      <div class="min-w-[11rem]">
+        <p>Ngày orderer xác nhận</p>
+        <strong *ngIf="dataOrder.paymentStartDate == null" class="mt-1">chưa có ngày bắt đầu</strong>
+        <strong *ngIf="dataOrder.paymentStartDate != null" class="mt-1">{{
+          transform(dataOrder?.paymentStartDate)
+        }}</strong>
+      </div>
+      <div class="min-w-[11rem]">
+        <p>Ngày hoàn thành thanh toán</p>
+        <strong *ngIf="dataOrder.paymentEndDate == null" class="mt-1">Đang ước tính</strong>
+        <strong *ngIf="dataOrder?.paymentStartDate != null" class="mt-1">{{
+          transform(dataOrder.paymentEndDate)
+        }}</strong>
+      </div>
+    </div>
+    <section class="mx-auto container xl:w-[700px] bg-white sticky bottom-0 rounded-md z-30 shadow">
+      <div *ngIf="OrdersFacade?.data$ | async as dataOrder" class="flex gap-x-5 justify-end mt-2 p-5 w-full">
+        <button
+          [routerLink]="[language + '/order', this.route.snapshot.params.id, 'paymentHistory']"
+          class="h-8 hover:opacity-80 px-4 bg-blue-600 rounded-md text-sm font-semibold text-white"
+        >
+          Lịch sử thanh toán
+        </button>
+        <button
+          [routerLink]="[language + '/order', this.route.snapshot.params.id, 'paymentSetting']"
+          class="h-8 hover:opacity-80 px-4 bg-green-600 rounded-md text-sm font-semibold text-white"
+        >
+          Cài đặt thanh toán
+        </button>
+        <button
+          [routerLink]="[language + '/order', this.route.snapshot.params.id]"
+          class="h-8 hover:opacity-80 px-4 bg-gray-300 rounded-md text-sm font-semibold mr-2"
+        >
+          Đóng lại
+        </button>
+      </div>
+    </section>
+  </div>
+</section>

@@ -1,0 +1,37 @@
+<section class="h-[calc(100vh-110px)] w-full relative">
+    <div class="overflow-y-auto h-full">
+        <div class="pt-10 py-5 px-2.5 -intro-x">
+            <div class="max-w-[1140px] mx-auto relative" *ngIf="OrdersFacade.data$ | async as dataFeedBack">
+                <button class="absolute top-0 -left-9" (click)="handleBack()">
+                    <i class="las la-arrow-left text-3xl text-blue-600"></i>
+                </button>
+                <h2 class="text-2xl font-semibold">Chi tiết feedback về Farmer</h2>
+                <div class="grid grid-cols-2 lg:grid-cols-3 justify-between mt-5">
+                    <div class="flex justify-start mb-4">
+                        <p class="font-semibold text-gray-400 w-36">Mã Order</p>
+                        <p>{{dataFeedBack?.orderNo}}</p>
+                    </div>
+                    <div class="flex justify-start mb-4">
+                        <p class="font-semibold text-gray-400 w-36">Farmer</p>
+                        <p>{{dataFeedBack?.medicalRecord?.customerName}}</p>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 lg:grid-cols-3 justify-between">
+                    <div class="flex justify-start mb-4">
+                        <p class="font-semibold text-gray-400 w-36">Địa chỉ phòng khám</p>
+                        <p class="truncate w-52" [nzTooltipColor]="'rgba(0, 150, 255, 0.8)'"
+                            nz-tooltip="{{dataFeedBack.address}}">{{dataFeedBack?.address}}</p>
+                    </div>
+                    <div class="flex justify-start mb-4">
+                        <p class="font-semibold text-gray-400 w-36">Ngày thực hiện</p>
+                        <p>{{transform(dataFeedBack?.implementationDate)}}</p>
+                    </div>
+                    <div class="flex justify-start mb-4">
+                        <p class="font-semibold text-gray-400 w-36">Ngày hoàn thành</p>
+                        <p>{{transform(dataFeedBack?.receivedOnDate)}}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

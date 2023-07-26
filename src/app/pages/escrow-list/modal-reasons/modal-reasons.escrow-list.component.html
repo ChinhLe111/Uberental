@@ -1,0 +1,16 @@
+<g-modal
+  [visible]="isVisible"
+  [title]="'routes.admin.escrow.enter_reason' | translate"
+  [width]="500"
+  [okText]="'routes.admin.escrow.save' | translate"
+  [cancelText]="'routes.admin.escrow.close' | translate"
+  [contentModal]="contentModal"
+  (clickCancel)="handleCancel.emit()"
+  (clickOk)="handelReject()"
+>
+  <ng-template #contentModal>
+    <div class="mx-3">
+      <g-form #formCancel [columns]="columnsCancel"></g-form>
+    </div>
+  </ng-template>
+</g-modal>

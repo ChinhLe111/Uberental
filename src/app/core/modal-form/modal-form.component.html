@@ -1,0 +1,40 @@
+<g-modal
+  [title]="title || '' | translate"
+  [visible]="visible"
+  (clickOk)="handleOk()"
+  (clickCancel)="handleCancel()"
+  [loading]="loading"
+  [contentModal]="contentModal"
+  [width]="width"
+  [okText]="okText"
+  [cancelText]="cancelText"
+  [classModal]="classModal"
+  [okDisabled]="okDisabled"
+  [extendFooterButton]="extendFooterButton"
+  [fullScreen]="fullScreen"
+>
+  <ng-template #contentModal>
+    <ng-container [ngTemplateOutlet]="extendModalTop"></ng-container>
+    <div class="flex flex-wrap">
+      <div
+        *ngIf="extendModalLeft"
+        [style.flex]="widthModalLeft ? '0 0 ' + widthModalLeft + 'px' : '1 1 auto'"
+        class="mr-2 mb-2"
+      >
+        <div [ngTemplateOutlet]="extendModalLeft"></div>
+      </div>
+      <div class="flex-auto">
+        <g-form
+          *ngIf="firstLoad && showForm"
+          #myForm
+          [columns]="columns"
+          [values]="values"
+          [loading]="loading && isLoading"
+          [widthLabel]="widthLabel"
+          (handSubmit)="handleOk()"
+        ></g-form>
+        <ng-container [ngTemplateOutlet]="extendModal"></ng-container>
+      </div>
+    </div>
+  </ng-template>
+</g-modal>

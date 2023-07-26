@@ -1,0 +1,125 @@
+<div
+  class="container mx-auto grid grid-cols-12 gap-3 bg-white px-2.5 pt-2.5 rounded-md"
+  *ngIf="dataTypesFacade.pagination$ | async as listDataType"
+>
+  <div class="col-span-12 md:col-span-5 lg:col-span-4 -intro-x">
+    <div class="shadow rounded-md w-full bg-white overflow-hidden">
+      <div class="h-14 flex justify-between items-center border-b border-gray-100 px-4 py-2">
+        <span class="font-semibold text-xl text-black">{{ 'routes.admin.post.categories' | translate }}</span>
+        <div class="flex items-center">
+          <g-button
+            (click)="router.navigate([language + '/data/type/add'])"
+            icon="la-plus las text-lg"
+            [text]="'routes.admin.Layout.addNew' | translate"
+          ></g-button>
+        </div>
+      </div>
+      <div class="h-[calc(100vh-170px)] overflow-y-auto relative scroll">
+        <nz-spin [nzSpinning]="dataTypesFacade.isLoading$ | async">
+          <ng-container *ngFor="let item of listDataType.content; index as index">
+            <button
+              class="item text-gray-700 font-medium hover:bg-gray-100 flex justify-between items-center border-b border-gray-100 transition-all duration-300 w-full text-left px-4 h-10"
+              [ngClass]="selectedDataType === item.code ? 'bg-blue-100' : ''"
+              (click)="onSelectDataType(item)"
+            >
+              <span class="truncate cursor-pointer flex-1 hover:text-blue-500 item-text">{{
+                (listDataType.page - 1) * listDataType.size + index + 1 + '. ' + item.name
+              }}</span>
+              <div class="w-16 flex justify-end">
+                <g-button
+                  nz-popover
+                  [nzPopoverContent]="'routes.admin.Layout.edit' | translate"
+                  [title]="'routes.admin.Layout.edit' | translate"
+                  (click)="router.navigate([language + '/data/type', item.id, 'edit'])"
+                  [icon]="'las la-edit text-xl text-blue-500'"
+                  [extendClass]="' !bg-transparent !px-0'"
+                ></g-button>
+                <g-button
+                  nz-popover
+                  [nzPopoverContent]="'routes.admin.Layout.delete' | translate"
+                  [title]="'routes.admin.Layout.delete' | translate"
+                  nz-popconfirm
+                  nzPopconfirmTitle="{{ 'components.data-table.wantToDeleteThisCategory' | translate }}"
+                  (nzOnConfirm)="handleDeleteDataType(item)"
+                  (click)="$event.stopPropagation()"
+                  [icon]="'las la-trash text-xl text-red-500'"
+                  [extendClass]="' !bg-transparent !px-0'"
+                ></g-button>
+              </div>
+            </button>
+          </ng-container>
+        </nz-spin>
+      </div>
+    </div>
+  </div>
+  <div class="col-span-12 md:col-span-7 lg:col-span-8 intro-x">
+    <div class="shadow rounded-md w-full overflow-auto bg-white">
+      <div class="h-14 flex justify-between items-center border-b border-gray-100 px-4 py-2">
+        <span *ngIf="!selectedDataType" class="font-semibold text-xl text-black">
+          {{ 'routes.admin.data.allData' | translate }}</span
+        >
+        <span
+          class="font-semibold text-xl text-black"
+          *ngFor="let title of listDataType.content"
+          [ngClass]="{ hidden: selectedDataType != title.code }"
+        >
+          {{ title.name }}
+        </span>
+        <div class="flex flex-nowrap items-center">
+          <div class="relative mr-2 h-7 mb-0.5">
+            <input
+              class="w-60 h-8 rounded-md text-gray-600 bg-white border-2 border-solid pr-9 pl-4 text-xs border-gray-200 active:border-blue-400 outline-blue-400"
+              [formControl]="fullTextSearch"
+              type="text"
+              placeholder="{{ 'components.data-table.pleaseEnterValueToSearch' | translate }}"
+            />
+            <i class="text-lg las la-search absolute top-[10%] right-3 z-10 mt-1"></i>
+          </div>
+          <g-button
+            (click)="router.navigate([language + '/data/add'])"
+            icon="la-plus las text-lg"
+            [text]="'routes.admin.data.addNewData' | translate"
+          ></g-button>
+        </div>
+      </div>
+      <div class="h-[calc(100vh-227px)] overflow-y-auto">
+        <g-datatable
+          #tableData
+          [showPagination]="false"
+          [showSearch]="false"
+          [classRow]="classRow"
+          [extendData]="{ id: id }"
+          [columns]="columnsTable"
+          [loading]="datasFacade.isLoading$ | async"
+          [data]="(datasFacade.pagination$ | async)?.content"
+          [total]="(datasFacade.pagination$ | async)?.totalElements"
+          (ngChange)="datasFacade.get($event)"
+        >
+          <ng-template #titleTemplate let-data>
+            <p
+              #titleTemplate
+              nz-tooltip
+              [nzTooltipTitle]="data?.name"
+              [nzTooltipColor]="'blue'"
+              [nzTooltipTrigger]="titleTemplate.offsetWidth < titleTemplate.scrollWidth ? 'hover' : null"
+              class="text-blue-800 hover:text-blue-600 font-medium truncate cursor-pointer"
+              (click)="router.navigate([language + '/data', data?.id, 'edit'])"
+            >
+              {{ data?.name }}
+            </p>
+          </ng-template>
+        </g-datatable>
+      </div>
+      <div class="border-t border-gray-100 px-3 pb-3">
+        <g-pagination
+          class="w-full ml-0"
+          [page]="tableData.paramTable.page"
+          [size]="tableData.paramTable.size"
+          [total]="tableData.total"
+          [pageSizeOptions]="tableData.pageSizeOptions"
+          (queryParams)="tableData.nzQueryParams($event)"
+        ></g-pagination>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,115 @@
+<section class="w-full relative">
+  <div class="overflow-y-auto h-full">
+    <div class="pt-10 py-5 px-2.5 -intro-x">
+      <div class="max-w-[1358px] mx-auto relative" *ngIf="OrdersFacade.data$ | async as dataFeedBack">
+        <button class="absolute top-0 -left-9" (click)="handleBack()">
+          <i class="las la-arrow-left text-3xl text-blue-600"></i>
+        </button>
+        <h2 class="text-2xl font-semibold">{{ 'routes.admin.feedback.detailclinic' | translate }}</h2>
+        <div class="grid grid-cols-3 gap-1 justify-between mt-5 w-full">
+          <div class="flex justify-start mb-4 col-span-1">
+            <p class="font-semibold text-gray-400 w-36">{{ 'routes.admin.feedback.orderno' | translate }}</p>
+            <p>{{dataFeedBack?.orderNo}}</p>
+          </div>
+          <div class="flex justify-start mb-4 col-span-2">
+            <p class="font-semibold text-gray-400 w-36">{{ 'routes.admin.feedback.implementationaddress' | translate }}</p>
+            <p class="truncate" [nzTooltipColor]="'rgba(0, 150, 255, 0.8)'"
+               nz-tooltip="{{dataFeedBack.address}}">{{dataFeedBack?.address}}</p>
+          </div>
+        </div>
+        <div class="grid grid-cols-3 gap-1 justify-between">
+          <div class="flex justify-start mb-4">
+            <p class="font-semibold text-gray-400 w-36">{{ 'routes.admin.feedback.implementationdate' | translate }}</p>
+            <p>{{transform(dataFeedBack?.implementationDate)}}</p>
+          </div>
+          <div class="flex justify-start mb-4">
+            <p class="font-semibold text-gray-400 w-36">{{ 'routes.admin.feedback.completeddate' | translate }}</p>
+            <p>{{transform(dataFeedBack?.receivedOnDate)}}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="bg-gray-100 rounded-tl-md rounded-tr-md py-3">
+  <div class="h-[calc(100vh-340px)] max-w-[1360px] mx-auto overflow-y-auto mt-2 pb-0.5 intro-x">
+    <div class="w-[1360px]">
+      <!--<h2 class="text-2xl text-blue-500 font-semibold">Đánh giá (2)</h2>-->
+      <nz-spin [nzSpinning]="OrdersFacade.isLoading$ | async">
+        <div class="max-w-[1362px] relative" *ngIf="OrdersFacade.dataFeedBack$ | async as dataFeedBack; else notFeedback">
+          <div class="bg-white h-[158px] my-10">
+            <div class="grid grid-cols-4 gap-1">
+              <div class=""></div>
+              <div class="col-span-3 mt-2">
+                <div class="flex items-center" *ngIf="dataFeedBack?.rating == 5">
+                  <i class="lar la-star text-yellow-400 text-2xl mr-1"></i>
+                  <i class="lar la-star text-yellow-400 text-2xl mr-1"></i>
+                  <i class="lar la-star text-yellow-400 text-2xl mr-1"></i>
+                  <i class="lar la-star text-yellow-400 text-2xl mr-1"></i>
+                  <i class="lar la-star text-yellow-400 text-2xl mr-1"></i>
+                </div>
+                <div class="flex items-center" *ngIf="dataFeedBack?.rating == 4">
+                  <i class="lar la-star text-yellow-400 text-2xl mr-1"></i>
+                  <i class="lar la-star text-yellow-400 text-2xl mr-1"></i>
+                  <i class="lar la-star text-yellow-400 text-2xl mr-1"></i>
+                  <i class="lar la-star text-yellow-400 text-2xl mr-1"></i>
+                  <i class="lar la-star text-yellow-200 text-2xl mr-1"></i>
+                </div>
+                <div class="flex items-center" *ngIf="dataFeedBack?.rating == 3">
+                  <i class="lar la-star text-yellow-400 text-2xl mr-1"></i>
+                  <i class="lar la-star text-yellow-400 text-2xl mr-1"></i>
+                  <i class="lar la-star text-yellow-400 text-2xl mr-1"></i>
+                  <i class="lar la-star text-yellow-200 text-2xl mr-1"></i>
+                  <i class="lar la-star text-yellow-200 text-2xl mr-1"></i>
+                </div>
+                <div class="flex items-center" *ngIf="dataFeedBack?.rating == 2">
+                  <i class="lar la-star text-yellow-400 text-2xl mr-1"></i>
+                  <i class="lar la-star text-yellow-400 text-2xl mr-1"></i>
+                  <i class="lar la-star text-yellow-200 text-2xl mr-1"></i>
+                  <i class="lar la-star text-yellow-200 text-2xl mr-1"></i>
+                  <i class="lar la-star text-yellow-200 text-2xl mr-1"></i>
+                </div>
+                <div class="flex items-center" *ngIf="dataFeedBack?.rating == 1">
+                  <i class="lar la-star text-yellow-400 text-2xl mr-1"></i>
+                  <i class="lar la-star text-yellow-200 text-2xl mr-1"></i>
+                  <i class="lar la-star text-yellow-200 text-2xl mr-1"></i>
+                  <i class="lar la-star text-yellow-200 text-2xl mr-1"></i>
+                  <i class="lar la-star text-yellow-200 text-2xl mr-1"></i>
+                </div>
+              </div>
+            </div>
+            <div class="grid grid-cols-4 gap-1">
+              <div class="mx-4 rounded-md flex col-span-1">
+                <div class="w-[90px] h-[90px]">
+                  <a [href]="dataFeedBack?.createdByUser?.avatarUrl" class="glightbox">
+                    <img
+                      class="w-[90px] h-[90px] aspect-square rounded-full"
+                      [src]="dataFeedBack?.createdByUser?.avatarUrl"
+                      alt=""
+                    />
+                  </a>
+                </div>
+                <div class="my-3 ml-4">
+                  <div>
+                    <h5>{{feedbacktime(dataFeedBack?.createdOnDate)}}</h5>
+                  </div>
+                  <h3 class="text-lg font-bold">{{dataFeedBack?.createdByUser?.name}}</h3>
+                  <p class="underline">{{dataFeedBack?.createdByUser?.userName}}</p>
+                </div>
+              </div>
+              <div class="justify-start mb-4 col-span-3 rounded-md mt-2 w-full">
+                <div class="break-words text-lg">
+                  <span>{{dataFeedBack?.content}}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </nz-spin>
+    </div>
+  </div>
+</section>
+<ng-template #notFeedback>
+  <h2 class="text-2xl text-blue-500 font-semibold">{{ 'routes.admin.feedback.nofeedback' | translate }}</h2>
+</ng-template>

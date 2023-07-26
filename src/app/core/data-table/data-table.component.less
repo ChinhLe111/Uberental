@@ -1,0 +1,159 @@
+nz-table-inner-scroll {
+  overflow: auto
+}
+
+.ant-table {
+@apply border-solid border border-gray-100;
+
+  &.ant-table-small .ant-table-tbody > tr > td {
+  @apply p-1;
+  }
+
+  &-container {
+    margin-left: -1px;
+    margin-right: -1px;
+  }
+
+  &-content {
+  @apply relative;
+
+    .ant-table-thead > tr > th {
+    @apply font-medium text-xs bg-blue-600 !py-4 text-white;
+      &:first-child{
+        @apply !rounded-tl-xl;
+      }
+      &:last-child{
+      @apply !rounded-tr-xl;
+      }
+    }
+
+    .ant-table-tbody > tr.ant-table-row {
+      &:hover > td {
+      @apply bg-gray-100 text-black;
+      }
+
+      > td {
+      @apply border-gray-100 font-normal;
+        font-size: 13px;
+
+        &.hover:hover {
+        @apply text-blue-700;
+        @apply cursor-pointer;
+        }
+      }
+
+      &:last-child > td {
+      @apply border-none;
+      }
+    }
+  }
+
+
+  .ant-empty-normal {
+  @apply mx-0 my-1;
+
+    .ant-empty-image {
+    @apply hidden;
+    }
+
+    p {
+    @apply mb-0;
+    }
+  }
+
+  .font_large {
+  @apply h-auto text-base;
+  }
+
+  @media (min-width: 1200px) {
+    &-pagination.ant-pagination {
+    @apply mb-1;
+    }
+
+    .ant-btn-icon-only.ant-btn-sm {
+    @apply my-0 mx-1;
+    }
+
+
+    td {
+      .ant-btn-sm:not([disabled]) {
+      @apply rounded-md m-px shadow-none bg-green-700 text-white border-none leading-loose;
+      }
+    }
+
+    &-filter {
+      &-trigger {
+      @apply flex items-center justify-center;
+
+        .la-lg {
+        @apply text-xl;
+        }
+      }
+
+      &-dropdown {
+      @apply p-1 w-56;
+
+        .ant-checkbox-wrapper,
+        .ant-radio-wrapper {
+        @apply mx-0 w-full;
+        }
+
+        .group-btn {
+        @apply flex justify-between;
+
+        }
+      }
+    }
+
+
+    @media (min-width: 1200px) {
+      .ant-table-container::before,
+      .ant-table-container::after {
+      @apply hidden;
+      }
+
+      .ant-table-body {
+      @apply overflow-auto;
+      }
+
+      table {
+      @apply table-auto;
+      }
+    }
+  }
+
+  .gbtn {
+    &.gnext, &.gprev {
+    @apply hidden;
+    }
+  }
+}
+
+.ant-popover {
+  .ant-popover-arrow-content {
+  @apply bg-blue-50;
+  }
+
+  .ant-popover-inner {
+  @apply bg-blue-50 rounded-md;
+
+    .ant-popover-inner-content {
+    @apply px-2 py-1;
+    }
+  }
+}
+
+.ant-table-row{
+  height: 40px;
+}
+
+.datatable-wrapper {
+  .ant-radio-button-wrapper,
+  .ant-select-single:not(.ant-select-customize-input) .ant-select-selector,
+  .ant-picker {
+  @apply h-7 leading-7;
+  }
+}
+.ant-table-content .ant-table-thead > tr > th{
+  @apply text-sm;
+}

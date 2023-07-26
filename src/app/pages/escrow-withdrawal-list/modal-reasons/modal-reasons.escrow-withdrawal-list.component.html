@@ -1,0 +1,24 @@
+<g-modal
+  [visible]="isVisible"
+  [title]="'routes.admin.escrow.enter_reason' | translate"
+  [width]="500"
+  [okText]="'routes.admin.escrow.save' | translate"
+  [cancelText]="'routes.admin.escrow.close' | translate"
+  [contentModal]="contentModal"
+  (clickCancel)="handleCancel.emit()"
+  (clickOk)="handelReject()"
+>
+  <ng-template #contentModal>
+    <div class="mx-3" *ngIf="escrowWithdrawalListFacade.reasonsList$ | async as reasonsList">
+      <nz-radio-group [(ngModel)]="radioValue" *ngFor="let reason of reasonsList; let last = last">
+        <label *ngIf="reason.code != 'Other'" nz-radio nzAutoFocus [nzValue]="reason.title">
+          {{ reason.title }}
+        </label>
+        <label *ngIf="reason.code == 'Other' && last" nz-radio nzAutoFocus [nzValue]="reason.code">
+          {{ reason.title }}
+        </label>
+      </nz-radio-group>
+      <g-form #formCancel *ngIf="radioValue == 'Other'" [columns]="columnsCancel"></g-form>
+    </div>
+  </ng-template>
+</g-modal>

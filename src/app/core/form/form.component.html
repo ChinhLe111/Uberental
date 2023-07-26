@@ -1,0 +1,969 @@
+<nz-spin [nzSpinning]="loading">
+  <form
+    *ngIf="columns && validateForm"
+    nz-form
+    [ngClass]="{ 'form-small': small }"
+    [nzLayout]="widthLabel > 0 ? 'horizontal' : 'vertical'"
+    [formGroup]="validateForm"
+  >
+    <div class="grid grid-cols-12 gap-x-5">
+      <ng-template ngFor let-column [ngForOf]="$columns">
+        <div
+          class="col-form-item col-span-12"
+          [ngClass]="column.formItem?.col ? 'sm:col-span-' + column.formItem?.col : ''"
+          *ngIf="column.formItem?.show === undefined || !!column.formItem?.show"
+        >
+          <nz-form-item>
+            <nz-form-label
+              *ngIf="
+                !noLabel &&
+                !column?.formItem?.noLabel &&
+                !!column?.title &&
+                column.formItem?.type !== 'tab' &&
+                column.formItem?.type !== 'checkbox'
+              "
+              [ngStyle]="
+                widthLabel > 0
+                  ? {
+                      width: widthLabel + 'px',
+                      whiteSpace: 'break-spaces'
+                    }
+                  : {}
+              "
+              [nzRequired]="checkRequired(column)"
+              [nzFor]="column.name"
+              [nzTooltipTitle]="column?.formItem?.tooltip"
+            >{{
+              (!!column!.formItem!.title ? column!.formItem!.title(validateForm.value) : column.title) | translate
+              }}</nz-form-label
+            >
+            <nz-form-control [nzErrorTip]="errorTpl" *ngIf="column.formItem">
+              <ng-container [ngSwitch]="column?.formItem?.type">
+                <div class="relative" *ngSwitchDefault>
+                  <i
+                    *ngIf="!!column?.formItem?.addOnBefore"
+                    class="text-lg las absolute top-0 left-3 z-[1]"
+                    [ngClass]="column?.formItem?.addOnBefore || ''"
+                    (click)="
+                      !!column?.formItem?.onClick && column?.formItem?.onClick($any(validateForm).get(column.name))
+                    "
+                  ></i>
+                  <input
+                    autocomplete="off"
+                    [id]="column.name"
+                    class="ant-input px-2"
+                    [ngClass]="{
+                      'pl-9': !!column?.formItem?.addOnBefore,
+                      'pr-9': !!column?.formItem?.addOnAfter
+                    }"
+                    [tabindex]="column?.formItem?.readonly ? '-1' : ''"
+                    [formControl]="$any(validateForm).get(column.name)"
+                    [readonly]="column?.formItem?.readonly"
+                    [placeholder]="(column?.formItem?.placeholder || ('components.form.Enter' | translate : { title: ((column?.title || '') | translate)| lowercase})) | translate"
+                    (blur)="onChangeValue(column, $event.target)"
+                  />
+                  <i
+                    *ngIf="!!column?.formItem?.addOnAfter"
+                    class="text-lg las absolute top-0 right-3 z-[1]"
+                    [ngClass]="column?.formItem?.addOnAfter || ''"
+                    (click)="
+                      !!column?.formItem?.onClick && column?.formItem?.onClick($any(validateForm).get(column.name))
+                    "
+                  ></i>
+                </div>
+                <g-editor
+                  *ngSwitchCase="'markdown'"
+                  [id]="column.name"
+                  [formControl]="$any(validateForm).get(column.name)"
+                >
+                </g-editor>
+                <g-editor-html
+                  *ngSwitchCase="'html'"
+                  [id]="column.name"
+                  [formControl]="$any(validateForm).get(column.name)"
+                ></g-editor-html>
+                <div class="relative" *ngSwitchCase="'number'">
+                  <i
+                    class="text-lg las absolute top-0 left-3 z-[1]"
+                    *ngIf="!!column?.formItem?.addOnBefore"
+                    [ngClass]="column?.formItem?.addOnBefore || ''"
+                  ></i>
+                  <input
+                    autocomplete="off"
+                    [id]="column.name"
+                    class="ant-input px-2"
+                    [ngClass]="{
+                      'pl-9': !!column?.formItem?.addOnBefore,
+                      'pr-9': !!column?.formItem?.addOnAfter
+                    }"
+                    type="number"
+                    [formControl]="$any(validateForm).get(column.name)"
+                    [readonly]="column?.formItem?.readonly"
+                    (blur)="onChangeValue(column, $event.target)"
+                    [placeholder]="(column?.formItem?.placeholder || ('components.form.Enter' | translate : { title: ((column?.title || '') | translate)| lowercase})) | translate"
+                  />
+                  <i
+                    class="text-lg las absolute top-0 right-3 z-[1]"
+                    *ngIf="!!column?.formItem?.addOnAfter"
+                    [ngClass]="column?.formItem?.addOnAfter || ''"
+                  ></i>
+                </div>
+                <div class="relative" *ngSwitchCase="'mask'">
+                  <i
+                    class="text-lg las absolute top-0 left-3 z-[1]"
+                    *ngIf="!!column?.formItem?.addOnBefore"
+                    [ngClass]="column?.formItem?.addOnBefore || ''"
+                  ></i>
+                  <input
+                    autocomplete="off"
+                    [id]="column.name"
+                    class="ant-input px-2"
+                    [ngClass]="{
+                      'pl-9': !!column?.formItem?.addOnBefore,
+                      'pr-9': !!column?.formItem?.addOnAfter
+                    }"
+                    [formControl]="$any(validateForm).get(column.name)"
+                    [tabindex]="column?.formItem?.readonly ? '-1' : ''"
+                    [readonly]="column?.formItem?.readonly"
+                    [mask]="!column?.formItem?.number ? column?.formItem?.mask || 'separator' : 'separator'"
+                    thousandSeparator=","
+                    [prefix]="column?.formItem?.maskPrefix || ''"
+                    [dropSpecialCharacters]="!!column?.formItem?.number"
+                    [placeholder]="(column?.formItem?.placeholder || ('components.form.Enter' | translate : { title: ((column?.title || '') | translate)| lowercase})) | translate"
+                    (blur)="onChangeValue(column, $event.target)"
+                  />
+                  <i
+                    class="text-lg las absolute top-0 right-3 z-[1]"
+                    *ngIf="!!column?.formItem?.addOnAfter"
+                    [ngClass]="column?.formItem?.addOnAfter || ''"
+                  ></i>
+                </div>
+                <div class="relative" *ngSwitchCase="'password'">
+                  <input
+                    autocomplete="off"
+                    [id]="column.name"
+                    class="ant-input px-2"
+                    [ngClass]="{
+                      'pl-9': !!column?.formItem?.addOnBefore,
+                      'pr-9': !!column?.formItem?.addOnAfter
+                    }"
+                    [formControl]="$any(validateForm).get(column.name)"
+                    [type]="!objPassword[column!.name!] ? 'password' : 'text'"
+                    [placeholder]="(column?.formItem?.placeholder || ('components.form.Enter' | translate : { title: ((column?.title || '') | translate)| lowercase})) | translate"
+                  />
+                  <i
+                    class="text-xl las absolute top-1 right-3"
+                    (click)="objPassword[column!.name!] = !objPassword[column!.name!]"
+                    [ngClass]="{ 'la-eye': !objPassword[column!.name!], 'la-eye-slash': objPassword[column!.name!] }"
+                  ></i>
+                </div>
+                <textarea
+                  [id]="column.name"
+                  *ngSwitchCase="'textarea'"
+                  [formControl]="$any(validateForm).get(column.name)"
+                  class="ant-input px-2 py-1"
+                  [rows]="column?.formItem?.rows || 4"
+                  [readOnly]="column?.formItem?.readonly"
+                  [placeholder]="(column?.formItem?.placeholder || ('components.form.Enter' | translate : { title: ((column?.title || '') | translate)| lowercase})) | translate"
+                  (paste)="
+                    !!column?.formItem?.onPaste
+                      ? column?.formItem?.onPaste($event, column.name, validateForm.get(column.name || ''))
+                      : {}
+                  "
+                ></textarea>
+                <div class="relative" *ngSwitchCase="'autocomplete'">
+                  <i
+                    class="text-lg las absolute top-1.5 left-3 z-[1]"
+                    *ngIf="!!column?.formItem?.addOnBefore || !!column?.formItem?.renderIcon"
+                    [ngClass]="
+                      column?.formItem?.renderIcon($any(validateForm).getRawValue()) ||
+                      column?.formItem?.addOnBefore ||
+                      ''
+                    "
+                  ></i>
+                  <input
+                    autocomplete="off"
+                    [id]="column.name"
+                    class="ant-input px-2"
+                    [ngClass]="{
+                      'pl-9':
+                        !!column?.formItem?.addOnBefore ||
+                        (!!column?.formItem?.renderIcon &&
+                          !!column?.formItem?.renderIcon($any(validateForm).getRawValue())),
+                      'pr-9': !!column?.formItem?.addOnAfter
+                    }"
+                    [formControl]="$any(validateForm).get(column.name)"
+                    [placeholder]="(column?.formItem?.placeholder || ('components.form.Enter' | translate : { title: ((column?.title || '') | translate)| lowercase})) | translate"
+                    [nzAutocomplete]="auto"
+                  />
+                  <nz-autocomplete nzBackfill #auto>
+                    <ng-template ngFor let-option [ngForOf]="column?.formItem?.listAutocomplete">
+                      <nz-auto-option
+                        [nzValue]="option.value"
+                        *ngIf="
+                          !validateForm.value[column.name || 0] ||
+                          option!.label!.indexOf(validateForm.value[column.name || 0]) > -1
+                        "
+                      >
+                        <div
+                          *ngIf="!!column?.formItem?.customOptionContent; else normalOption"
+                          [innerHTML]="column?.formItem?.customOptionContent(option)"
+                        ></div>
+                        <ng-template #normalOption>
+                          {{ option.label }}
+                        </ng-template>
+                      </nz-auto-option>
+                    </ng-template>
+                  </nz-autocomplete>
+                  <i
+                    class="text-lg las absolute top-0 right-3 z-[1]"
+                    *ngIf="!!column?.formItem?.addOnAfter"
+                    [ngClass]="column?.formItem?.addOnAfter || ''"
+                  ></i>
+                </div>
+                <input
+                  *ngSwitchCase="'color'"
+                  class="ant-input px-2"
+                  [placeholder]="(column?.formItem?.placeholder || ('components.form.Choose' | translate : { title: ((column?.title || '') | translate)| lowercase})) | translate"
+                  [formControl]="$any(validateForm).get(column.name)"
+                  (colorPickerChange)="$any(validateForm).get(column.name).setValue($event)"
+                  [(colorPicker)]="$any(validateForm).get(column.name).value"
+                  [style.background]="$any(validateForm).get(column.name).value"
+                />
+                <nz-date-picker
+                  *ngSwitchCase="'date'"
+                  [nzFormat]="column?.formItem?.formatDate || ''"
+                  [formControl]="$any(validateForm).get(column.name)"
+                  [nzShowTime]="!!column.formItem.showTime"
+                  [nzDisabled]="column?.formItem?.readonly"
+                  [nzPlaceHolder]="(column?.formItem?.placeholder || ('components.form.Choose' | translate : { title: ((column?.title || '') | translate)| lowercase})) | translate"
+                ></nz-date-picker>
+                <nz-range-picker
+                  *ngSwitchCase="'date_range'"
+                  [nzFormat]="column?.formItem?.formatDate || ''"
+                  [formControl]="$any(validateForm).get(column.name)"
+                  [nzShowTime]="!!column.formItem.showTime"
+                  [nzPlaceHolder]="(column?.formItem?.placeholder || ('components.form.Choose' | translate : { title: ((column?.title || '') | translate)| lowercase})) | translate"
+                ></nz-range-picker>
+                <div *ngSwitchCase="'checkbox'">
+                  <label
+                    *ngIf="!column?.formItem?.list"
+                    [formControl]="$any(validateForm).get(column.name)"
+                    nz-checkbox
+                    [id]="column.name"
+                  >
+                    <span
+                      [innerHTML]="column?.formItem?.html ? column?.formItem?.html : (column.title || '' | translate)"
+                    ></span>
+                  </label>
+                  <nz-checkbox-wrapper *ngIf="!!column?.formItem?.list" class="w-full">
+                    <ng-template ngFor let-item [ngForOf]="column?.formItem?.list" let-i="index">
+                      <label
+                        [id]="column.name + '-' + item.value"
+                        [ngClass]="{ danger: item.danger }"
+                        *ngIf="item"
+                        nz-checkbox
+                        [nzValue]="item.value"
+                        class="w-full"
+                        [formControl]="
+                          $any(validateForm)
+                            .get(column.name)
+                            .get(i + '.checked')
+                        "
+                      >
+                        {{ item.label || '' | translate }}
+                      </label>
+                    </ng-template>
+                  </nz-checkbox-wrapper>
+                </div>
+                <nz-radio-group
+                  *ngSwitchCase="'radio'"
+                  nzButtonStyle="solid"
+                  [nzDisabled]="column?.formItem?.readonly"
+                  [formControl]="$any(validateForm).get(column.name)"
+                  (ngModelChange)="onChangeValue(column, $event)"
+                >
+                  <ng-template ngFor let-item [ngForOf]="column?.formItem?.list">
+                    <label
+                      [id]="column.name + '-' + item.value"
+                      [ngClass]="{ danger: item.danger }"
+                      nz-radio-button
+                      *ngIf="item"
+                      nz-radio
+                      [nzValue]="item.value"
+                    >
+                      {{ item.label || '' | translate }}
+                    </label>
+                  </ng-template>
+                </nz-radio-group>
+                <nz-select
+                  *ngSwitchCase="'select'"
+                  [id]="column.name"
+                  [formControl]="$any(validateForm).get(column.name)"
+                  nzShowSearch
+                  [nzMode]="column?.formItem?.modeSelect || 'default'"
+                  [nzDisabled]="!!column?.formItem?.readonly"
+                  (ngModelChange)="onChangeValue(column, $event)"
+                  (nzOnSearch)="column?.formItem?.onSearch && column?.formItem?.onSearch($event)"
+                  [nzPlaceHolder]="(column?.formItem?.placeholder || ('components.form.Choose' | translate : { title: ((column?.title || '') | translate)| lowercase})) | translate"
+                >
+                  <nz-option
+                    *ngFor="let item of (column?.formItem?.facade | async) || column?.formItem?.list"
+                    [nzValue]="item.value"
+                    nzLabel="{{ item.label || '' | translate }}"
+                  ></nz-option>
+                </nz-select>
+                <nz-tree-select
+                  *ngSwitchCase="'treeSelect'"
+                  [id]="column.name"
+                  [nzNodes]="column!.formItem!.listNode || []"
+                  nzShowSearch
+                  [formControl]="$any(validateForm).get(column.name)"
+                  [nzPlaceHolder]="(column?.formItem?.placeholder || ('components.form.Choose' | translate : { title: ((column?.title || '') | translate)| lowercase})) | translate"
+                ></nz-tree-select>
+                <g-upload
+                  *ngSwitchCase="'upload'"
+                  [multiple]="!!column!.formItem!.modeSelect"
+                  [formControl]="$any(validateForm).get(column.name)"
+                ></g-upload>
+                <nz-switch
+                  *ngSwitchCase="'switch'"
+                  [id]="column.name"
+                  [formControl]="$any(validateForm).get(column.name)"
+                  [nzDisabled]="column?.formItem?.readonly"
+                  (ngModelChange)="onChangeValue(column, $event)"
+                ></nz-switch>
+                <nz-slider
+                  *ngSwitchCase="'slider'"
+                  [id]="column.name"
+                  [formControl]="$any(validateForm).get(column.name)"
+                  [nzMin]="column?.formItem?.min || 0"
+                  [nzMax]="column?.formItem?.max || 100"
+                  [nzMarks]="column.formItem.sliderMarks || null"
+                  [nzTipFormatter]="column?.formItem?.formatMarks"
+                ></nz-slider>
+                <div *ngSwitchCase="'only-text'">
+                  <ng-container [ngTemplateOutlet]="column!.formItem!.render || null"></ng-container>
+                </div>
+                <div *ngSwitchCase="'addable'" [formArrayName]="column.name || 0">
+                  <div *ngIf="!column.formItem.viewTable">
+                    <ng-template ngFor let-tab [ngForOf]="arrayAddable[column.name || 0]" let-i="index">
+                      <div class="grid grid-cols-12 gap-x-6" [formGroupName]="i">
+                        <ng-template ngFor let-colTab [ngForOf]="column.formItem.columns">
+                          <div
+                            class="col-form-item col-span-11"
+                            [ngClass]="colTab.formItem?.col ? 'sm:col-span-' + colTab.formItem?.col : ''"
+                            *ngIf="colTab.formItem?.show === undefined || !!colTab.formItem?.show"
+                          >
+                            <nz-form-item>
+                              <nz-form-label
+                                *ngIf="
+                                  !noLabel &&
+                                  !colTab?.formItem?.noLabel &&
+                                  !!colTab?.title &&
+                                  colTab.formItem?.type !== 'checkbox'
+                                "
+                                [ngStyle]="
+                                  widthLabel > 0
+                                    ? {
+                                        width: widthLabel + 'px',
+                                        whiteSpace: 'break-spaces'
+                                      }
+                                    : {}
+                                "
+                                [nzRequired]="checkRequired(colTab)"
+                                [nzFor]="colTab.name"
+                                [nzTooltipTitle]="colTab?.formItem?.tooltip"
+                              >{{
+                                (!!colTab.formItem?.title ? colTab.formItem?.title(validateForm.value) : colTab.title)
+                                  | translate
+                                }}</nz-form-label
+                              >
+                              <nz-form-control [nzErrorTip]="errorTab" *ngIf="colTab.formItem">
+                                <ng-container [ngSwitch]="colTab?.formItem?.type">
+                                  <div class="relative" *ngSwitchDefault>
+                                    <i
+                                      *ngIf="!!colTab?.formItem?.addOnBefore"
+                                      class="text-lg las absolute top-0 left-3 z-[1]"
+                                      [ngClass]="colTab?.formItem?.addOnBefore || ''"
+                                      (click)="
+                                        !!colTab?.formItem?.onClick &&
+                                          colTab?.formItem?.onClick(
+                                            $any(validateForm).get(column.name + '.' + i + '.' + colTab.name)
+                                          )
+                                      "
+                                    ></i>
+                                    <input
+                                      autocomplete="off"
+                                      (keyup.enter)="
+                                        addField(arrayAddable[column.name || 0], column.name, column.formItem.columns)
+                                      "
+                                      [id]="column.name + '-' + i + '-' + colTab.name"
+                                      class="ant-input px-2"
+                                      [ngClass]="{
+                                        'pl-9': !!colTab?.formItem?.addOnBefore,
+                                        'pr-9': !!colTab?.formItem?.addOnAfter
+                                      }"
+                                      [tabindex]="colTab?.formItem?.readonly ? '-1' : ''"
+                                      [formControl]="$any(validateForm).get(column.name + '.' + i + '.' + colTab.name)"
+                                      [readonly]="colTab?.formItem?.readonly"
+                                      [placeholder]="(colTab?.formItem?.placeholder || ('components.form.Enter' | translate : { title: ((colTab?.title || '') | translate)| lowercase})) | translate"
+                                      (blur)="onChangeValue(colTab, $event.target)"
+                                    />
+                                    <i
+                                      class="text-lg las absolute top-0 right-3 z-[1]"
+                                      *ngIf="!!colTab?.formItem?.addOnAfter"
+                                      [ngClass]="colTab?.formItem?.addOnAfter || ''"
+                                      (click)="
+                                        !!colTab?.formItem?.onClick &&
+                                          colTab?.formItem?.onClick(
+                                            $any(validateForm).get(column.name + '.' + i + '.' + colTab.name)
+                                          )
+                                      "
+                                    ></i>
+                                  </div>
+                                  <div class="relative" *ngSwitchCase="'number'">
+                                    <i
+                                      class="text-lg las absolute top-0 left-3 z-[1]"
+                                      *ngIf="!!colTab?.formItem?.addOnBefore"
+                                      [ngClass]="colTab?.formItem?.addOnBefore || ''"
+                                    ></i>
+                                    <input
+                                      autocomplete="off"
+                                      [id]="column.name + '-' + i + '-' + colTab.name"
+                                      class="ant-input px-2"
+                                      [ngClass]="{
+                                        'pl-9': !!colTab?.formItem?.addOnBefore,
+                                        'pr-9': !!colTab?.formItem?.addOnAfter
+                                      }"
+                                      type="number"
+                                      [placeholder]="(colTab?.formItem?.placeholder || ('components.form.Enter' | translate : { title: ((colTab?.title || '') | translate)| lowercase})) | translate"
+                                      [formControl]="$any(validateForm).get(column.name + '.' + i + '.' + colTab.name)"
+                                      [readonly]="colTab?.formItem?.readonly"
+                                    />
+                                    <i
+                                      class="text-lg las absolute top-0 right-3 z-[1]"
+                                      *ngIf="!!colTab?.formItem?.addOnAfter"
+                                      [ngClass]="colTab?.formItem?.addOnAfter || ''"
+                                    ></i>
+                                  </div>
+                                  <textarea
+                                    *ngSwitchCase="'textarea'"
+                                    [id]="column.name + '-' + i + '-' + colTab.name"
+                                    [formControl]="$any(validateForm).get(column.name + '.' + i + '.' + colTab.name)"
+                                    class="ant-input px-2 py-1"
+                                    [rows]="colTab?.formItem?.rows || 4"
+                                    [readOnly]="colTab?.formItem?.readonly"
+                                    [placeholder]="(colTab?.formItem?.placeholder || ('components.form.Enter' | translate : { title: ((colTab?.title || '') | translate)| lowercase})) | translate"
+                                    (paste)="
+                                      !!colTab?.formItem?.onPaste
+                                        ? colTab?.formItem?.onPaste(
+                                            $event,
+                                            column.name + '-' + i + '-' + colTab.name,
+                                            $any(validateForm).get(column.name),
+                                            i
+                                          )
+                                        : {}
+                                    "
+                                  ></textarea
+                                  >publishStatus
+                                  <g-editor
+                                    *ngSwitchCase="'markdown'"
+                                    [id]="column.name + '-' + i + '-' + colTab.name"
+                                    [formControl]="$any(validateForm).get(column.name + '.' + i + '.' + colTab.name)"
+                                  >
+                                  </g-editor>
+                                  <g-editor-html
+                                    *ngSwitchCase="'html'"
+                                    [id]="colTab.name"
+                                    [formControl]="$any(validateForm).get(column.name + '.' + i + '.' + colTab.name)"
+                                  ></g-editor-html>
+                                  <nz-select
+                                    *ngSwitchCase="'select'"
+                                    [formControl]="$any(validateForm).get(column.name + '.' + i + '.' + colTab.name)"
+                                    [nzMode]="column?.formItem?.modeSelect || 'default'"
+                                    nzShowSearch
+                                    [nzDisabled]="!!colTab?.formItem?.readonly"
+                                    (ngModelChange)="onChangeValue(colTab, $event)"
+                                    (nzOnSearch)="colTab?.formItem?.onSearch && colTab?.formItem?.onSearch($event)"
+                                    [nzPlaceHolder]="(colTab?.formItem?.placeholder || ('components.form.Choose' | translate : { title: ((colTab?.title || '') | translate)| lowercase})) | translate"
+                                  >
+                                    <nz-option
+                                      *ngFor="let item of colTab?.formItem?.list"
+                                      [nzValue]="item.value"
+                                      nzLabel="{{ item.label || '' | translate }}"
+                                    ></nz-option>
+                                  </nz-select>
+                                  <nz-switch
+                                    *ngSwitchCase="'switch'"
+                                    [formControl]="$any(validateForm).get(column.name + '.' + i + '.' + colTab.name)"
+                                    [nzDisabled]="colTab?.formItem?.readonly"
+                                  ></nz-switch>
+                                  <div *ngSwitchCase="'checkbox'" class="my-2">
+                                    <label
+                                      [formControl]="$any(validateForm).get(column.name + '.' + i + '.' + colTab.name)"
+                                      nz-checkbox
+                                      [id]="column.name + '-' + i + '-' + colTab.name"
+                                    >
+                                      <span
+                                        [innerHTML]="
+                                          colTab?.formItem?.html
+                                            ? colTab?.formItem?.html
+                                            : (colTab.title || '' | translate)
+                                        "
+                                      ></span>
+                                    </label>
+                                  </div>
+                                  <div class="relative" *ngSwitchCase="'number'">
+                                    <i
+                                      class="text-lg las absolute top-0 left-3 z-[1]"
+                                      *ngIf="!!colTab?.formItem?.addOnBefore"
+                                      [ngClass]="colTab?.formItem?.addOnBefore || ''"
+                                    ></i>
+                                    <input
+                                      autocomplete="off"
+                                      [id]="colTab.name"
+                                      class="ant-input px-2"
+                                      [ngClass]="{
+                                        'pl-9': !!colTab?.formItem?.addOnBefore,
+                                        'pr-9': !!colTab?.formItem?.addOnAfter
+                                      }"
+                                      type="number"
+                                      [formControl]="$any(validateForm).get(column.name + '.' + i + '.' + colTab.name)"
+                                      [readonly]="colTab?.formItem?.readonly"
+                                      [placeholder]="(colTab?.formItem?.placeholder || ('components.form.Enter' | translate : { title: ((colTab?.title || '') | translate)| lowercase})) | translate"
+                                    />
+                                    <i
+                                      class="text-lg las absolute top-0 right-3 z-[1]"
+                                      *ngIf="!!colTab?.formItem?.addOnAfter"
+                                      [ngClass]="colTab?.formItem?.addOnAfter || ''"
+                                    ></i>
+                                  </div>
+                                  <nz-date-picker
+                                    *ngSwitchCase="'date'"
+                                    [nzPlaceHolder]="(colTab?.formItem?.placeholder || ('components.form.Choose' | translate : { title: ((colTab?.title || '') | translate)| lowercase})) | translate"
+                                    [nzFormat]="colTab?.formItem?.formatDate || ''"
+                                    [formControl]="$any(validateForm).get(column.name + '.' + i + '.' + colTab.name)"
+                                    [nzShowTime]="!!column.formItem.showTime"
+                                  ></nz-date-picker>
+                                </ng-container>
+                              </nz-form-control>
+                            </nz-form-item>
+                          </div>
+                          <ng-template #errorTab let-control>
+                            <ul *ngIf="colTab?.formItem?.rules">
+                              <ng-template ngFor let-rule [ngForOf]="colTab?.formItem?.rules">
+                                <ng-container *ngIf="rule.type && control.hasError(rule.type)">
+                                  <li>
+                                    {{
+                                    control.errors[rule.type].message
+                                      ? control.errors[rule.type].message
+                                      : (rule.message || '' | translate : {value: rule.value, title: ((colTab?.title || '') | translate) | lowercase})
+                                    }}
+                                  </li>
+                                </ng-container>
+                              </ng-template>
+                            </ul>
+                          </ng-template>
+                        </ng-template>
+                        <div class="col-form-item col-span-1">
+                          <i
+                            class="las la-minus-circle text-2xl mt-1.5 hover:text-blue-400 cursor-pointer"
+                            (click)="removeField(arrayAddable[column.name || 0], i, column.name)"
+                          ></i>
+                        </div>
+                      </div>
+                    </ng-template>
+                  </div>
+                  <table *ngIf="!!column.formItem.viewTable" class="w-full">
+                    <thead>
+                    <td valign="top" class="pt-0.5">#</td>
+                    <ng-template ngFor let-colTab [ngForOf]="column.formItem.columns">
+                      <td
+                        *ngIf="colTab.formItem?.show === undefined || !!colTab.formItem?.show"
+                        class="px-1"
+                        valign="top"
+                      >
+                        <nz-form-label
+                          [nzRequired]="checkRequired(colTab)"
+                          [nzFor]="colTab.name"
+                          [nzTooltipTitle]="colTab?.formItem?.tooltip"
+                        >{{
+                          (!!colTab.formItem?.title ? colTab.formItem?.title(validateForm.value) : colTab.title)
+                            | translate
+                          }}</nz-form-label
+                        >
+                      </td>
+                    </ng-template>
+                    </thead>
+                    <tbody>
+                    <ng-template ngFor let-tab [ngForOf]="arrayAddable[column.name || 0]" let-i="index">
+                      <tr [formGroupName]="i" *ngIf="!!column.formItem.viewTable">
+                        <td valign="top" class="pt-1">{{ i + 1 }}</td>
+                        <ng-template ngFor let-colTab [ngForOf]="column.formItem.columns">
+                          <td
+                            *ngIf="colTab.formItem?.show === undefined || !!colTab.formItem?.show"
+                            class="px-1"
+                            valign="top"
+                            [width]="!!colTab?.formItem?.widthTable ? colTab?.formItem?.widthTable : ''"
+                          >
+                            <nz-form-item>
+                              <nz-form-control [nzErrorTip]="errorTab" *ngIf="colTab.formItem">
+                                <ng-container [ngSwitch]="colTab?.formItem?.type">
+                                  <div class="relative" *ngSwitchDefault>
+                                    <i
+                                      *ngIf="!!colTab?.formItem?.addOnBefore"
+                                      class="text-lg las absolute top-0 left-3 z-[1]"
+                                      [ngClass]="colTab?.formItem?.addOnBefore || ''"
+                                      (click)="
+                                          !!colTab?.formItem?.onClick &&
+                                            colTab?.formItem?.onClick(
+                                              $any(validateForm).get(column.name + '.' + i + '.' + colTab.name)
+                                            )
+                                        "
+                                    ></i>
+                                    <input
+                                      autocomplete="off"
+                                      (keyup.enter)="
+                                          addField(arrayAddable[column.name || 0], column.name, column.formItem.columns)
+                                        "
+                                      [id]="column.name + '-' + i + '-' + colTab.name"
+                                      class="ant-input px-2"
+                                      [ngClass]="{
+                                          'pl-9': !!colTab?.formItem?.addOnBefore,
+                                          'pr-9': !!colTab?.formItem?.addOnAfter
+                                        }"
+                                      [tabindex]="colTab?.formItem?.readonly ? '-1' : ''"
+                                      [formControl]="
+                                          $any(validateForm).get(column.name + '.' + i + '.' + colTab.name)
+                                        "
+                                      [readonly]="colTab?.formItem?.readonly"
+                                      [placeholder]="(colTab?.formItem?.placeholder || ('components.form.Enter' | translate : { title: ((colTab?.title || '') | translate)| lowercase})) | translate"
+                                      (blur)="onChangeValue(colTab, $event.target)"
+                                    />
+                                    <i
+                                      class="text-lg las absolute top-0 right-3 z-[1]"
+                                      *ngIf="!!colTab?.formItem?.addOnAfter"
+                                      [ngClass]="colTab?.formItem?.addOnAfter || ''"
+                                      (click)="
+                                          !!colTab?.formItem?.onClick &&
+                                            colTab?.formItem?.onClick(
+                                              $any(validateForm).get(column.name + '.' + i + '.' + colTab.name)
+                                            )
+                                        "
+                                    ></i>
+                                  </div>
+                                  <div class="relative" *ngSwitchCase="'number'">
+                                    <i
+                                      class="text-lg las absolute top-0 left-3 z-[1]"
+                                      *ngIf="!!colTab?.formItem?.addOnBefore"
+                                      [ngClass]="colTab?.formItem?.addOnBefore || ''"
+                                    ></i>
+                                    <input
+                                      autocomplete="off"
+                                      [id]="column.name + '-' + i + '-' + colTab.name"
+                                      class="ant-input px-2"
+                                      [ngClass]="{
+                                          'pl-9': !!colTab?.formItem?.addOnBefore,
+                                          'pr-9': !!colTab?.formItem?.addOnAfter
+                                        }"
+                                      type="number"
+                                      [formControl]="
+                                          $any(validateForm).get(column.name + '.' + i + '.' + colTab.name)
+                                        "
+                                      [placeholder]="(colTab?.formItem?.placeholder || ('components.form.Enter' | translate : { title: ((colTab?.title || '') | translate)| lowercase})) | translate"
+                                      [readonly]="colTab?.formItem?.readonly"
+                                    />
+                                    <i
+                                      class="text-lg las absolute top-0 right-3 z-[1]"
+                                      *ngIf="!!colTab?.formItem?.addOnAfter"
+                                      [ngClass]="colTab?.formItem?.addOnAfter || ''"
+                                    ></i>
+                                  </div>
+                                  <textarea
+                                    *ngSwitchCase="'textarea'"
+                                    [id]="column.name + '-' + i + '-' + colTab.name"
+                                    [formControl]="$any(validateForm).get(column.name + '.' + i + '.' + colTab.name)"
+                                    class="ant-input px-2 py-1"
+                                    [rows]="colTab?.formItem?.rows || 4"
+                                    [readOnly]="colTab?.formItem?.readonly"
+                                    [placeholder]="(colTab?.formItem?.placeholder || ('components.form.Enter' | translate : { title: ((colTab?.title || '') | translate)| lowercase})) | translate"
+                                    (paste)="
+                                        !!colTab?.formItem?.onPaste
+                                          ? colTab?.formItem?.onPaste(
+                                              $event,
+                                              column.name + '-' + i + '-' + colTab.name,
+                                              $any(validateForm).get(column.name),
+                                              i
+                                            )
+                                          : {}
+                                      "
+                                  ></textarea>
+                                  <g-editor
+                                    *ngSwitchCase="'markdown'"
+                                    [id]="column.name + '-' + i + '-' + colTab.name"
+                                    [formControl]="$any(validateForm).get(column.name + '.' + i + '.' + colTab.name)"
+                                  >
+                                  </g-editor>
+                                  <nz-select
+                                    *ngSwitchCase="'select'"
+                                    [formControl]="$any(validateForm).get(column.name + '.' + i + '.' + colTab.name)"
+                                    [nzMode]="column?.formItem?.modeSelect || 'default'"
+                                    nzShowSearch
+                                    [nzDisabled]="!!colTab?.formItem?.readonly"
+                                    (ngModelChange)="onChangeValue(colTab, $event)"
+                                    (nzOnSearch)="colTab?.formItem?.onSearch && colTab?.formItem?.onSearch($event)"
+                                    [nzPlaceHolder]="(colTab?.formItem?.placeholder || ('components.form.Choose' | translate : { title: ((colTab?.title || '') | translate)| lowercase})) | translate"
+
+                                  >
+                                    <nz-option
+                                      *ngFor="let item of colTab?.formItem?.list"
+                                      [nzValue]="item.value"
+                                      nzLabel="{{ item.label || '' | translate }}"
+                                    ></nz-option>
+                                  </nz-select>
+                                  <nz-switch
+                                    *ngSwitchCase="'switch'"
+                                    [formControl]="$any(validateForm).get(column.name + '.' + i + '.' + colTab.name)"
+                                    [nzDisabled]="colTab?.formItem?.readonly"
+                                  ></nz-switch>
+                                  <div *ngSwitchCase="'checkbox'" class="my-2">
+                                    <label
+                                      [formControl]="
+                                          $any(validateForm).get(column.name + '.' + i + '.' + colTab.name)
+                                        "
+                                      nz-checkbox
+                                      [id]="column.name + '-' + i + '-' + colTab.name"
+                                    >
+                                        <span
+                                          [innerHTML]="
+                                            colTab?.formItem?.html
+                                              ? colTab?.formItem?.html
+                                              : (colTab.title || '' | translate)
+                                          "
+                                        ></span>
+                                    </label>
+                                  </div>
+                                </ng-container>
+                              </nz-form-control>
+                            </nz-form-item>
+                          </td>
+                          <ng-template #errorTab let-control>
+                            <ul *ngIf="colTab?.formItem?.rules">
+                              <ng-template ngFor let-rule [ngForOf]="colTab?.formItem?.rules">
+                                <ng-container *ngIf="rule.type && control.hasError(rule.type)">
+                                  <li>
+                                    {{
+                                    control.errors[rule.type].message
+                                      ? control.errors[rule.type].message
+                                      : (rule.message || '' | translate : {value: rule.value, title: ((colTab?.title || '') | translate)| lowercase})
+                                    }}
+                                  </li>
+                                </ng-container>
+                              </ng-template>
+                            </ul>
+                          </ng-template>
+                        </ng-template>
+                        <td valign="top">
+                          <i
+                            class="las la-minus-circle text-2xl hover:text-blue-400 cursor-pointer"
+                            (click)="removeField(arrayAddable[column.name || 0], i, column.name)"
+                          ></i>
+                        </td>
+                      </tr>
+                    </ng-template>
+                    </tbody>
+                  </table>
+                  <g-button
+                    (click)="addField(arrayAddable[column.name || 0], column.name, column.formItem.columns)"
+                    [icon]="'las la-plus'"
+                    [text]="
+                      (!!column.formItem.addableText ? column.formItem.addableText : 'routes.admin.Layout.addNew')
+                        | translate
+                    "
+                  >
+                  </g-button>
+                </div>
+                <div *ngSwitchCase="'tab'">
+                  <nz-tabset
+                    [formArrayName]="column.name || null"
+                    [nzSelectedIndex]="arrayTab[column.name || 0]"
+                    (nzSelectedIndexChange)="changeTab($event, column.name || '')"
+                  >
+                    <nz-tab
+                      nzTitle="{{ tab.label }}"
+                      *ngFor="let tab of column.formItem.list; let i = index"
+                      [formGroupName]="i"
+                    >
+                      <div class="grid grid-cols-12 gap-x-6" *ngIf="i === arrayTab[column.name || 0]">
+                        <ng-template ngFor let-colTab [ngForOf]="column.formItem.columns">
+                          <div
+                            class="col-form-item col-span-12"
+                            [ngClass]="colTab.formItem?.col ? 'sm:col-span-' + colTab.formItem?.col : ''"
+                            *ngIf="colTab.formItem?.show === undefined || !!colTab.formItem?.show"
+                          >
+                            <nz-form-item>
+                              <nz-form-label
+                                *ngIf="
+                                  !noLabel &&
+                                  !colTab?.formItem?.noLabel &&
+                                  !!colTab?.title &&
+                                  colTab.formItem?.type !== 'checkbox'
+                                "
+                                [ngStyle]="
+                                  widthLabel > 0
+                                    ? {
+                                        width: widthLabel + 'px',
+                                        whiteSpace: 'break-spaces'
+                                      }
+                                    : {}
+                                "
+                                [nzRequired]="checkRequired(colTab)"
+                                [nzFor]="colTab.name"
+                                [nzTooltipTitle]="colTab?.formItem?.tooltip"
+                              >{{
+                                (!!colTab.formItem?.title ? colTab.formItem?.title(validateForm.value) : colTab.title)
+                                  | translate
+                                }}</nz-form-label
+                              >
+                              <nz-form-control [nzErrorTip]="errorTab" *ngIf="colTab.formItem">
+                                <ng-container [ngSwitch]="colTab?.formItem?.type">
+                                  <div class="relative" *ngSwitchDefault>
+                                    <i
+                                      *ngIf="!!colTab?.formItem?.addOnBefore"
+                                      class="text-lg las absolute top-0 left-3 z-[1]"
+                                      [ngClass]="colTab?.formItem?.addOnBefore || ''"
+                                      (click)="
+                                        !!colTab?.formItem?.onClick &&
+                                          colTab?.formItem?.onClick(
+                                            $any(validateForm).get(column.name + '.' + i + '.' + colTab.name)
+                                          )
+                                      "
+                                    ></i>
+                                    <input
+                                      autocomplete="off"
+                                      [id]="column.name + '-' + tab.value + '-' + colTab.name"
+                                      class="ant-input px-2"
+                                      [ngClass]="{
+                                        'pl-9': !!colTab?.formItem?.addOnBefore,
+                                        'pr-9': !!colTab?.formItem?.addOnAfter
+                                      }"
+                                      [tabindex]="colTab?.formItem?.readonly ? '-1' : ''"
+                                      [formControl]="$any(validateForm).get(column.name + '.' + i + '.' + colTab.name)"
+                                      [readonly]="colTab?.formItem?.readonly"
+                                      [placeholder]="(colTab?.formItem?.placeholder || ('components.form.Enter' | translate : { title: ((colTab?.title || '') | translate)| lowercase})) | translate"
+                                      (blur)="
+                                        onChangeValue(
+                                          colTab,
+                                          $event.target,
+                                          $any(validateForm).get(column.name + '.' + i)
+                                        )
+                                      "
+                                    />
+                                    <i
+                                      class="text-lg las absolute top-0 right-3 z-[1]"
+                                      *ngIf="!!colTab?.formItem?.addOnAfter"
+                                      [ngClass]="colTab!.formItem.addOnAfter || ''"
+                                      (click)="
+                                        !!colTab?.formItem?.onClick &&
+                                          colTab?.formItem?.onClick(
+                                            $any(validateForm).get(column.name + '.' + i + '.' + colTab.name)
+                                          )
+                                      "
+                                    ></i>
+                                  </div>
+                                  <div *ngSwitchCase="'only-text'">
+                                    <ng-container [ngTemplateOutlet]="colTab!.formItem!.render || null"></ng-container>
+                                  </div>
+                                  <g-editor
+                                    *ngSwitchCase="'markdown'"
+                                    [id]="column.name + '-' + i + '-' + colTab.name"
+                                    [formControl]="$any(validateForm).get(column.name + '.' + i + '.' + colTab.name)"
+                                  >
+                                  </g-editor>
+                                  <g-editor-html
+                                    *ngSwitchCase="'html'"
+                                    [id]="colTab.name"
+                                    [formControl]="$any(validateForm).get(column.name + '.' + i + '.' + colTab.name)"
+                                  ></g-editor-html>
+                                  <textarea
+                                    *ngSwitchCase="'textarea'"
+                                    [id]="column.name + '-' + tab.value + '-' + colTab.name"
+                                    [formControl]="$any(validateForm).get(column.name + '.' + i + '.' + colTab.name)"
+                                    class="ant-input px-2 py-1"
+                                    [rows]="colTab?.formItem?.rows || 4"
+                                    [readOnly]="colTab?.formItem?.readonly"
+                                    [placeholder]="(colTab?.formItem?.placeholder || ('components.form.Enter' | translate : { title: ((colTab?.title || '') | translate)| lowercase})) | translate"
+                                    (paste)="
+                                      !!colTab?.formItem?.onPaste
+                                        ? colTab?.formItem?.onPaste(
+                                            $event,
+                                            column.name + '-' + tab.value + '-' + colTab.name,
+                                            $any(validateForm).get(column.name),
+                                            i
+                                          )
+                                        : {}
+                                    "
+                                  ></textarea>
+                                  <g-draggable
+                                    (onClick)="colTab?.formItem?.onClick($event)"
+                                    *ngSwitchCase="'layout'"
+                                    [formControl]="$any(validateForm).get(column.name + '.' + i + '.' + colTab.name)"
+                                  ></g-draggable>
+                                  <nz-switch
+                                    *ngSwitchCase="'switch'"
+                                    [formControl]="$any(validateForm).get(column.name + '.' + i + '.' + colTab.name)"
+                                    [nzDisabled]="colTab?.formItem?.readonly"
+                                  ></nz-switch>
+                                </ng-container>
+                              </nz-form-control>
+                            </nz-form-item>
+                          </div>
+                          <ng-template #errorTab let-control>
+                            <ul *ngIf="colTab?.formItem?.rules">
+                              <ng-template ngFor let-rule [ngForOf]="colTab?.formItem?.rules">
+                                <ng-container *ngIf="rule.type && control.hasError(rule.type)"><li>{{control.errors[rule.type].message ? control.errors[rule.type].message : (rule.message || '' | translate : {value: rule.value, title: ((colTab?.title || '') | translate)| lowercase})}}</li></ng-container>
+                              </ng-template>
+                            </ul>
+                          </ng-template>
+                        </ng-template>
+                      </div>
+                    </nz-tab>
+                  </nz-tabset>
+                </div>
+              </ng-container>
+              <ng-template #errorTpl let-control>
+                <ul>
+                  <ng-template ngFor let-rule [ngForOf]="column.formItem.rules">
+                    <ng-container
+                      *ngIf="rule.type && control.hasError(rule.type)"><li>{{control.errors[rule.type].message ? control.errors[rule.type].message : (rule.message || '' | translate : {value: rule.value, title: ((column?.title || '') | translate)| lowercase})}}</li></ng-container>
+                  </ng-template>
+                </ul>
+              </ng-template>
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+      </ng-template>
+    </div>
+  </form>
+  <div class="flex justify-end gap-5">
+    <g-button
+    *ngIf="!!textSubmit"
+    [loading]="loading"
+    [id]="idButton"
+    (click)="submitForm()"
+    [text]="textSubmit"
+    [extendClass]="!isBack ? 'w-full !h-8 !px-0 font-medium !text-sm' : 'w-24 !h-8 !px-0 font-medium !text-sm'"
+    [ngClass]="!isBack ? 'w-full' : ''"
+  >
+  </g-button>
+    <g-button
+      [loading]="loading"
+      *ngIf="!!textSubmit && isBack"
+      (click)="handBack.emit()"
+      [text]="'components.form.close' | translate"
+      extendClass="!bg-gray-200 w-24 !h-8 !px-0 font-medium !text-sm !text-black hover:!text-blue-400"
+    >
+    </g-button>
+  </div>
+</nz-spin>

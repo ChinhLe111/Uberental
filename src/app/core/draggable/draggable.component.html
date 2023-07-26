@@ -1,0 +1,23 @@
+<div class="justify-end flex mb-2 gap-2">
+  <button
+    class="bg-blue-500 text-white px-2 h-7 rounded-md hover:bg-blue-400 inline-flex items-center gap-1"
+    (click)="handleEdit({ col: 4 }, -1)"
+  >
+    <i class="las la-plus la-lg"></i>
+    {{ 'routes.admin.Layout.addNew' | translate }}
+  </button>
+</div>
+<article [id]="'draggable' + id" class="w-full grid gap-2 grid-cols-4 mb-2">
+  <ng-template ngFor let-item [ngForOf]="listData" let-i="index">
+    <div class="draggable" [id]="i">
+      <div class="flex items-center gap-2 cursor-move">
+        <i class="las la-arrows-alt la-lg handle"></i>
+        {{ item.name }}
+      </div>
+      <div>
+        <i class="las la-edit la-lg cursor-pointer" (click)="handleEdit(item, i)"></i>
+        <i class="las la-trash la-lg cursor-pointer" (click)="delete(i)"></i>
+      </div>
+    </div>
+  </ng-template>
+</article>

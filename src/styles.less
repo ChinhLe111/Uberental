@@ -1,0 +1,189 @@
+@import "ng-zorro-antd/style/entry";
+@import "ng-zorro-antd/spin/style/entry";
+@import "ng-zorro-antd/table/style/entry";
+@import "ng-zorro-antd/modal/style/entry";
+@import "ng-zorro-antd/radio/style/entry";
+@import "ng-zorro-antd/checkbox/style/entry";
+@import "ng-zorro-antd/spin/style/entry";
+@import "ng-zorro-antd/date-picker/style/entry";
+@import "ng-zorro-antd/form/style/entry";
+@import "ng-zorro-antd/auto-complete/style/entry";
+@import "ng-zorro-antd/menu/style/entry";
+@import "ng-zorro-antd/select/style/entry";
+@import "ng-zorro-antd/tabs/style/entry";
+@import "ng-zorro-antd/popconfirm/style/entry";
+@import "ng-zorro-antd/popover/style/entry";
+@import "ng-zorro-antd/dropdown/style/entry";
+@import "ng-zorro-antd/switch/style/entry";
+@import "ng-zorro-antd/tree-select/style/entry";
+@import "ng-zorro-antd/transfer/style/entry";
+@import "ng-zorro-antd/tree/style/entry";
+@import "ng-zorro-antd/calendar/style/entry";
+@import "ng-zorro-antd/slider/style/entry";
+@import "ng-zorro-antd/upload/style/entry";
+@root-entry-name: default;
+@font-size-base: 14px;
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import "/src/app/layouts/auth/auth.layout";
+@import "/src/app/layouts/admin/admin.layout";
+@import "/src/app/core/data-table/data-table.component";
+@import "/src/app/core/form/form.component.less";
+
+.button {
+@apply bg-blue-600 text-white px-5 h-8 rounded-md hover:bg-blue-400 inline-flex items-center gap-1 justify-center;
+  &:disabled,
+  &button[disabled]{
+    @apply bg-blue-300;
+  }
+}
+
+body {
+  font-family: -apple-system,BlinkMacSystemFont,"Segoe UI","Roboto","Helvetica Neue","Ubuntu", sans-serif;
+  @apply text-sm overflow-x-hidden text-gray-600;
+}
+* > {
+  .loop-intro-x(9);
+}
+
+.loop-intro-x(@counter) when (@counter > 0) {
+  .loop-intro-x((@counter - 1));    // next iteration
+  .intro-x:nth-child(@{counter}) { @apply translate-x-12; }
+  .-intro-x:nth-child(@{counter}) { @apply -translate-x-12; }
+  .-intro-x:nth-child(@{counter}), .intro-x:nth-child(@{counter}) {
+    @apply opacity-0 animate-intro-x-animation;
+    z-index: (10 - @counter);
+    animation-delay: ~"0.@{counter}s"
+  }
+}
+.ant-dropdown{
+  &.right:after {
+  @apply right-4 left-auto;
+  }
+  &:after{
+    content: '';
+  @apply  left-4 -top-1 border-white from-white absolute border-solid transform rotate-45 block z-0 h-1 w-1 border-4 shadow;
+  }
+}
+.ant-picker-month-panel .ant-picker-calendar-date.ant-picker-cell-inner .ant-picker-calendar-date-content{
+@apply h-96;
+}
+.ant-picker-month-panel .ant-picker-calendar-date.ant-picker-cell-inner .ant-picker-calendar-date-value{
+@apply font-semibold;
+}
+
+
+//for editor html
+.note-modal-backdrop{
+  @apply hidden !important;
+}
+.note-editable{
+  @apply bg-white;
+  ol{
+    li{
+      counter-increment: section;
+      &:before{
+        content: counter(section) ". ";
+      @apply pr-2;
+      }
+    }
+  }
+  ul{
+    li{
+      &:before{
+        content:'●';
+      @apply pr-2;
+      }
+    }
+  }
+  blockquote {
+    background:
+      linear-gradient(to right, theme('textColor.indigo.500') 2px, transparent 1px) 0 100%,
+      linear-gradient(to left, theme('textColor.indigo.500') 2px, transparent 1px) 100% 0,
+      linear-gradient(to bottom, theme('textColor.indigo.500') 2px, transparent 1px) 100% 0,
+      linear-gradient(to top, theme('textColor.indigo.500') 2px, transparent 1px) 0 100%;
+    background-size: 20px 20px;
+  @apply my-8 mx-auto relative table text-justify ~'py-1.5' px-2 bg-no-repeat;
+
+    &:before,
+    &:after {
+      font-family: Line Awesome Free, serif;
+    @apply font-black absolute text-indigo-600 text-xl;
+    }
+
+    &:before {
+      content: "\f10d";
+    @apply -top-3 right-full -mr-3;
+    }
+
+    &:after {
+      content: "\f10e";
+    @apply -bottom-3 left-full top-auto -ml-3;
+    }
+  }
+  pre{
+  @apply bg-gray-600 text-white;
+  }
+  h1 { @apply text-4xl; }
+  h2 { @apply text-3xl; }
+  h3 { @apply text-2xl; }
+  h4 { @apply text-xl; }
+  h5 { @apply text-lg; }
+  h6 { @apply text-sm; }
+  img{
+    @apply mx-auto;
+  }
+}
+.shine, .glightbox {
+@apply relative overflow-hidden flex;
+
+  &:before {
+  @apply absolute top-0 -left-3/4 block w-1/2 h-full z-10 bg-gradient-to-r from-white/80 skew-x-[-25deg];
+    content: '';
+  }
+  &:hover:before { @apply animate-shine; }
+}
+.slide-zoom {
+  @apply overflow-visible;
+
+  swiper-slide {
+    @apply opacity-0 duration-500 transition-all ease-in-out !scale-110;
+
+    &.swiper-slide-next, &.swiper-slide-active, &.swiper-slide-prev {
+      @apply opacity-100 duration-500 transition-all ease-in-out !scale-100;
+    }
+  }
+}
+
+.ant-tooltip-inner {
+@apply rounded-md text-xs;
+}
+
+.text-shadow{
+  text-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+}
+
+.ant-table-thead{
+  background: #000 !important;
+}
+
+.min-32{
+  min-height: 32px;
+}
+
+.ant-input-affix-wrapper, .ant-input, .ant-picker, .ant-picker-range, .ant-select-single:not(.ant-select-customize-input) .ant-select-selector{
+  @apply min-32;
+}
+
+.text-13{
+  font-size: 0.8125rem;
+}
+.truncate-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}

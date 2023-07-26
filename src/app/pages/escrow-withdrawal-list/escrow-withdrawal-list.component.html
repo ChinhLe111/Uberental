@@ -1,0 +1,91 @@
+<section class="mx-3 -intro-x">
+  <div class="bg-white container mx-auto">
+    <div class="w-full flex justify-between pt-8">
+      <h2 class="text-2xl font-medium">{{ 'routes.admin.escrow.escrow_withdrawal_list' | translate }}</h2>
+    </div>
+    <div class="flex space-x-3 my-5">
+      <div class="space-y-1">
+        <label class="text-gray-700 font-medium">{{ 'routes.admin.escrow.search' | translate }}</label
+        ><br />
+        <div class="relative w-fit">
+          <input
+            class="w-56 h-8 rounded-md text-gray-700 bg-white border border-solid border-gray-200 pr-9 pl-4 outline-blue-400"
+            [(ngModel)]="tableEscrowWithdrawalList.search"
+            (change)="tableEscrowWithdrawalList.searchFull()"
+            type="text"
+            placeholder="{{ 'routes.admin.escrow.search-by-name-description' | translate }}"
+          />
+          <i class="text-lg las la-search absolute top-1/2 -translate-y-1/2 right-2 z-[1]"></i>
+        </div>
+      </div>
+      <div class="space-y-1">
+        <label class="text-gray-700 font-medium">{{ 'routes.admin.escrow.type_account' | translate }}</label
+        ><br />
+        <nz-select
+          class="w-40"
+          nzAllowClear
+          nzShowSearch
+          nzPlaceHolder="{{ 'routes.admin.escrow.select' | translate }}"
+          [(ngModel)]="tableEscrowWithdrawalList.paramTable.filter.ProfileTypeCode"
+          (ngModelChange)="tableEscrowWithdrawalList.filter('ProfileTypeCode', null, $event)"
+        >
+          <nz-option
+            *ngFor="let role of roleFacade.rolesCustomer$ | async"
+            [nzValue]="role.value"
+            [nzLabel]="role.label"
+          ></nz-option>
+        </nz-select>
+      </div>
+      <div class="space-y-1">
+        <label class="text-gray-700 font-medium">{{ 'routes.admin.escrow.status' | translate }}</label
+        ><br />
+        <nz-select
+          class="w-40"
+          nzAllowClear
+          nzPlaceHolder="{{ 'routes.admin.escrow.select' | translate }}"
+          [(ngModel)]="tableEscrowWithdrawalList.paramTable.filter.StatusCode"
+          (ngModelChange)="tableEscrowWithdrawalList.filter('StatusCode', null, $event)"
+        >
+          <nz-option *ngFor="let status of listStatus" [nzValue]="status.value" [nzLabel]="status.label"></nz-option>
+        </nz-select>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="bg-gray-100 rounded-tl-md rounded-tr-md py-3 intro-x">
+  <div class="h-[calc(100vh-292px)] pr-2 container mx-auto overflow-y-auto">
+    <g-datatable
+      #tableEscrowWithdrawalList
+      [classRow]="classRow"
+      [extendData]="{ id: id }"
+      [columns]="columnsTable"
+      [loading]="escrowWithdrawalListFacade.isLoading$ | async"
+      [data]="(escrowWithdrawalListFacade.pagination$ | async)?.content"
+      [total]="(escrowWithdrawalListFacade.pagination$ | async)?.totalElements"
+      [showSearch]="false"
+      (ngChange)="escrowWithdrawalListFacade.get($event)"
+    >
+      <ng-template #statusCode let-data>
+        <ng-template ngFor let-status [ngForOf]="listStatus">
+          <button
+            *ngIf="data.statusCode === status.value"
+            class="px-2 h-5 flex items-center text-13 cursor-default"
+            [ngStyle]="{
+                  backgroundColor: status.backgroundColor,
+                  color: status.color,
+               }"
+          >
+            {{ status.label | translate }}
+          </button>
+        </ng-template>
+      </ng-template>
+      <app-modal-reasons-escrow-withdrawal-list
+        [isVisible]="isVisibleReject"
+        [idReasons]="idReject"
+        (handleCancel)="isVisibleReject = false"
+      >
+      </app-modal-reasons-escrow-withdrawal-list>
+    </g-datatable>
+  </div>
+</section>

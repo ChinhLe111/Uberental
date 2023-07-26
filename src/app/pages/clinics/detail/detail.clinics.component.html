@@ -1,0 +1,154 @@
+<div class="relative pt-10 py-5 px-2.5 -intro-x">
+  <div class="w-[900px] mx-auto">
+    <h2 class="text-2xl font-semibold relative">
+      <button class="absolute -left-9" (click)="handleBack()">
+        <i class="las la-arrow-left text-3xl text-blue-600"></i>
+      </button>
+      Thông tin Phòng khám
+    </h2>
+  </div>
+</div>
+
+  <div
+    class="rounded-t-md bg-gray-100 min-h-[calc(100vh-128px)] intro-x"
+    *ngIf="this.clinicsFacade.data$ | async as detailClinic"
+  >
+    <div class="max-w-[1000px] mx-auto">
+      <nz-spin [nzSpinning]="clinicsFacade.isLoading$ | async">
+      <div class="w-max mx-auto rounded-md flex gap-5 pb-10">
+        <div>
+          <div class="w-[550px] bg-white min-h-[100px] my-4 pb-10 rounded-md p-5 shadow">
+            <div>
+              <a class="glightbox" [href]="detailClinic?.clinicAvatarUrl">
+                <img class="rounded-lg h-[308px] w-full object-cover" src="{{ detailClinic?.clinicAvatarUrl }}" />
+              </a>
+            </div>
+            <h2 class="mt-6 text-2xl font-semibold">{{ detailClinic?.name }}</h2>
+            <p class="mt-1 text-sm font-medium">
+              {{
+              detailClinic?.address +
+              ', ' +
+              detailClinic?.commune?.communeName +
+              ', ' +
+              detailClinic?.district?.districtName +
+              ', ' +
+              detailClinic?.province?.tenTinh
+              }}
+            </p>
+            <div class="pt-4 pb-2 border-b border-gray-200 flex justify-between">
+              <h2 class="text-lg font-semibold">Thông tin chi tiết</h2>
+            </div>
+            <div class="pt-4 pb-2 border-b border-gray-200 flex text-left gap-40">
+              <div class="w-32">
+                <p class="text-sm text-gray-400 font-medium">Thời gian làm việc</p>
+                <p class="text-sm font-semibold">{{ detailClinic?.workingTimeDescription }}</p>
+              </div>
+              <div>
+                <p class="text-sm text-gray-400 font-medium">Kinh nghiệm</p>
+                <p class="text-sm font-semibold">{{ detailClinic?.totalWorkingYear }} năm</p>
+              </div>
+            </div>
+            <div class="pt-4 pb-2 border-b border-gray-200 flex text-left gap-40">
+              <div class="w-32">
+                <p class="text-sm text-gray-400 font-medium">Số lượng nhân viên</p>
+                <p class="text-sm font-semibold">{{ detailClinic?.totalEmployee }} nhân viên</p>
+              </div>
+              <div>
+                <p class="text-sm text-gray-400 font-medium">Trang thiết bị</p>
+                <p class="text-sm font-semibold">{{ detailClinic?.totalMachineSeats }} ghế máy</p>
+              </div>
+            </div>
+            <h3 class="text-sm text-gray-400 font-medium mt-4">Mô tả dịch vụ</h3>
+            <p class="mb-4 text-sm font-medium whitespace-pre-line">{{ detailClinic?.serviceDescription }}</p>
+          </div>
+          <div class="w-[550px] bg-white min-h-[100px] mt-4 p-5 pb-10 rounded-md shadow">
+            <div class="border-b border-gray-200">
+              <h2 class="pb-1 text-lg font-semibold">Ảnh</h2>
+            </div>
+            <div class="mt-4">
+              <h3 class="text-sm font-semibold">Ảnh đại diện phòng khám</h3>
+              <a class="glightbox" [href]="detailClinic?.clinicAvatarUrl">
+                <img class="w-28 h-20 object-cover mt-2 rounded-xl" [src]="detailClinic?.clinicAvatarUrl" />
+              </a>
+            </div>
+            <div class="mt-4">
+              <h3 class="text-sm font-semibold">Ảnh chứng chỉ phòng khám</h3>
+              <div class="grid grid-cols-5 gap-4 mt-2">
+                <a *ngFor="let i of detailClinic?.clinicLicenseListImage" class="glightbox" [href]="i?.fileUrl">
+                  <img class="w-28 h-20 object-cover rounded-xl" src="{{ i?.fileUrl }}" />
+                </a>
+              </div>
+            </div>
+            <div class="mt-4">
+              <h3 class="text-sm font-semibold">Ảnh trang thiết bị phòng khám</h3>
+              <div class="grid grid-cols-5 gap-4 mt-2">
+                <a
+                  *ngFor="let item of detailClinic?.clinicEquipmentListImage; let i = index"
+                  class="glightbox"
+                  [href]="item?.fileUrl"
+                >
+                  <img class="w-28 h-20 object-cover rounded-xl" src="{{ item?.fileUrl }}" />
+                </a>
+              </div>
+            </div>
+          </div>
+          <div class="w-[550px] bg-white sticky bottom-0 rounded-md z-30 shadow">
+            <div class="flex gap-x-5 justify-end mt-2 p-5 w-full">
+              <button
+                *ngIf="detailClinic?.statusCode == 'WAIT_FOR_APPROVAL'"
+                class="py-1.5 px-4 bg-blue-600 rounded-md text-sm font-semibold text-white"
+                (click)="clinicsFacade.postApproveClinic(detailClinic.id)"
+              >
+                {{ 'routes.admin.clinics.approve' | translate }}
+              </button>
+              <button class="py-1.5 px-4 bg-gray-300 rounded-md text-sm font-semibold mr-2" (click)="handleBack()">
+                {{ 'routes.admin.clinics.close' | translate }}
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="w-[325px] min-h-[100px] mt-4">
+          <div class="bg-white h-max p-5 rounded-md shadow">
+            <div class="py-2 flex justify-between border-b border-gray-200">
+              <h2 class="font-semibold text-xl">Phụ trách phòng khám</h2>
+              <g-button
+                nz-popover
+                [nzPopoverContent]="'routes.admin.Layout.edit' | translate"
+                [title]="'routes.admin.Layout.edit' | translate"
+                (click)="router.navigate([language + '/clinics/edit', detailClinic?.id])"
+                [icon]="'las la-edit text-blue-500 text-3xl hover:cursor-pointer hover:text-blue-700'"
+                [extendClass]="' !bg-transparent !px-0'"
+              ></g-button>
+            </div>
+            <div class="w-full mt-4">
+              <a class="glightbox" [href]="detailClinic?.supervisorAvatarUrl">
+                <img src="{{ detailClinic?.supervisorAvatarUrl }}" class="mx-auto w-40 h-40 rounded-full" />
+              </a>
+            </div>
+            <h1 class="text-xl font-semibold mt-4 text-center">Bác sĩ {{ detailClinic?.supervisorName }}</h1>
+            <h1 class="text-sm font-medium mt-4 truncate-4 min-h-[70px] whitespace-pre-line">
+              {{ detailClinic.supervisorDescription }}
+            </h1>
+            <div class="mt-4">
+              <h3 class="text-sm font-semibold">Ảnh CCCD</h3>
+              <div class="grid grid-cols-2 gap-4 mt-2">
+                <a *ngFor="let i of detailClinic?.supervisorNationalIdListImage" class="glightbox" [href]="i?.fileUrl">
+                  <img class="w-32 h-24 object-cover rounded-xl" src="{{ i?.fileUrl }}" />
+                </a>
+              </div>
+            </div>
+            <div class="mt-4">
+              <h3 class="text-sm font-semibold">Ảnh Bằng cấp</h3>
+              <div class="grid grid-cols-2 gap-4 mt-2">
+                <a *ngFor="let i of detailClinic?.supervisorDegreeListImage" class="glightbox" [href]="i?.fileUrl">
+                  <img class="w-32 h-24 object-cover rounded-xl" src="{{ i?.fileUrl }}" />
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      </nz-spin>
+    </div>
+  </div>
+<div></div>

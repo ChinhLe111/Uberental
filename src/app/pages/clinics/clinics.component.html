@@ -1,0 +1,141 @@
+<section class="mx-3 -intro-x">
+  <div class="bg-white max-w-[1140px] mx-auto">
+    <div class="w-full flex justify-between pt-8">
+      <h2 class="text-2xl font-medium">{{ 'routes.admin.clinics.list_of_clinics' | translate }}</h2>
+    </div>
+    <div class="flex space-x-3 my-5">
+      <div class="space-y-1">
+        <label class="text-gray-700 font-medium">{{ 'routes.admin.clinics.search' | translate }}</label><br/>
+        <div class="relative w-fit">
+          <input
+            class="w-56 h-8 rounded-md text-gray-700 bg-white border border-solid border-gray-200 pr-9 pl-4 outline-blue-400"
+            [(ngModel)]="tableClinics.search"
+            (change)="tableClinics.searchFull()"
+            type="text"
+            placeholder="{{ 'Tìm kiếm theo tên, mô tả,...' | translate }}"
+          />
+          <i class="text-lg las la-search absolute top-1/2 -translate-y-1/2 right-2 z-[1]"></i>
+        </div>
+      </div>
+      <div class="space-y-1">
+        <label class="text-gray-700 font-medium">{{ 'routes.admin.clinics.browse_status' | translate }}</label><br/>
+        <nz-select
+          class="w-44"
+          nzAllowClear
+          nzShowSearch
+          nzPlaceHolder="{{ 'routes.admin.clinics.all' | translate }}"
+          [(ngModel)]="selectStatus"
+          (ngModelChange)="tableClinics.filter('StatusCode', null, $event)"
+        >
+          <nz-option nzValue="WAIT_FOR_APPROVAL"
+                     nzLabel="{{ 'routes.admin.clinics.WAIT_CONFIRM' | translate }}"></nz-option>
+          <nz-option nzValue="APPROVED" nzLabel="{{ 'routes.admin.clinics.APPROVE' | translate }}"></nz-option>
+        </nz-select>
+      </div>
+      <div class="space-y-1">
+        <label class="text-gray-700 font-medium">{{ 'routes.admin.clinics.select_province' | translate }}</label><br/>
+        <nz-select
+          *ngIf="addressFacade.provinceList$ | async as dataProvince"
+          class="w-44"
+          nzAllowClear
+          nzShowSearch
+          nzPlaceHolder="{{ 'routes.admin.clinics.select_province_see_clinic' | translate }}"
+          [(ngModel)]="tableClinics.paramTable.filter.ProvinceCode"
+          (ngModelChange)="filterProvince($event, dataProvince)"
+        >
+          <nz-option
+            *ngFor="let item of addressFacade.provinceList$ | async"
+            [nzValue]="item.maTinh"
+            [nzLabel]="item.tenTinh"
+          ></nz-option>
+        </nz-select>
+      </div>
+      <div class="space-y-1">
+        <label class="text-gray-700 font-medium"
+        >{{ 'routes.admin.clinics.number_of_machine_seats' | translate }}</label
+        ><br/>
+        <nz-slider
+          class="w-40 block"
+          nzRange
+          nzDots
+          [nzMax]="1000"
+          [nzMarks]="marks"
+          [(ngModel)]="tableClinics.paramTable.filter.MachineSeatsRange"
+          (nzOnAfterChange)="onAfterChange($event)"
+        ></nz-slider>
+      </div>
+      <div class="space-y-1">
+        <label class="text-gray-700 font-medium"
+        >{{ 'routes.admin.clinics.total_employees' | translate }}</label
+        ><br/>
+        <nz-slider
+          class="w-40 block"
+          nzRange
+          nzDots
+          [nzMax]="1000"
+          [nzMarks]="marks"
+          [(ngModel)]="tableClinics.paramTable.filter.TotalEmployeeRange"
+          (nzOnAfterChange)="onAfterChangeEmployee($event)"
+        ></nz-slider>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="bg-gray-100 rounded-tl-md rounded-tr-md py-3 ">
+  <div class="p-2.5 rounded-md max-w-[1140px] min-w-[960px] h-[calc(100vh-308px)] overflow-y-auto mx-auto intro-x">
+    <g-datatable
+      #tableClinics
+      [heightRow]="50"
+      [classRow]="classRow"
+      [extendData]="{id: id}"
+      [columns]="columnsTable"
+      [loading]="clinicsFacade.isLoading$ | async"
+      [data]="(clinicsFacade.pagination$ | async)?.content"
+      [total]="(clinicsFacade.pagination$ | async)?.totalElements"
+      [showSearch]="false"
+      (ngChange)="clinicsFacade.get($event)"
+    >
+      <ng-template #clinicName let-data>
+        <p
+          #clinicName
+          nz-tooltip
+          [nzTooltipTitle]="data?.name"
+          [nzTooltipColor]="'blue'"
+          [routerLink]="['detail', data?.id]"
+          [nzTooltipTrigger]="clinicName.offsetWidth < clinicName.scrollWidth ? 'hover' : null"
+          class="text-blue-800 hover:text-blue-600 font-medium truncate cursor-pointer"
+        >
+          {{ data?.name }}
+        </p>
+        <p class="text-gray-500 font-normal truncate">
+          {{data.address + ', ' + data.commune?.communeName + ', ' + data.district?.districtName + ', ' + data.province?.tenTinh}}
+        </p>
+      </ng-template>
+      <ng-template #supervisorName let-data>
+        <p class="font-medium ">{{data.supervisorName}}</p>
+      </ng-template>
+      <ng-template #totalOrder let-data>
+        <p *ngIf="data.totalOrder!=0" class="font-medium">{{data.totalOrder}}</p>
+        <p *ngIf="data.totalOrder==0"
+           class="font-semibold text-gray-400 rounded-md w-max px-2">{{ 'routes.admin.clinics.not_yet' | translate }}</p>
+      </ng-template>
+      <ng-template #infrastructure let-data>
+        <p class="font-medium">{{ data.totalMachineSeats }} {{ 'routes.admin.clinics.machine_chair' | translate }}</p>
+        <p class="font-normal">{{ data.totalEmployee }} {{ 'routes.admin.clinics.employee' | translate }}</p>
+      </ng-template>
+      <ng-template #status let-data>
+        <ng-container *ngFor="let item of listStatus">
+          <div
+            *ngIf="item.status === data?.statusCode"
+            class="inline-block px-2 h-5"
+            [ngClass]="{ 'bg-amber-500': data?.statusCode == 'WAIT_FOR_APPROVAL', 'bg-sky-500': data?.statusCode == 'APPROVED'}"
+          >
+            <p class="text-white">{{ item.label | translate }}</p>
+          </div>
+        </ng-container>
+      </ng-template>
+    </g-datatable>
+  </div>
+</section>
+

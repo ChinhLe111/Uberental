@@ -1,0 +1,26 @@
+<div class="py-5 px-2.5 intro-x">
+  <div class="w-[780px] mx-auto flex">
+    <button tabindex="0" (click)="handleBack()" [title]="'routes.admin.Layout.back' | translate">
+      <i class="las la-arrow-left text-3xl text-blue-600"></i>
+    </button>
+    <h2 class="text-2xl pl-3 font-semibold">
+      {{ (id ? 'routes.admin.post.updatecategory' : 'routes.admin.post.addnewcate') | translate }}
+    </h2>
+  </div>
+</div>
+<section class="py-5 h-[calc(100vh-180px)] bg-gray-100 rounded-tl-md rounded-tr-md -intro-x">
+  <div class="w-[700px] bg-white mx-auto p-5 rounded-md shadow-xl">
+    <h2 class="mb-5 font-semibold text-xl">
+      {{ (id ? 'routes.admin.post.infomation' : 'routes.admin.post.infomation') | translate }}
+    </h2>
+    <g-form
+      [columns]="columnsForm"
+      [values]="!id ? null : (postCategoriesFacade.data$ | async)"
+      [textSubmit]="'components.form.save' | translate"
+      (handSubmit)="handelSubmit($event)"
+      (handBack)="handleBack()"
+      [loading]="postCategoriesFacade.isLoading$ | async"
+    >
+    </g-form>
+  </div>
+</section>

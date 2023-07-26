@@ -1,0 +1,22 @@
+<div class="mb-8">
+  <h1 class="intro-x text-4xl mb-3 font-semibold" id="title">{{'routes.auth.forgot.title' | translate }}</h1>
+  <h5 class="intro-x font-medium text-gray-300">{{'routes.auth.forgot.subTitle' | translate }}</h5>
+</div>
+<div class="intro-x">
+  <g-form
+    [widthLabel]="0"
+    [columns]="columns"
+    [loading]="isLoading"
+    (handSubmit)="submitForm($event)"
+    textSubmit="{{'routes.auth.forgot.send' | translate}}"
+    (handBack)="router.navigate(['..'], {relativeTo: route})"
+  ></g-form>
+</div>
+<div class="intro-x mt-3">
+  {{'routes.auth.register.haveAccount' | translate}}
+  <a class="text-blue-500 hover:text-blue-400" [routerLink]="['/auth/login']">{{'routes.auth.login.loginButton' | translate}}</a>
+</div>
+<div class="intro-x mt-1">
+  {{'routes.auth.login.dontAccount' | translate}}
+  <a class="text-blue-500 hover:text-blue-400" [routerLink]="['/auth/register']">{{'routes.auth.register.title' | translate}}</a>
+</div>

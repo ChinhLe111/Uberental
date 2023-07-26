@@ -1,0 +1,151 @@
+<div class="container mx-auto bg-white px-2.5 pt-2.5 rounded-md">
+  <h3 class="sticky top-11 z-50 font-medium text-xl pb-2 mb-2 border-b border-gray-200">
+    {{ 'routes.admin.navigations.navigations' | translate }}
+  </h3>
+  <div class="container mx-auto grid grid-cols-12 gap-3">
+    <div class="col-span-12 md:col-span-5 lg:col-span-4 -intro-x">
+      <div class="shadow rounded-md w-full bg-white overflow-hidden">
+        <div class="h-10 flex justify-between items-center border-b border-gray-100 px-4 py-2">
+          <div class="relative mr-2">
+            <input
+              class="w-48 h-7 rounded-md text-gray-600 bg-white border border-solid border-gray-100 pr-7 pl-2"
+              [(ngModel)]="searchValue"
+              type="text"
+              placeholder="{{ 'components.data-table.pleaseEnterValueToSearch' | translate }}"
+            />
+            <i class="text-base las la-search absolute top-1.5 right-2 z-[1]"></i>
+          </div>
+          <g-button
+            *ngIf="isShowForm"
+            (click)="onAddNew()"
+            [text]="'routes.admin.Layout.addNew' | translate"
+            [disabled]="navigationFacade.isLoading$ | async"
+            icon="la-plus las text-lg"
+          ></g-button>
+        </div>
+        <div class="overflow-y-auto relative py-2 px-4 h-[calc(100vh-199px)]">
+          <div class="flex rounded-md overflow-hidden mb-2">
+            <g-button
+              (click)="type = 1; this.navigationFacade.getTree(type);"
+              [text]="'ADMIN' | translate"
+              [icon]="'las la-desktop text-base'"
+              [extendClass]="
+                (type === 1
+                  ? '!bg-blue-500 !border-blue-500 !text-white !hover:bg-blue-400'
+                  : '!bg-white !text-blue-700 !border-gray-200') + ' !rounded-r-none border'
+              "
+            ></g-button>
+            <g-button
+              (click)="type = 0; this.navigationFacade.getTree(type);"
+              [text]="'APP' | translate"
+              [icon]="'las la-mobile text-base'"
+              [extendClass]="
+                (type === 0
+                  ? '!bg-blue-500 !border-blue-500 !text-white !hover:bg-blue-400'
+                  : '!bg-white !text-blue-700 !border-gray-200') + ' !rounded-l-none border'
+              "
+            ></g-button>
+          </div>
+          <nz-spin [nzSpinning]="navigationFacade.isLoading$ | async">
+            <nz-tree
+              *ngIf="nodes.length"
+              nzBlockNode
+              [nzSearchValue]="searchValue"
+              [nzData]="nodes"
+              [nzShowIcon]="true"
+              [nzExpandedIcon]="expandedIconTpl"
+              [nzTreeTemplate]="nzTreeTemplate"
+              (nzClick)="onSelectTree($event)"
+            >
+              <ng-template #nzTreeTemplate let-node>
+                <span class="group w-full flex items-center justify-between cursor-pointer">
+                  <div class="flex-auto">
+                    <i *ngIf="!!node.origin.icon" class="mr-1 text-lg" [class]="node.origin.icon"></i>
+                    {{ node.title }}
+                    <small *ngIf="!node.origin.status" class="bg-red-500 text-white px-1 py-0.5 mr-1">
+                      {{ 'routes.admin.navigations.disabled' | translate }}
+                    </small>
+                  </div>
+                  <div class="invisible group-hover:visible" *ngIf="!node.origin.isSystem">
+                    <i
+                      class="las text-lg text-red-500 la-trash"
+                      nz-popconfirm
+                      nzPopconfirmTitle="Are you sure delete this?"
+                      (nzOnConfirm)="onDelete(node)"
+                      nzPopconfirmPlacement="topLeft"
+                    ></i>
+                  </div>
+                </span>
+              </ng-template>
+              <ng-template #expandedIconTpl let-node>
+                <i
+                  *ngIf="node.children.length > 0"
+                  class="las la-angle-down transition-all duration-300"
+                  [ngClass]="node.isExpanded ? '-rotate-90' : ''"
+                ></i>
+              </ng-template>
+            </nz-tree>
+          </nz-spin>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-span-12 md:col-span-7 lg:col-span-8 intro-x">
+      <div class="shadow rounded-md w-full bg-white overflow-auto">
+        <div class="h-10 flex justify-between items-center border-b border-gray-100 px-4 py-2">
+          <div *ngIf="isShowForm" class="flex font-medium items-baseline">
+            <span class="text-black order-1 text-xl">
+              {{ 'routes.admin.navigations.infomation' | translate }}
+            </span>
+          </div>
+          <div class="flex flex-nowrap space-x-2">
+            <g-button
+              *ngIf="isShowForm"
+              (click)="form.submitForm()"
+              [text]="'routes.admin.navigations.save' | translate"
+            ></g-button>
+          </div>
+        </div>
+        <div class="overflow-y-auto px-4 py-2 h-[calc(100vh-199px)]">
+          <ng-container *ngIf="!isShowForm; else showForm">
+            <div class="w-full h-5/6 flex flex-col justify-center items-center">
+              <p class="text-lg text-gray-500">{{ 'routes.admin.navigations.configurationmenu' | translate }}</p>
+              <g-button
+                [text]="'routes.admin.Layout.addNew' | translate"
+                (click)="onAddNew()"
+                [disabled]="navigationFacade.isLoading$ | async"
+                icon="la-plus las text-lg"
+              ></g-button>
+            </div>
+          </ng-container>
+          <ng-template #showForm>
+            <nz-spin [nzSpinning]="navigationFacade.isLoading$ | async">
+              <g-form
+                #form
+                [columns]="columnsForm"
+                [values]="data"
+                (handSubmit)="onSaveNode($event)"
+              ></g-form>
+
+              <nz-form-item>
+                <nz-form-label class="text-left w-full font-medium" nzFor="urlRewrite">{{
+                  'routes.admin.navigations.assigngroup' | translate
+                }}</nz-form-label>
+                <nz-form-control>
+                  <nz-transfer
+                    [nzDataSource]="roles"
+                    [nzTitles]="[
+                      'routes.admin.navigations.group' | translate,
+                      'routes.admin.navigations.selectedgroup' | translate
+                    ]"
+                    (nzChange)="onChangeRoles($event)"
+                  ></nz-transfer>
+                </nz-form-control>
+              </nz-form-item>
+            </nz-spin>
+          </ng-template>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
